@@ -23,6 +23,7 @@ namespace ECommerce.Server.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(List<ProductsVm>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
         [Route("AllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {

@@ -22,8 +22,16 @@
                     </div>
       
                     <div class="md:col-span-3">
-                      <label for="category_name">Category Name</label>
-                      <input type="text" formControlName="catName" name="category_name" id="category_name" class="h-10 border mt-1 rounded px-4 w-full bg-gray-50" value="" placeholder="Category Name" />
+                        <dx-lookup
+                            label="Category name"
+                            labelMode="floating"
+                            [elementAttr]="{ class: 'custom-floating-label' }"
+                            [dataSource]="categoriesNames"
+                            valueExpr="categoryId"
+                            displayExpr="categoryName"
+                            formControlName="categoryId"
+                            class="h-[48px] w-full border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </dx-lookup>
                     </div>
       
                     <div class="md:col-span-2">

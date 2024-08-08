@@ -18,6 +18,82 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 @Injectable({
     providedIn: 'root'
 })
+export class CategoryClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getCategoryNames(): Observable<CategoryLookupVm[]> {
+        let url_ = this.baseUrl + "/api/Category/AllProducts";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCategoryNames(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCategoryNames(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CategoryLookupVm[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CategoryLookupVm[]>;
+        }));
+    }
+
+    protected processGetCategoryNames(response: HttpResponseBase): Observable<CategoryLookupVm[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CategoryLookupVm.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class ProductClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -74,6 +150,13 @@ export class ProductClient {
                 result200 = <any>null;
             }
             return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -203,6 +286,61 @@ export class ProductClient {
     }
 }
 
+export class CategoryLookupVm {
+    categoryId!: number;
+    categoryName!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.categoryName = _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CategoryLookupVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryLookupVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
+        return data;
+    }
+}
+
+export class ProblemDetail {
+    statusCode!: number;
+    errorMessage!: string;
+    additioanlData!: any;
+
+    init(_data?: any) {
+        if (_data) {
+            this.statusCode = _data["statusCode"] !== undefined ? _data["statusCode"] : <any>null;
+            this.errorMessage = _data["errorMessage"] !== undefined ? _data["errorMessage"] : <any>null;
+            this.additioanlData = _data["additioanlData"] !== undefined ? _data["additioanlData"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ProblemDetail {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetail();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["statusCode"] = this.statusCode !== undefined ? this.statusCode : <any>null;
+        data["errorMessage"] = this.errorMessage !== undefined ? this.errorMessage : <any>null;
+        data["additioanlData"] = this.additioanlData !== undefined ? this.additioanlData : <any>null;
+        return data;
+    }
+}
+
 export class ProductsVm {
     productId!: number;
     productName!: string;
@@ -237,35 +375,6 @@ export class ProductsVm {
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         data["price"] = this.price !== undefined ? this.price : <any>null;
         data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
-        return data;
-    }
-}
-
-export class ProblemDetail {
-    statusCode!: number;
-    errorMessage!: string;
-    additioanlData!: any;
-
-    init(_data?: any) {
-        if (_data) {
-            this.statusCode = _data["statusCode"] !== undefined ? _data["statusCode"] : <any>null;
-            this.errorMessage = _data["errorMessage"] !== undefined ? _data["errorMessage"] : <any>null;
-            this.additioanlData = _data["additioanlData"] !== undefined ? _data["additioanlData"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): ProblemDetail {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProblemDetail();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["statusCode"] = this.statusCode !== undefined ? this.statusCode : <any>null;
-        data["errorMessage"] = this.errorMessage !== undefined ? this.errorMessage : <any>null;
-        data["additioanlData"] = this.additioanlData !== undefined ? this.additioanlData : <any>null;
         return data;
     }
 }

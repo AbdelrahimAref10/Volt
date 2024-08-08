@@ -6,6 +6,39 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Category/AllProducts": {
+      "get": {
+        "tags": [
+          "Category"
+        ],
+        "operationId": "Category_GetCategoryNames",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryLookupVm"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Product/AllProducts": {
       "get": {
         "tags": [
@@ -22,6 +55,16 @@
                   "items": {
                     "$ref": "#/components/schemas/ProductsVm"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
                 }
               }
             }
@@ -115,6 +158,33 @@
   },
   "components": {
     "schemas": {
+      "CategoryLookupVm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryName": {
+            "type": "string"
+          }
+        }
+      },
+      "ProblemDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "additioanlData": {}
+        }
+      },
       "ProductsVm": {
         "type": "object",
         "additionalProperties": false,
@@ -139,20 +209,6 @@
           "categoryName": {
             "type": "string"
           }
-        }
-      },
-      "ProblemDetail": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "statusCode": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "errorMessage": {
-            "type": "string"
-          },
-          "additioanlData": {}
         }
       },
       "CreateProductCommand": {

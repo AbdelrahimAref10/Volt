@@ -21,6 +21,8 @@
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
+    "devextreme": "^24.1.4",
+    "devextreme-angular": "^24.1.4",
     "jest-editor-support": "*",
     "run-script-os": "*",
     "rxjs": "~7.8.0",
