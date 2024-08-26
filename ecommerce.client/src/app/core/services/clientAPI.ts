@@ -29,7 +29,7 @@ export class CategoryClient {
     }
 
     getCategoryNames(): Observable<CategoryLookupVm[]> {
-        let url_ = this.baseUrl + "/api/Category/AllProducts";
+        let url_ = this.baseUrl + "/api/Category/AllCategories";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -166,7 +166,7 @@ export class ProductClient {
         return _observableOf(null as any);
     }
 
-    createProduct(product: CreateProductCommand): Observable<boolean> {
+    createProduct(product: CreateProductCommand): Observable<number> {
         let url_ = this.baseUrl + "/api/Product/CreateProduct";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -189,14 +189,14 @@ export class ProductClient {
                 try {
                     return this.processCreateProduct(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<boolean>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<boolean>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processCreateProduct(response: HttpResponseBase): Observable<boolean> {
+    protected processCreateProduct(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -224,6 +224,63 @@ export class ProductClient {
             }));
         }
         return _observableOf(null as any);
+    }
+
+    updateProduct(product: UpdateProductCommand): Observable<void> {
+        let url_ = this.baseUrl + "/api/Product/UpdateProduct";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(product);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateProduct(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateProduct(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateProduct(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let resultdefault: any = null;
+            let resultDatadefault = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            resultdefault = ProblemDetails.fromJS(resultDatadefault);
+            return throwException("A server side error occurred.", status, _responseText, _headers, resultdefault);
+            }));
+        }
     }
 
     getProductDetails(productId?: number | undefined): Observable<ProductByIdVm> {
@@ -405,6 +462,89 @@ export class CreateProductCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["productName"] = this.productName !== undefined ? this.productName : <any>null;
+        data["productDescription"] = this.productDescription !== undefined ? this.productDescription : <any>null;
+        data["price"] = this.price !== undefined ? this.price : <any>null;
+        data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        return data;
+    }
+}
+
+export class ProblemDetails {
+    type!: string | null;
+    title!: string | null;
+    status!: number | null;
+    detail!: string | null;
+    instance!: string | null;
+
+    [key: string]: any;
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
+            this.title = _data["title"] !== undefined ? _data["title"] : <any>null;
+            this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
+            this.detail = _data["detail"] !== undefined ? _data["detail"] : <any>null;
+            this.instance = _data["instance"] !== undefined ? _data["instance"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type !== undefined ? this.type : <any>null;
+        data["title"] = this.title !== undefined ? this.title : <any>null;
+        data["status"] = this.status !== undefined ? this.status : <any>null;
+        data["detail"] = this.detail !== undefined ? this.detail : <any>null;
+        data["instance"] = this.instance !== undefined ? this.instance : <any>null;
+        return data;
+    }
+}
+
+export class UpdateProductCommand {
+    productId!: number;
+    productName!: string;
+    productDescription!: string;
+    price!: number;
+    imageUrl!: string;
+    categoryId!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.productId = _data["productId"] !== undefined ? _data["productId"] : <any>null;
+            this.productName = _data["productName"] !== undefined ? _data["productName"] : <any>null;
+            this.productDescription = _data["productDescription"] !== undefined ? _data["productDescription"] : <any>null;
+            this.price = _data["price"] !== undefined ? _data["price"] : <any>null;
+            this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): UpdateProductCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateProductCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productId"] = this.productId !== undefined ? this.productId : <any>null;
         data["productName"] = this.productName !== undefined ? this.productName : <any>null;
         data["productDescription"] = this.productDescription !== undefined ? this.productDescription : <any>null;
         data["price"] = this.price !== undefined ? this.price : <any>null;

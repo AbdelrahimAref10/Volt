@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Features.Products.Command
+namespace Application.Features.Products.Command.CreateProductCommand
 {
-    public class CreateProductCommand : IRequest<ResponseModel<bool>>
+    public class CreateProductCommand : IRequest<Result<int>>
     {
         public string ProductName { get; set; } = string.Empty;
         public string ProductDescription { get; set; } = string.Empty;

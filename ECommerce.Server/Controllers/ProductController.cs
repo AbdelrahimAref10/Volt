@@ -1,4 +1,5 @@
-﻿using Application.Features.Products.Command;
+﻿using Application.Features.Products.Command.CreateProductCommand;
+using Application.Features.Products.Command.UpdateProductCommand;
 using Application.Features.Products.Query.GetProductById;
 using Application.Features.Products.Query.GetProductList;
 using Azure;
@@ -37,7 +38,7 @@ namespace ECommerce.Server.Controllers
 
 
         [HttpPost]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
 
         [Route("CreateProduct")]
@@ -47,11 +48,30 @@ namespace ECommerce.Server.Controllers
 
             if (!result.IsSuccess)
             {
-                return BadRequest(ProblemDetail.CreateProblemDetail(result.ErrorMessege!));
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
             }
 
             return Ok(result.IsSuccess);
         }
+
+        [HttpPost]
+        [ProducesDefaultResponseType]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+
+        [Route("UpdateProduct")]
+        public async Task<IActionResult> UpdateProduct(UpdateProductCommand product)
+        {
+            var result = await _mediator.Send(product);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+
+            return Ok(result.IsSuccess);
+        }
+
 
         [HttpGet]
         [ProducesResponseType(typeof(ProductByIdVm), StatusCodes.Status200OK)]

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterModule } from '@angular/router';
-import { ProductByIdVm, ProductClient } from '../../core/services/clientAPI';
+import { ProductByIdVm, ProductClient } from '../../../core/services/clientAPI';
 import { Observable, Subscription } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 

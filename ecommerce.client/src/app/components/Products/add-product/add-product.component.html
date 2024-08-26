@@ -1,0 +1,58 @@
+<div class="min-h-screen p-6 bg-gray-100 flex items-center justify-center">
+    <div class="container max-w-screen-lg mx-auto">
+      <div aria-live="polite" toastContainer></div>
+        <div class="bg-white rounded shadow-lg p-4 px-4 md:p-8 mb-6">
+          <div class="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-3">
+            <div class="text-gray-600">
+              <p class="font-medium text-lg">Product Details</p>
+              <p>Please fill out all the fields.</p>
+            </div>
+  
+            <div class="lg:col-span-2">
+              <form [formGroup] = "ProductForm">
+                <div class="grid gap-4 gap-y-5 text-sm grid-cols-1 md:grid-cols-5">
+                    <div class="md:col-span-3">
+                      <label for="full_name">Product Name</label>
+                      <input type="text" formControlName="ProdName" name="product_name" id="full_name" class="h-10 border mt-1 rounded px-4 w-full bg-gray-50" value="" placeholder="Product Name" />
+                    </div>
+                    <div class="md:col-span-2">
+                      <label for="imgUrl">Image Url</label>
+                      <input type="file" formControlName="imgUrl" name="imgUrl" id="imgUrl" class="h-10 border mt-1 rounded px-4 w-full bg-gray-50" value="" placeholder="Product Name" />
+                    </div>
+                    <div class="md:col-span-5">
+                      <label for="product_description">product Description</label>
+                      <input type="text" formControlName="prodDecription" name="product_description" id="product_description" class="h-10 border mt-1 rounded px-4 w-full bg-gray-50" value="" placeholder="Product Description" />
+                    </div>
+      
+                    <div class="md:col-span-3">
+                      <label for="categoryId" class="custom-floating-label">Category name</label>
+                      <select
+                          id="categoryId"
+                          formControlName="categoryId"
+                          class="h-10 border mt-1 rounded w-full bg-gray-50">
+                          <option class="p-10" *ngFor="let category of categoriesNames" [value]="category.categoryId">
+                              {{ category.categoryName }}
+                          </option>
+                      </select>
+                    </div>
+      
+                    <div class="md:col-span-2">
+                      <label for="product_price">Product Price</label>
+                      <input type="number" formControlName="price" name="product_price" id="product_price" class="h-10 border mt-1 rounded px-4 w-full bg-gray-50" value="" placeholder="Product Price" />
+                    </div>
+    
+                    <div class="md:col-span-5 text-right mt-5">
+                      <div class="flex justify-end">
+                        <button (click)="onSubmit()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Product</button>
+                      </div>
+                    </div>
+      
+                  </div>
+              </form>  
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>

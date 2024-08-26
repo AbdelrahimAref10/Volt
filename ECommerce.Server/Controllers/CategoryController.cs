@@ -21,7 +21,7 @@ namespace ECommerce.Server.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<CategoryLookupVm>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        [Route("AllProducts")]
+        [Route("AllCategories")]
         public async Task<IActionResult> GetCategoryNames()
         {
             var result = await _mediator.Send(new CategoryNamesQueryLookup());

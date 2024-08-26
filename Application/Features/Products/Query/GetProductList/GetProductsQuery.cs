@@ -39,7 +39,7 @@ namespace Application.Features.Products.Query.GetProductList
                     return Result.Failure<List<ProductsVm>>("No Products Found");
                 }
 
-                return Result.Success<List<ProductsVm>>(product);
+                return Result.Success(product);
             }
         }
 

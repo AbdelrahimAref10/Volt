@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ProductClient, ProductsVm } from '../../core/services/clientAPI';
 import { Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
-import { CartService } from '../../core/services/cart.service';
+import { CartService } from '../../../core/services/cart.service';
 import { RouterLink, RouterModule } from '@angular/router';
+import { ProductClient, ProductsVm } from '../../../core/services/clientAPI';
 
 @Component({
   selector: 'app-products',
