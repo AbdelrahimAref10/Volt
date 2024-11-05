@@ -1,29 +1,32 @@
-<section class="p-10">
-    <div class="container mx-auto px-4">
-        <div class="flex justify-end gap-5">
-            <a routerLink="/cart" class="bg-red-600 p-3 text-white">Go to cart</a>
-            <a routerLink="/addProduct" class="bg-green-600 p-3 text-white">Add Product</a>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-5">
-            @for (product of allProducts; track $index) {
-                <div class="product" class="p-5 border flex flex-col gap-5 items-center">
-                    <div>
-                        <p>{{product.productId}}</p>
-                        <p>{{product.productName}}</p>
-                        <p>{{product.productDescription}}</p>
-                        <p>{{product.price}}</p>    
-                        <p>{{product.categoryName}}</p>
-                    </div>
-                     <div class="flex justify-start gap-3">
-                        <button (click)="AddToCart(product)" style="background-color: blue;color: #FFF;padding: 12px; border: none;cursor: pointer;">
-                            Add to cart
-                        </button>
-                        <a routerLink="productDetails/{{product.productId}}" style="background-color: blue;color: #FFF;padding: 12px; border: none;cursor: pointer;">
-                            Details
-                        </a>
-                    </div>
+
+<section>
+    <div class="flex justify-end gap-5">
+        <a routerLink="/cart" class="bg-red-600 p-3 text-white">Go to cart</a>
+        <a routerLink="/addProduct" class="bg-green-600 p-3 text-white">Add Product</a>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-5">
+        @for (product of allProducts; track $index) {
+            <div class="p-5 border flex flex-col gap-5 items-center bg-white_card">
+                <div>
+                    <p>{{product.productId}}</p>
+                    <p>{{product.productName}}</p>
+                    <p>{{product.productDescription}}</p>
+                    <p>{{product.price}}</p>    
+                    <p>{{product.categoryName}}</p>
                 </div>
-            }
-        </div>
+                 <div class="flex justify-start gap-3">
+                    <button (click)="AddToCart(product)" style="background-color: blue;color: #FFF;padding: 12px; border: none;cursor: pointer;">
+                        Add to cart
+                    </button>
+                    <a routerLink="productDetails/{{product.productId}}" style="background-color: blue;color: #FFF;padding: 12px; border: none;cursor: pointer;">
+                        Details
+                    </a>
+                </div>
+            </div>
+        }
     </div>
 </section>
+
+
+  
+

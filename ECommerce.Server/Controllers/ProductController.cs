@@ -51,7 +51,7 @@ namespace ECommerce.Server.Controllers
                 return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
             }
 
-            return Ok(result.IsSuccess);
+            return Ok(result.Value);
         }
 
         [HttpPost]

@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿using CSharpFunctionalExtensions;
+using Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,21 @@ namespace Domain.Models
 
         public List<Product> products = new List<Product>();
 
-        public void AddProduct(Product product)
+        public Result<Product> AddProduct(
+                                        string productName,
+                                        string productDescription,
+                                        int price,
+                                        string imageUrl
+                                        )
         {
-            this.products.Add(product);
+            var newProduct = Product.Instance(
+                                          productName,
+                                          productDescription,
+                                          price,
+                                          imageUrl
+                                     );
+            this.products.Add(newProduct);
+            return Result.Success(newProduct);
         }
     }
 }
