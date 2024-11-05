@@ -28,21 +28,32 @@ namespace Infrastructure
             });
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public  async Task<DbResult> SaveChangesAsyncWithResult(CancellationToken cancellationToken = default)
         {
-            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            try
             {
-                switch (entry.State)
+                // Track changes for auditing
+                foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
                 {
-                    case EntityState.Added:
-                        entry.Entity.CreatedDate = DateTime.Now;
-                        break;
-                    case EntityState.Modified:
-                        entry.Entity.LastModifiedDate = DateTime.Now;
-                        break;
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            entry.Entity.CreatedDate = DateTime.Now;
+                            break;
+                        case EntityState.Modified:
+                            entry.Entity.LastModifiedDate = DateTime.Now;
+                            break;
+                    }
                 }
+
+                await base.SaveChangesAsync(cancellationToken);
+
+                return new DbResult { IsSuccess = true };
             }
-            return base.SaveChangesAsync(cancellationToken);
+            catch (Exception exp)
+            {
+                return new DbResult { IsSuccess = false, ErrorMessage = exp.Message };
+            }
         }
 
 

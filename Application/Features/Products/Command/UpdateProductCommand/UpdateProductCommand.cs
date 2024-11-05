@@ -35,7 +35,11 @@ namespace Application.Features.Products.Command.UpdateProductCommand
                     return Result.Failure("Failed To Update Product");
                 }
                 product.UpdateProduct(request.ProductName, request.ProductDescription, request.Price, request.ImageUrl, request.CategoryId);
-                var saveResult = await _context.SaveChangesAsync();
+                var saveResult = await _context.SaveChangesAsyncWithResult();
+                if (!saveResult.IsSuccess)
+                {
+                    return Result.Failure<int>("Server Error");
+                }
                 return Result.Success(product);
             }
         }
