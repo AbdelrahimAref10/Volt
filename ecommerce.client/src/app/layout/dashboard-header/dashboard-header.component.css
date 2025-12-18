@@ -1,0 +1,87 @@
+/* Dashboard Header - BEM Methodology with Tailwind */
+
+.dashboard-header {
+  @apply bg-surface-50 border-b border-neutral-200 px-6 flex items-center justify-between shadow-sm;
+  padding-bottom: 0;
+  padding-top: 0.5rem;
+}
+
+.dashboard-header__left {
+  @apply flex items-center;
+}
+
+.dashboard-header__menu-toggle {
+  @apply p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 
+         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.dashboard-header__menu-icon {
+  @apply w-6 h-6;
+}
+
+.dashboard-header__right {
+  @apply flex items-center gap-4;
+}
+
+.dashboard-header__notification-btn {
+  @apply relative p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 
+         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.dashboard-header__icon {
+  @apply w-6 h-6;
+}
+
+.dashboard-header__badge {
+  @apply absolute top-0 right-0 bg-error-500 text-white text-xs font-bold rounded-full 
+         w-5 h-5 flex items-center justify-center;
+}
+
+.dashboard-header__user-menu {
+  @apply relative;
+}
+
+.dashboard-header__user-btn {
+  @apply flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-100 
+         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.dashboard-header__user-avatar {
+  @apply w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center;
+}
+
+.dashboard-header__avatar-icon {
+  @apply w-6 h-6;
+}
+
+.dashboard-header__user-name {
+  @apply text-sm font-medium text-neutral-700 hidden md:block;
+}
+
+.dashboard-header__chevron {
+  @apply w-5 h-5 text-neutral-500 hidden md:block;
+}
+
+.dashboard-header__dropdown {
+  @apply absolute right-0 mt-2 w-48 bg-surface-50 rounded-lg shadow-lg border border-neutral-200 
+         py-1 z-50 opacity-0 invisible transition-all duration-200 transform translate-y-2;
+}
+
+.dashboard-header__dropdown--open {
+  @apply opacity-100 visible translate-y-0;
+}
+
+.dashboard-header__dropdown-item {
+  @apply flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 
+         transition-colors duration-200 w-full text-left;
+}
+
+.dashboard-header__dropdown-item--danger {
+  @apply text-error-600 hover:bg-error-50;
+}
+
+.dashboard-header__dropdown-icon {
+  @apply w-5 h-5;
+}
+
+

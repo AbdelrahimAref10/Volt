@@ -1,0 +1,147 @@
+/* Login Component - BEM Methodology with Tailwind */
+
+.login {
+  @apply min-h-screen flex items-center justify-center p-5
+         bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700
+         relative overflow-hidden;
+}
+
+.login::before {
+  content: '';
+  @apply absolute w-[500px] h-[500px] rounded-full 
+         -top-[250px] -right-[250px] animate-pulse;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.login::after {
+  content: '';
+  @apply absolute w-[400px] h-[400px] rounded-full 
+         -bottom-[200px] -left-[200px] animate-pulse;
+  background-color: rgba(255, 255, 255, 0.08);
+  animation-delay: 1s;
+}
+
+.login__card {
+  @apply bg-white rounded-2xl shadow-2xl p-12 w-full max-w-[440px]
+         relative z-10 animate-fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.login__header {
+  @apply text-center mb-10;
+}
+
+.login__logo {
+  @apply inline-flex items-center justify-center w-20 h-20
+         bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl mb-6
+         shadow-lg shadow-primary-500/40;
+}
+
+.login__logo-icon {
+  @apply w-10 h-10 text-white;
+}
+
+.login__title {
+  @apply text-3xl font-bold text-gray-900 m-0 mb-2 tracking-tight;
+}
+
+.login__subtitle {
+  @apply text-base text-gray-600 m-0;
+}
+
+.login__form {
+  @apply flex flex-col gap-6;
+}
+
+.login__error {
+  @apply flex items-center gap-3 p-4 bg-error-50 border border-error-200
+         rounded-xl text-error-700 text-sm animate-shake;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s;
+}
+
+.login__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.login__field {
+  @apply flex flex-col gap-2;
+}
+
+.login__label {
+  @apply flex items-center gap-2 text-sm font-semibold text-gray-700;
+}
+
+.login__label-icon {
+  @apply w-4 h-4 text-primary-500;
+}
+
+.login__required {
+  @apply text-error-500;
+}
+
+.login__input {
+  @apply w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl
+         bg-gray-50 text-gray-900 placeholder-gray-400
+         transition-all duration-300
+         focus:outline-none focus:border-primary-500 focus:bg-white
+         focus:ring-4 focus:ring-primary-100
+         disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.login__input--invalid {
+  @apply border-error-400 bg-error-50 focus:border-error-500 focus:ring-error-100;
+}
+
+.login__field-error {
+  @apply text-sm text-error-600 px-1;
+}
+
+.login__footer {
+  @apply mt-8 text-center pt-6 border-t border-gray-200;
+}
+
+.login__footer-text {
+  @apply text-sm text-gray-500 m-0;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login__card {
+    @apply p-8;
+  }
+
+  .login__title {
+    @apply text-2xl;
+  }
+
+  .login__logo {
+    @apply w-16 h-16;
+  }
+
+  .login__logo-icon {
+    @apply w-8 h-8;
+  }
+}

@@ -1,34 +1,52 @@
 import { Routes, provideRouter } from '@angular/router';
-import { CartComponent } from './components/cart/cart.component';
-import { ProductsComponent } from './components/Products/products-List/products.component';
-import { ProductDetailsComponent } from './components/Products/product-details/product-details.component';
-import { AddProductComponent } from './components/Products/add-product/add-product.component';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout.component';
+import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/main/products', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: AdminLoginComponent },
   {
-    path:'main',
-    component: MainLayoutComponent,
-    children:[
-      {
-        path:'products',
-        component: ProductsComponent
+    path: 'main',
+    component: DashboardLayoutComponent,
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { 
+        path: 'dashboard', 
+        loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-      {
-        path:'cart', 
-        component:CartComponent
+      { 
+        path: 'categories', 
+        loadComponent: () => import('./pages/categories/categories.component').then(m => m.CategoriesComponent)
       },
-      {
-        path:'products/productDetails/:id', 
-        component:ProductDetailsComponent
+      { 
+        path: 'vehicles', 
+        loadComponent: () => import('./pages/vehicles/vehicles.component').then(m => m.VehiclesComponent)
       },
-      {
-        path:'addProduct', 
-        component:AddProductComponent
+      { 
+        path: 'customers', 
+        loadComponent: () => import('./pages/customers/customers.component').then(m => m.CustomersComponent)
+      },
+      { 
+        path: 'orders', 
+        loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
+      },
+      { 
+        path: 'reports', 
+        loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent)
+      },
+      { 
+        path: 'support', 
+        loadComponent: () => import('./pages/support/support.component').then(m => m.SupportComponent)
+      },
+      { 
+        path: 'profile', 
+        loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
       },
     ]
   },
+  { path: '**', redirectTo: '/login' }
 ];
 
 export const appRouterProviders = [provideRouter(routes)];

@@ -1,0 +1,75 @@
+/* Dashboard Sidebar - BEM Methodology with Tailwind */
+
+.dashboard-sidebar {
+  @apply bg-surface-50 border-r border-neutral-200 h-full w-64 fixed left-0 top-0 flex flex-col 
+         transition-all duration-300 ease-in-out shadow-sm;
+}
+
+.dashboard-sidebar--collapsed {
+  @apply w-20;
+}
+
+.dashboard-sidebar__header {
+  @apply px-6 py-4 border-b border-neutral-200;
+}
+
+.dashboard-sidebar__logo {
+  @apply flex items-center gap-3;
+}
+
+.dashboard-sidebar__logo-icon {
+  @apply w-8 h-8 text-primary-600 flex-shrink-0;
+}
+
+.dashboard-sidebar__logo-text {
+  @apply text-xl font-bold text-neutral-900 whitespace-nowrap;
+}
+
+.dashboard-sidebar--collapsed .dashboard-sidebar__logo-text {
+  @apply hidden;
+}
+
+.dashboard-sidebar__nav {
+  @apply flex-1 py-4 overflow-y-auto;
+}
+
+.dashboard-sidebar__item {
+  @apply flex items-center gap-3 px-6 py-3 mx-2 mb-1 rounded-lg text-neutral-700 
+         hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200 
+         focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.dashboard-sidebar__item--active {
+  @apply bg-primary-100 text-primary-700 font-medium;
+}
+
+.dashboard-sidebar__item-icon {
+  @apply w-6 h-6 flex-shrink-0;
+}
+
+.dashboard-sidebar__item-label {
+  @apply text-sm font-medium whitespace-nowrap;
+}
+
+.dashboard-sidebar--collapsed .dashboard-sidebar__item-label {
+  @apply hidden;
+}
+
+/* Scrollbar styling */
+.dashboard-sidebar__nav::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.dashboard-sidebar__nav::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.dashboard-sidebar__nav::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+
+.dashboard-sidebar__nav::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-400;
+}
+
+

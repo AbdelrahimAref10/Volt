@@ -1,17 +1,11 @@
+/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "~ngx-toastr/toastr.css";
-@import 'ngx-toastr/toastr';
-@import 'ngx-toastr/toastr-bs4-alert';
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/mixins';
-@import 'ngx-toastr/toastr-bs4-alert';
-@import 'ngx-toastr/toastr-bs5-alert';
+
+/* Global styles */
 body { 
     padding: 0;
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif; 
 }
-

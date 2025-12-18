@@ -1,0 +1,394 @@
+/* Vehicles Component - BEM Methodology with Tailwind */
+
+.vehicles {
+  @apply p-6;
+}
+
+.vehicles__header {
+  @apply mb-6;
+}
+
+.vehicles__title {
+  @apply text-3xl font-bold text-neutral-900 mb-2;
+}
+
+.vehicles__subtitle {
+  @apply text-neutral-600;
+}
+
+/* Statistics Cards */
+.vehicles__stats {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8;
+}
+
+.vehicles__stat-card {
+  @apply bg-surface-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-neutral-200;
+}
+
+.vehicles__stat-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.vehicles__stat-title {
+  @apply text-sm font-medium text-neutral-600;
+}
+
+.vehicles__stat-icon {
+  @apply w-8 h-8 text-primary-500;
+}
+
+.vehicles__stat-value {
+  @apply text-3xl font-bold text-neutral-900 mb-4;
+}
+
+.vehicles__stat-link {
+  @apply text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1;
+}
+
+.vehicles__stat-link::after {
+  content: '→';
+  @apply transition-transform duration-200;
+}
+
+.vehicles__stat-card:hover .vehicles__stat-link::after {
+  @apply transform translate-x-1;
+}
+
+/* Filters */
+.vehicles__filters {
+  @apply flex flex-col sm:flex-row gap-4 mb-6;
+}
+
+.vehicles__search {
+  @apply flex-1 flex items-center gap-2;
+}
+
+.vehicles__search-input {
+  @apply flex-1 px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.vehicles__search-btn {
+  @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicles__search-icon {
+  @apply w-5 h-5;
+}
+
+.vehicles__add-btn {
+  @apply flex items-center gap-2 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium;
+}
+
+.vehicles__add-icon {
+  @apply w-5 h-5;
+}
+
+/* Error */
+.vehicles__error {
+  @apply flex items-center gap-3 p-4 bg-error-50 border border-error-200 rounded-lg text-error-700 mb-6;
+}
+
+.vehicles__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Loading */
+.vehicles__loading {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.vehicles__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+/* Table */
+.vehicles__table-container {
+  @apply bg-surface-50 rounded-xl shadow-md overflow-hidden mb-6;
+}
+
+.vehicles__table {
+  @apply w-full;
+}
+
+.vehicles__table-head {
+  @apply bg-neutral-100;
+}
+
+.vehicles__table-header {
+  @apply px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider;
+}
+
+.vehicles__table-body {
+  @apply divide-y divide-neutral-200;
+}
+
+.vehicles__table-row {
+  @apply hover:bg-neutral-50 transition-colors duration-150;
+}
+
+.vehicles__table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-neutral-900;
+}
+
+.vehicles__table-cell--name {
+  @apply font-medium;
+}
+
+.vehicles__image-cell {
+  @apply flex items-center;
+}
+
+.vehicles__table-image {
+  @apply w-16 h-16 object-cover rounded-lg;
+}
+
+.vehicles__image-placeholder {
+  @apply w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center;
+}
+
+.vehicles__placeholder-icon {
+  @apply w-8 h-8 text-neutral-400;
+}
+
+.vehicles__status {
+  @apply px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.vehicles__status--available {
+  @apply bg-success-100 text-success-700;
+}
+
+.vehicles__status--maintenance {
+  @apply bg-warning-100 text-warning-700;
+}
+
+.vehicles__status--rented {
+  @apply bg-info-100 text-info-700;
+}
+
+.vehicles__actions {
+  @apply flex items-center gap-2;
+}
+
+.vehicles__action-btn {
+  @apply p-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicles__action-btn--edit {
+  @apply text-primary-600 hover:bg-primary-50;
+}
+
+.vehicles__action-btn--delete {
+  @apply text-error-600 hover:bg-error-50;
+}
+
+.vehicles__action-icon {
+  @apply w-5 h-5;
+}
+
+/* Empty State */
+.vehicles__empty {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.vehicles__empty-icon {
+  @apply w-16 h-16 text-neutral-400 mb-4;
+}
+
+.vehicles__empty-text {
+  @apply text-neutral-600 text-lg;
+}
+
+/* Pagination */
+.vehicles__pagination {
+  @apply flex items-center justify-center gap-2;
+}
+
+.vehicles__pagination-btn {
+  @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.vehicles__pagination-btn--disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.vehicles__pagination-icon {
+  @apply w-4 h-4;
+}
+
+.vehicles__pagination-numbers {
+  @apply flex items-center gap-1;
+}
+
+.vehicles__pagination-number {
+  @apply w-10 h-10 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicles__pagination-number--active {
+  @apply bg-primary-500 text-white border-primary-500 hover:bg-primary-600;
+}
+
+/* Modal */
+.vehicles__modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.vehicles__modal {
+  @apply bg-surface-50 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto;
+}
+
+.vehicles__modal-header {
+  @apply flex items-center justify-between p-6 border-b border-neutral-200;
+}
+
+.vehicles__modal-title {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.vehicles__modal-close {
+  @apply p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicles__modal-close-icon {
+  @apply w-5 h-5;
+}
+
+.vehicles__modal-form {
+  @apply p-6 space-y-6;
+}
+
+.vehicles__form-group {
+  @apply mb-0;
+}
+
+.vehicles__form-group--image {
+  @apply pt-6 border-t border-neutral-200;
+}
+
+.vehicles__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-3;
+}
+
+.vehicles__form-required {
+  @apply text-error-500;
+}
+
+.vehicles__input-wrapper {
+  @apply relative;
+}
+
+.vehicles__input-wrapper--currency {
+  @apply flex items-center;
+}
+
+.vehicles__currency-symbol {
+  @apply absolute left-4 text-neutral-600 font-medium z-10;
+}
+
+.vehicles__form-input,
+.vehicles__form-select {
+  @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
+}
+
+.vehicles__form-input {
+  @apply h-12;
+}
+
+.vehicles__input-wrapper--currency .vehicles__form-input {
+  @apply pl-8;
+}
+
+.vehicles__form-select {
+  @apply h-12 appearance-none bg-no-repeat bg-right pr-10;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-size: 1.5em 1.5em;
+}
+
+.vehicles__form-input--error,
+.vehicles__form-select.vehicles__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.vehicles__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.vehicles__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+/* Image Upload */
+.vehicles__image-upload {
+  @apply space-y-4;
+}
+
+.vehicles__image-preview-wrapper {
+  @apply flex justify-center;
+}
+
+.vehicles__image-preview {
+  @apply relative inline-block;
+}
+
+.vehicles__preview-image {
+  @apply w-40 h-40 object-cover rounded-xl border-2 border-neutral-200 shadow-md;
+}
+
+.vehicles__image-remove {
+  @apply absolute -top-2 -right-2 w-8 h-8 bg-error-500 text-white rounded-full flex items-center justify-center hover:bg-error-600 transition-colors duration-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-error-500;
+}
+
+.vehicles__image-remove svg {
+  @apply w-4 h-4;
+}
+
+.vehicles__image-upload-area {
+  @apply relative;
+}
+
+.vehicles__file-input {
+  @apply hidden;
+}
+
+.vehicles__file-label {
+  @apply flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-neutral-300 rounded-xl bg-neutral-50 hover:border-primary-400 hover:bg-primary-50 cursor-pointer transition-all duration-200;
+}
+
+.vehicles__image-upload-area--has-image .vehicles__file-label {
+  @apply p-4 border-solid border-neutral-300 hover:border-primary-400;
+}
+
+.vehicles__file-icon {
+  @apply w-10 h-10 text-primary-500;
+}
+
+.vehicles__file-text {
+  @apply flex flex-col items-center gap-1;
+}
+
+.vehicles__file-text span:first-child {
+  @apply text-sm font-semibold text-neutral-700;
+}
+
+.vehicles__file-hint {
+  @apply text-xs text-neutral-500;
+}
+
+/* Modal Actions */
+.vehicles__modal-actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200;
+}
+
+.vehicles__modal-btn {
+  @apply px-6 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicles__modal-btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.vehicles__modal-btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
