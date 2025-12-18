@@ -6,14 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Category\Command\" />
-    <Folder Include="Features\Category\Query\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MediatR" Version="12.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.42.5" />
   </ItemGroup>
 
   <ItemGroup>

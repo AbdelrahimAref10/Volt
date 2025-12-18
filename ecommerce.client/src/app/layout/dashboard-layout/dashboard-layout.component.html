@@ -1,0 +1,23 @@
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <app-dashboard-sidebar 
+    [isOpen]="isSidebarOpen"
+    class="dashboard-layout__sidebar"
+  ></app-dashboard-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="dashboard-layout__main" [class.dashboard-layout__main--sidebar-closed]="!isSidebarOpen">
+    <!-- Header -->
+    <app-dashboard-header 
+      (toggleSidebar)="toggleSidebar()"
+      class="dashboard-layout__header"
+    ></app-dashboard-header>
+
+    <!-- Content -->
+    <main class="dashboard-layout__content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+

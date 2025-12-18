@@ -1,5 +1,7 @@
 ﻿using Domain.Common;
 using Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,22 +12,26 @@ using System.Threading.Tasks;
 
 namespace Infrastructure
 {
-    public class DatabaseContext : DbContext
+    public class DatabaseContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
     {
         public DatabaseContext(DbContextOptions options) : base(options)
         {
         }
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            
+            // Apply all entity configurations from the assembly
+            // This will automatically pick up all IEntityTypeConfiguration implementations
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
-            modelBuilder.Entity<Category>().HasData(new Category
-            {
-                CategoryId = 1,
-                CategoryName = "Male weare"
-            });
         }
 
         public  async Task<DbResult> SaveChangesAsyncWithResult(CancellationToken cancellationToken = default)
@@ -33,15 +39,15 @@ namespace Infrastructure
             try
             {
                 // Track changes for auditing
-                foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+                foreach (var entry in ChangeTracker.Entries<IAuditable>())
                 {
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            entry.Entity.CreatedDate = DateTime.Now;
+                            entry.Entity.CreatedDate = DateTime.UtcNow;
                             break;
                         case EntityState.Modified:
-                            entry.Entity.LastModifiedDate = DateTime.Now;
+                            entry.Entity.LastModifiedDate = DateTime.UtcNow;
                             break;
                     }
                 }

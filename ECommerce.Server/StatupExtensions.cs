@@ -30,7 +30,10 @@ namespace ECommerce.Server
 
         public static WebApplication ConfigurePipeline (this WebApplication app)
         {
-            app.UseCors("open");
+            // Global exception handling must be first
+            app.UseMiddleware<Presentation.Middleware.GlobalExceptionHandlingMiddleware>();
+            
+            app.UseCors("AllowAll");
             app.UseDefaultFiles();
             app.UseStaticFiles();
             if (app.Environment.IsDevelopment())
@@ -40,8 +43,11 @@ namespace ECommerce.Server
             }
             app.UseRouting();
             app.UseHttpsRedirection();
-            app.MapControllers();
+            
+            // JWT Authentication
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.MapControllers();
             app.MapFallbackToFile("/index.html");
             return app;
         }

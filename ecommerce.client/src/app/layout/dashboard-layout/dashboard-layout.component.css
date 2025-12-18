@@ -1,0 +1,48 @@
+/* Dashboard Layout - BEM Methodology with Tailwind */
+
+.dashboard-layout {
+  @apply min-h-screen flex bg-background-secondary;
+}
+
+.dashboard-layout__sidebar {
+  @apply fixed left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out;
+}
+
+.dashboard-layout__main {
+  @apply flex-1 flex flex-col ml-64 transition-all duration-300 ease-in-out;
+}
+
+.dashboard-layout__main--sidebar-closed {
+  @apply ml-20;
+}
+
+.dashboard-layout__header {
+  @apply sticky top-0 z-20;
+}
+
+.dashboard-layout__content {
+  @apply flex-1 p-6 overflow-auto;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-layout__main {
+    @apply ml-20;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout__sidebar {
+    @apply transform -translate-x-full;
+  }
+
+  .dashboard-layout__sidebar.dashboard-layout__sidebar--open {
+    @apply transform translate-x-0;
+  }
+
+  .dashboard-layout__main {
+    @apply ml-0;
+  }
+}
+
+

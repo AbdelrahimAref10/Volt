@@ -1,39 +1,84 @@
-﻿using CSharpFunctionalExtensions;
 using Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Models
 {
-    public class Category: AuditableEntity
+    public class Category : IAuditable
     {
-        public Category()
+        // Private setters for encapsulation
+        public int CategoryId { get; private set; }
+        public string Name { get; private set; } = string.Empty;
+        public string Description { get; private set; } = string.Empty;
+        public string? ImageUrl { get; private set; }
+        public bool IsActive { get; private set; } = true;
+
+        // Navigation property
+        public ICollection<Vehicle> Vehicles { get; private set; } = new List<Vehicle>();
+
+        // Audit properties
+        public string? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? LastModifiedBy { get; set; }
+        public DateTime LastModifiedDate { get; set; }
+
+        // Private constructor for EF Core
+        private Category() { }
+
+        // Factory method for creating categories
+        public static Category Create(
+            string name,
+            string description,
+            string? imageUrl = null,
+            string? createdBy = null)
         {
-            this.products = new List<Product>();
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Category name cannot be empty", nameof(name));
+
+            return new Category
+            {
+                Name = name.Trim(),
+                Description = description ?? string.Empty,
+                ImageUrl = imageUrl,
+                IsActive = true,
+                CreatedBy = createdBy,
+                CreatedDate = DateTime.UtcNow,
+                LastModifiedDate = DateTime.UtcNow
+            };
         }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
 
-        public List<Product> products = new List<Product>();
-
-        public Result<Product> AddProduct(
-                                        string productName,
-                                        string productDescription,
-                                        int price,
-                                        string imageUrl
-                                        )
+        // Domain methods
+        public void Update(string name, string description, string? imageUrl = null, string? modifiedBy = null)
         {
-            var newProduct = Product.Instance(
-                                          productName,
-                                          productDescription,
-                                          price,
-                                          imageUrl
-                                     );
-            this.products.Add(newProduct);
-            return Result.Success(newProduct);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Category name cannot be empty", nameof(name));
+
+            Name = name.Trim();
+            Description = description ?? string.Empty;
+            ImageUrl = imageUrl;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void Deactivate(string? modifiedBy = null)
+        {
+            IsActive = false;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void Activate(string? modifiedBy = null)
+        {
+            IsActive = true;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void UpdateImage(string? imageUrl, string? modifiedBy = null)
+        {
+            ImageUrl = imageUrl;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
         }
     }
 }
+
+

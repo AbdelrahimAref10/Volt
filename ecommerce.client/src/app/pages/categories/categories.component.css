@@ -1,0 +1,305 @@
+/* Categories Component - BEM Methodology with Tailwind */
+
+.categories {
+  @apply p-6;
+}
+
+.categories__header {
+  @apply mb-6 flex items-center justify-between;
+}
+
+.categories__title {
+  @apply text-3xl font-bold text-neutral-900 mb-2;
+}
+
+.categories__subtitle {
+  @apply text-neutral-600;
+}
+
+.categories__error {
+  @apply flex items-center gap-3 p-4 bg-error-50 border border-error-200 rounded-lg text-error-700 mb-6;
+}
+
+.categories__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.categories__loading {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.categories__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+.categories__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8;
+}
+
+.categories__card {
+  @apply bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-neutral-100;
+}
+
+.categories__card-image {
+  @apply relative w-full h-56 bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden;
+}
+
+.categories__image {
+  @apply w-full h-full object-cover;
+}
+
+.categories__image-placeholder {
+  @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200;
+}
+
+.categories__placeholder-icon {
+  @apply w-20 h-20 text-neutral-400;
+}
+
+/* Card Content */
+.categories__card-content {
+  @apply p-5 flex-1 flex flex-col;
+}
+
+.categories__card-header {
+  @apply flex items-start justify-between gap-3 mb-3;
+}
+
+.categories__card-title {
+  @apply text-lg font-bold text-neutral-900 flex-1 leading-tight;
+}
+
+.categories__vehicle-badge {
+  @apply flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-xs font-semibold whitespace-nowrap;
+}
+
+.categories__badge-icon {
+  @apply w-3.5 h-3.5;
+}
+
+.categories__card-description {
+  @apply text-sm text-neutral-600 leading-relaxed line-clamp-3 flex-1;
+}
+
+/* Card Actions */
+.categories__card-actions {
+  @apply p-4 border-t border-neutral-100 flex items-center gap-2;
+}
+
+.categories__btn {
+  @apply flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.categories__btn-icon {
+  @apply w-5 h-5;
+}
+
+.categories__btn--view {
+  @apply flex-1 bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+}
+
+.categories__btn--edit {
+  @apply bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 focus:ring-primary-500;
+}
+
+.categories__btn--delete {
+  @apply bg-error-50 text-error-700 hover:bg-error-100 border border-error-200 focus:ring-error-500;
+}
+
+.categories__add-btn {
+  @apply flex items-center justify-center w-10 h-10 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-sm hover:shadow-md;
+}
+
+.categories__add-icon {
+  @apply w-5 h-5;
+}
+
+.categories__empty {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.categories__empty-icon {
+  @apply w-16 h-16 text-neutral-400 mb-4;
+}
+
+.categories__empty-text {
+  @apply text-neutral-600 text-lg;
+}
+
+.categories__pagination {
+  @apply flex items-center justify-center gap-2 mt-8;
+}
+
+.categories__pagination-btn {
+  @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.categories__pagination-btn--disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.categories__pagination-icon {
+  @apply w-4 h-4;
+}
+
+.categories__pagination-numbers {
+  @apply flex items-center gap-1;
+}
+
+.categories__pagination-number {
+  @apply w-10 h-10 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.categories__pagination-number--active {
+  @apply bg-primary-500 text-white border-primary-500 hover:bg-primary-600;
+}
+
+/* Modal */
+.categories__modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.categories__modal {
+  @apply bg-surface-50 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto;
+}
+
+.categories__modal-header {
+  @apply flex items-center justify-between p-6 border-b border-neutral-200;
+}
+
+.categories__modal-title {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.categories__modal-close {
+  @apply p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.categories__modal-close-icon {
+  @apply w-5 h-5;
+}
+
+.categories__modal-form {
+  @apply p-6 space-y-6;
+}
+
+.categories__form-group {
+  @apply mb-0;
+}
+
+.categories__form-group--image {
+  @apply pt-6 border-t border-neutral-200;
+}
+
+.categories__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-3;
+}
+
+.categories__form-required {
+  @apply text-error-500;
+}
+
+.categories__input-wrapper {
+  @apply relative;
+}
+
+.categories__form-input,
+.categories__form-textarea {
+  @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
+}
+
+.categories__form-input {
+  @apply h-12;
+}
+
+.categories__form-textarea {
+  @apply resize-none min-h-[100px];
+}
+
+.categories__form-input--error,
+.categories__form-textarea.categories__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.categories__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.categories__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+/* Image Upload */
+.categories__image-upload {
+  @apply space-y-4;
+}
+
+.categories__image-preview-wrapper {
+  @apply flex justify-center;
+}
+
+.categories__image-preview {
+  @apply relative inline-block;
+}
+
+.categories__preview-image {
+  @apply w-40 h-40 object-cover rounded-xl border-2 border-neutral-200 shadow-md;
+}
+
+.categories__image-remove {
+  @apply absolute -top-2 -right-2 w-8 h-8 bg-error-500 text-white rounded-full flex items-center justify-center hover:bg-error-600 transition-colors duration-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-error-500;
+}
+
+.categories__image-remove svg {
+  @apply w-4 h-4;
+}
+
+.categories__image-upload-area {
+  @apply relative;
+}
+
+.categories__file-input {
+  @apply hidden;
+}
+
+.categories__file-label {
+  @apply flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-neutral-300 rounded-xl bg-neutral-50 hover:border-primary-400 hover:bg-primary-50 cursor-pointer transition-all duration-200;
+}
+
+.categories__image-upload-area--has-image .categories__file-label {
+  @apply p-4 border-solid border-neutral-300 hover:border-primary-400;
+}
+
+.categories__file-icon {
+  @apply w-10 h-10 text-primary-500;
+}
+
+.categories__file-text {
+  @apply flex flex-col items-center gap-1;
+}
+
+.categories__file-text span:first-child {
+  @apply text-sm font-semibold text-neutral-700;
+}
+
+.categories__file-hint {
+  @apply text-xs text-neutral-500;
+}
+
+/* Modal Actions */
+.categories__modal-actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200;
+}
+
+.categories__modal-btn {
+  @apply px-6 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.categories__modal-btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.categories__modal-btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
