@@ -1296,6 +1296,82 @@ export class CityClient {
 @Injectable({
     providedIn: 'root'
 })
+export class CustomerCategoriesClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getAllActiveCategories(): Observable<CategoryDto[]> {
+        let url_ = this.baseUrl + "/api/CustomerCategories/GetAllActiveCategories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllActiveCategories(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllActiveCategories(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CategoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CategoryDto[]>;
+        }));
+    }
+
+    protected processGetAllActiveCategories(response: HttpResponseBase): Observable<CategoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CategoryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class CustomerClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -1526,6 +1602,206 @@ export class CustomerClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = RefreshTokenResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getActiveCities(): Observable<CityLookupDto[]> {
+        let url_ = this.baseUrl + "/api/Customer/GetActiveCities";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActiveCities(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActiveCities(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CityLookupDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CityLookupDto[]>;
+        }));
+    }
+
+    protected processGetActiveCities(response: HttpResponseBase): Observable<CityLookupDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CityLookupDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class CustomerSubCategoryClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getAllActiveSubcategories(): Observable<SubCategoryDto[]> {
+        let url_ = this.baseUrl + "/api/CustomerSubCategory/GetAllActiveSubcategories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllActiveSubcategories(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllActiveSubcategories(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto[]>;
+        }));
+    }
+
+    protected processGetAllActiveSubcategories(response: HttpResponseBase): Observable<SubCategoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubCategoryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getAllOffers(): Observable<SubCategoryDto[]> {
+        let url_ = this.baseUrl + "/api/CustomerSubCategory/GetAllOffers";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllOffers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllOffers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto[]>;
+        }));
+    }
+
+    protected processGetAllOffers(response: HttpResponseBase): Observable<SubCategoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubCategoryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -2045,6 +2321,451 @@ export class RoleClient {
 @Injectable({
     providedIn: 'root'
 })
+export class SubCategoryClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getAll(pageNumber?: number | undefined, pageSize?: number | undefined, categoryId?: number | null | undefined, searchTerm?: string | null | undefined): Observable<PagedResultOfSubCategoryDto> {
+        let url_ = this.baseUrl + "/api/SubCategory?";
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (categoryId !== undefined && categoryId !== null)
+            url_ += "CategoryId=" + encodeURIComponent("" + categoryId) + "&";
+        if (searchTerm !== undefined && searchTerm !== null)
+            url_ += "SearchTerm=" + encodeURIComponent("" + searchTerm) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultOfSubCategoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultOfSubCategoryDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultOfSubCategoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultOfSubCategoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    create(command: CreateSubCategoryCommand): Observable<SubCategoryDto> {
+        let url_ = this.baseUrl + "/api/SubCategory";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<SubCategoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubCategoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    update(command: UpdateSubCategoryCommand): Observable<SubCategoryDto> {
+        let url_ = this.baseUrl + "/api/SubCategory";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<SubCategoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubCategoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getById(id: number): Observable<SubCategoryDto> {
+        let url_ = this.baseUrl + "/api/SubCategory/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto>;
+        }));
+    }
+
+    protected processGetById(response: HttpResponseBase): Observable<SubCategoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubCategoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    delete(id: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/SubCategory/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<boolean>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<boolean>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getByCategory(categoryId: number): Observable<SubCategoryDto[]> {
+        let url_ = this.baseUrl + "/api/SubCategory/by-category/{categoryId}";
+        if (categoryId === undefined || categoryId === null)
+            throw new Error("The parameter 'categoryId' must be defined.");
+        url_ = url_.replace("{categoryId}", encodeURIComponent("" + categoryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByCategory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByCategory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryDto[]>;
+        }));
+    }
+
+    protected processGetByCategory(response: HttpResponseBase): Observable<SubCategoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubCategoryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getLookup(categoryId?: number | null | undefined): Observable<SubCategoryLookupDto[]> {
+        let url_ = this.baseUrl + "/api/SubCategory/lookup?";
+        if (categoryId !== undefined && categoryId !== null)
+            url_ += "categoryId=" + encodeURIComponent("" + categoryId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLookup(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLookup(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubCategoryLookupDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubCategoryLookupDto[]>;
+        }));
+    }
+
+    protected processGetLookup(response: HttpResponseBase): Observable<SubCategoryLookupDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubCategoryLookupDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class VehicleClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -2055,7 +2776,7 @@ export class VehicleClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(pageNumber?: number | undefined, pageSize?: number | undefined, searchTerm?: string | null | undefined, categoryId?: number | null | undefined, status?: string | null | undefined): Observable<PagedResultOfVehicleDto> {
+    getAll(pageNumber?: number | undefined, pageSize?: number | undefined, searchTerm?: string | null | undefined, categoryId?: number | null | undefined, subCategoryId?: number | null | undefined, status?: string | null | undefined): Observable<PagedResultOfVehicleDto> {
         let url_ = this.baseUrl + "/api/Vehicle?";
         if (pageNumber === null)
             throw new Error("The parameter 'pageNumber' cannot be null.");
@@ -2069,6 +2790,8 @@ export class VehicleClient {
             url_ += "SearchTerm=" + encodeURIComponent("" + searchTerm) + "&";
         if (categoryId !== undefined && categoryId !== null)
             url_ += "CategoryId=" + encodeURIComponent("" + categoryId) + "&";
+        if (subCategoryId !== undefined && subCategoryId !== null)
+            url_ += "SubCategoryId=" + encodeURIComponent("" + subCategoryId) + "&";
         if (status !== undefined && status !== null)
             url_ += "Status=" + encodeURIComponent("" + status) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -2242,10 +2965,12 @@ export class VehicleClient {
         return _observableOf(null as any);
     }
 
-    getStatistics(categoryId?: number | null | undefined): Observable<VehicleStatisticsDto> {
+    getStatistics(categoryId?: number | null | undefined, subCategoryId?: number | null | undefined): Observable<VehicleStatisticsDto> {
         let url_ = this.baseUrl + "/api/Vehicle/statistics?";
         if (categoryId !== undefined && categoryId !== null)
             url_ += "categoryId=" + encodeURIComponent("" + categoryId) + "&";
+        if (subCategoryId !== undefined && subCategoryId !== null)
+            url_ += "subCategoryId=" + encodeURIComponent("" + subCategoryId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -2337,6 +3062,72 @@ export class VehicleClient {
     }
 
     protected processGetByCategory(response: HttpResponseBase): Observable<PagedResultOfVehicleDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultOfVehicleDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getBySubCategory(subCategoryId: number, pageNumber?: number | undefined, pageSize?: number | undefined): Observable<PagedResultOfVehicleDto> {
+        let url_ = this.baseUrl + "/api/Vehicle/by-subcategory/{subCategoryId}?";
+        if (subCategoryId === undefined || subCategoryId === null)
+            throw new Error("The parameter 'subCategoryId' must be defined.");
+        url_ = url_.replace("{subCategoryId}", encodeURIComponent("" + subCategoryId));
+        if (pageNumber === null)
+            throw new Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetBySubCategory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetBySubCategory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultOfVehicleDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultOfVehicleDto>;
+        }));
+    }
+
+    protected processGetBySubCategory(response: HttpResponseBase): Observable<PagedResultOfVehicleDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2886,7 +3677,9 @@ export class CategoryDto {
     description!: string;
     imageUrl!: string | null;
     isActive!: boolean;
-    vehicleCount!: number;
+    subCategoryCount!: number;
+    cityId!: number;
+    cityName!: string;
 
     init(_data?: any) {
         if (_data) {
@@ -2895,7 +3688,9 @@ export class CategoryDto {
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
             this.isActive = _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
-            this.vehicleCount = _data["vehicleCount"] !== undefined ? _data["vehicleCount"] : <any>null;
+            this.subCategoryCount = _data["subCategoryCount"] !== undefined ? _data["subCategoryCount"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
+            this.cityName = _data["cityName"] !== undefined ? _data["cityName"] : <any>null;
         }
     }
 
@@ -2913,7 +3708,9 @@ export class CategoryDto {
         data["description"] = this.description !== undefined ? this.description : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
-        data["vehicleCount"] = this.vehicleCount !== undefined ? this.vehicleCount : <any>null;
+        data["subCategoryCount"] = this.subCategoryCount !== undefined ? this.subCategoryCount : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
+        data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
         return data;
     }
 }
@@ -2947,12 +3744,14 @@ export class CategoryLookupDto {
 export class CreateCategoryCommand {
     name!: string;
     description!: string;
+    cityId!: number;
     imageUrl!: string | null;
 
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
         }
     }
@@ -2968,6 +3767,7 @@ export class CreateCategoryCommand {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         return data;
     }
@@ -2977,6 +3777,7 @@ export class UpdateCategoryCommand {
     categoryId!: number;
     name!: string;
     description!: string;
+    cityId!: number;
     imageUrl!: string | null;
 
     init(_data?: any) {
@@ -2984,6 +3785,7 @@ export class UpdateCategoryCommand {
             this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
         }
     }
@@ -3000,6 +3802,7 @@ export class UpdateCategoryCommand {
         data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         return data;
     }
@@ -3376,6 +4179,88 @@ export class RefreshTokenCommand {
     }
 }
 
+export class CityLookupDto {
+    cityId!: number;
+    name!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
+            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CityLookupDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CityLookupDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
+        data["name"] = this.name !== undefined ? this.name : <any>null;
+        return data;
+    }
+}
+
+export class SubCategoryDto {
+    subCategoryId!: number;
+    name!: string;
+    description!: string;
+    imageUrl!: string | null;
+    isActive!: boolean;
+    isOffer!: boolean;
+    price!: number;
+    categoryId!: number;
+    categoryName!: string;
+    cityId!: number;
+    cityName!: string;
+    vehicleCount!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
+            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+            this.isActive = _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
+            this.isOffer = _data["isOffer"] !== undefined ? _data["isOffer"] : <any>null;
+            this.price = _data["price"] !== undefined ? _data["price"] : <any>null;
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.categoryName = _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
+            this.cityName = _data["cityName"] !== undefined ? _data["cityName"] : <any>null;
+            this.vehicleCount = _data["vehicleCount"] !== undefined ? _data["vehicleCount"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): SubCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
+        data["name"] = this.name !== undefined ? this.name : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+        data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
+        data["isOffer"] = this.isOffer !== undefined ? this.isOffer : <any>null;
+        data["price"] = this.price !== undefined ? this.price : <any>null;
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
+        data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
+        data["vehicleCount"] = this.vehicleCount !== undefined ? this.vehicleCount : <any>null;
+        return data;
+    }
+}
+
 export class RoleDto {
     roleId!: number;
     roleName!: string;
@@ -3509,6 +4394,172 @@ export class RemoveRoleFromUserCommand {
     }
 }
 
+export class PagedResultOfSubCategoryDto {
+    items!: SubCategoryDto[];
+    totalCount!: number;
+    pageNumber!: number;
+    pageSize!: number;
+    totalPages!: number;
+    hasPreviousPage!: boolean;
+    hasNextPage!: boolean;
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SubCategoryDto.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
+            }
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+            this.pageNumber = _data["pageNumber"] !== undefined ? _data["pageNumber"] : <any>null;
+            this.pageSize = _data["pageSize"] !== undefined ? _data["pageSize"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): PagedResultOfSubCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultOfSubCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
+        data["pageNumber"] = this.pageNumber !== undefined ? this.pageNumber : <any>null;
+        data["pageSize"] = this.pageSize !== undefined ? this.pageSize : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        return data;
+    }
+}
+
+export class SubCategoryLookupDto {
+    subCategoryId!: number;
+    name!: string;
+    categoryId!: number;
+    categoryName!: string;
+    price!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
+            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.categoryName = _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
+            this.price = _data["price"] !== undefined ? _data["price"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): SubCategoryLookupDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubCategoryLookupDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
+        data["name"] = this.name !== undefined ? this.name : <any>null;
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
+        data["price"] = this.price !== undefined ? this.price : <any>null;
+        return data;
+    }
+}
+
+export class CreateSubCategoryCommand {
+    name!: string;
+    description!: string;
+    categoryId!: number;
+    price!: number;
+    isOffer!: boolean;
+    imageUrl!: string | null;
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.price = _data["price"] !== undefined ? _data["price"] : <any>null;
+            this.isOffer = _data["isOffer"] !== undefined ? _data["isOffer"] : <any>null;
+            this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CreateSubCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSubCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name !== undefined ? this.name : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["price"] = this.price !== undefined ? this.price : <any>null;
+        data["isOffer"] = this.isOffer !== undefined ? this.isOffer : <any>null;
+        data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+        return data;
+    }
+}
+
+export class UpdateSubCategoryCommand {
+    subCategoryId!: number;
+    name!: string;
+    description!: string;
+    categoryId!: number;
+    price!: number;
+    isOffer!: boolean;
+    imageUrl!: string | null;
+
+    init(_data?: any) {
+        if (_data) {
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
+            this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.price = _data["price"] !== undefined ? _data["price"] : <any>null;
+            this.isOffer = _data["isOffer"] !== undefined ? _data["isOffer"] : <any>null;
+            this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): UpdateSubCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSubCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
+        data["name"] = this.name !== undefined ? this.name : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["price"] = this.price !== undefined ? this.price : <any>null;
+        data["isOffer"] = this.isOffer !== undefined ? this.isOffer : <any>null;
+        data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
+        return data;
+    }
+}
+
 export class PagedResultOfVehicleDto {
     items!: VehicleDto[];
     totalCount!: number;
@@ -3565,10 +4616,14 @@ export class VehicleDto {
     vehicleId!: number;
     name!: string;
     imageUrl!: string | null;
-    pricePerHour!: number;
     status!: string;
+    subCategoryId!: number;
+    subCategoryName!: string;
+    subCategoryPrice!: number;
     categoryId!: number;
     categoryName!: string;
+    cityId!: number;
+    cityName!: string;
     isNewThisMonth!: boolean;
 
     init(_data?: any) {
@@ -3576,10 +4631,14 @@ export class VehicleDto {
             this.vehicleId = _data["vehicleId"] !== undefined ? _data["vehicleId"] : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
-            this.pricePerHour = _data["pricePerHour"] !== undefined ? _data["pricePerHour"] : <any>null;
             this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
+            this.subCategoryName = _data["subCategoryName"] !== undefined ? _data["subCategoryName"] : <any>null;
+            this.subCategoryPrice = _data["subCategoryPrice"] !== undefined ? _data["subCategoryPrice"] : <any>null;
             this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
             this.categoryName = _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
+            this.cityName = _data["cityName"] !== undefined ? _data["cityName"] : <any>null;
             this.isNewThisMonth = _data["isNewThisMonth"] !== undefined ? _data["isNewThisMonth"] : <any>null;
         }
     }
@@ -3596,10 +4655,14 @@ export class VehicleDto {
         data["vehicleId"] = this.vehicleId !== undefined ? this.vehicleId : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
-        data["pricePerHour"] = this.pricePerHour !== undefined ? this.pricePerHour : <any>null;
         data["status"] = this.status !== undefined ? this.status : <any>null;
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
+        data["subCategoryName"] = this.subCategoryName !== undefined ? this.subCategoryName : <any>null;
+        data["subCategoryPrice"] = this.subCategoryPrice !== undefined ? this.subCategoryPrice : <any>null;
         data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
         data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
+        data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
         data["isNewThisMonth"] = this.isNewThisMonth !== undefined ? this.isNewThisMonth : <any>null;
         return data;
     }
@@ -3639,16 +4702,14 @@ export class VehicleStatisticsDto {
 
 export class CreateVehicleCommand {
     name!: string;
-    categoryId!: number;
-    pricePerHour!: number;
+    subCategoryId!: number;
     status!: string;
     imageUrl!: string | null;
 
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
-            this.pricePerHour = _data["pricePerHour"] !== undefined ? _data["pricePerHour"] : <any>null;
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
             this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
         }
@@ -3664,8 +4725,7 @@ export class CreateVehicleCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
-        data["pricePerHour"] = this.pricePerHour !== undefined ? this.pricePerHour : <any>null;
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
         data["status"] = this.status !== undefined ? this.status : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         return data;
@@ -3675,8 +4735,7 @@ export class CreateVehicleCommand {
 export class UpdateVehicleCommand {
     vehicleId!: number;
     name!: string;
-    categoryId!: number;
-    pricePerHour!: number;
+    subCategoryId!: number;
     status!: string;
     imageUrl!: string | null;
 
@@ -3684,8 +4743,7 @@ export class UpdateVehicleCommand {
         if (_data) {
             this.vehicleId = _data["vehicleId"] !== undefined ? _data["vehicleId"] : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
-            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
-            this.pricePerHour = _data["pricePerHour"] !== undefined ? _data["pricePerHour"] : <any>null;
+            this.subCategoryId = _data["subCategoryId"] !== undefined ? _data["subCategoryId"] : <any>null;
             this.status = _data["status"] !== undefined ? _data["status"] : <any>null;
             this.imageUrl = _data["imageUrl"] !== undefined ? _data["imageUrl"] : <any>null;
         }
@@ -3702,8 +4760,7 @@ export class UpdateVehicleCommand {
         data = typeof data === 'object' ? data : {};
         data["vehicleId"] = this.vehicleId !== undefined ? this.vehicleId : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
-        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
-        data["pricePerHour"] = this.pricePerHour !== undefined ? this.pricePerHour : <any>null;
+        data["subCategoryId"] = this.subCategoryId !== undefined ? this.subCategoryId : <any>null;
         data["status"] = this.status !== undefined ? this.status : <any>null;
         data["imageUrl"] = this.imageUrl !== undefined ? this.imageUrl : <any>null;
         return data;

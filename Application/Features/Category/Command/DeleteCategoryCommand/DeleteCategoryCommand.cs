@@ -27,7 +27,7 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
         public async Task<Result<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _context.Categories
-                .Include(c => c.Vehicles)
+                .Include(c => c.SubCategories)
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
 
             if (category == null)
@@ -35,10 +35,10 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
                 return Result.Failure<bool>($"Category with ID {request.CategoryId} not found");
             }
 
-            // Check if category has vehicles
-            if (category.Vehicles.Any())
+            // Check if category has subcategories
+            if (category.SubCategories.Any())
             {
-                return Result.Failure<bool>("Cannot delete category that has vehicles. Please remove or reassign vehicles first.");
+                return Result.Failure<bool>("Cannot delete category that has subcategories. Please remove or reassign subcategories first.");
             }
 
             try

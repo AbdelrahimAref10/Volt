@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CategoryClient, CategoryDto, PagedResultOfCategoryDto, CreateCategoryCommand, UpdateCategoryCommand } from '../../core/services/clientAPI';
+import { CityClient, CityDto, PagedResultOfCityDto } from '../../core/services/clientAPI';
 
 @Component({
   selector: 'app-categories',
@@ -13,6 +14,7 @@ import { CategoryClient, CategoryDto, PagedResultOfCategoryDto, CreateCategoryCo
 })
 export class CategoriesComponent implements OnInit {
   categories: CategoryDto[] = [];
+  cities: CityDto[] = [];
   currentPage = 1;
   pageSize = 12;
   totalCount = 0;
@@ -28,18 +30,33 @@ export class CategoriesComponent implements OnInit {
 
   constructor(
     private categoryClient: CategoryClient,
+    private cityClient: CityClient,
     private router: Router,
     private fb: FormBuilder
   ) {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       description: ['', [Validators.required]],
+      cityId: [null, [Validators.required]],
       imageUrl: [null]
     });
   }
 
   ngOnInit(): void {
+    this.loadCities();
     this.loadCategories();
+  }
+
+  loadCities(): void {
+    // Load all active cities for the dropdown
+    this.cityClient.getAll(1, 1000, undefined, true).subscribe({
+      next: (result: PagedResultOfCityDto) => {
+        this.cities = result.items || [];
+      },
+      error: (error) => {
+        console.error('Error loading cities:', error);
+      }
+    });
   }
 
   loadCategories(): void {
@@ -83,9 +100,9 @@ export class CategoriesComponent implements OnInit {
     }
   }
 
-  onViewVehicles(categoryId: number): void {
-    // Navigate to vehicles page filtered by category in the same tab
-    this.router.navigate(['/main/vehicles'], { queryParams: { categoryId: categoryId } });
+  onViewSubCategories(categoryId: number): void {
+    // Navigate to subcategories page filtered by category
+    this.router.navigate(['/main/subcategories'], { queryParams: { categoryId: categoryId } });
   }
 
   getPageNumbers(): number[] {
@@ -118,6 +135,7 @@ export class CategoriesComponent implements OnInit {
     this.categoryForm.patchValue({
       name: category.name,
       description: category.description,
+      cityId: category.cityId,
       imageUrl: category.imageUrl
     });
     this.imagePreview = category.imageUrl || null;
@@ -152,6 +170,7 @@ export class CategoriesComponent implements OnInit {
       command.categoryId = this.selectedCategoryId;
       command.name = formValue.name;
       command.description = formValue.description;
+      command.cityId = formValue.cityId;
       command.imageUrl = formValue.imageUrl;
 
       this.categoryClient.update(command).subscribe({
@@ -168,6 +187,7 @@ export class CategoriesComponent implements OnInit {
       const command = new CreateCategoryCommand();
       command.name = formValue.name;
       command.description = formValue.description;
+      command.cityId = formValue.cityId;
       command.imageUrl = formValue.imageUrl;
 
       this.categoryClient.create(command).subscribe({

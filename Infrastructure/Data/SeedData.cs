@@ -39,7 +39,19 @@ namespace Infrastructure.Data
                 }
 
                 // Create Admin role if it doesn't exist
-                if (!await roleManager.RoleExistsAsync("Admin"))
+                // This will also check if the Role table exists (will throw if table doesn't exist)
+                bool adminRoleExists = false;
+                try
+                {
+                    adminRoleExists = await roleManager.RoleExistsAsync("Admin");
+                }
+                catch (Microsoft.Data.SqlClient.SqlException sqlEx) when (sqlEx.Number == 208) // Invalid object name
+                {
+                    logger.LogWarning("Role table does not exist. Database migrations may not have been applied. Skipping seed data.");
+                    return;
+                }
+
+                if (!adminRoleExists)
                 {
                     var adminRole = new ApplicationRole
                     {

@@ -21,6 +21,7 @@ export class DashboardSidebarComponent {
   menuItems: MenuItem[] = [
     { label: 'Dashboard', route: '/main/dashboard', icon: 'dashboard' },
     { label: 'Categories', route: '/main/categories', icon: 'categories' },
+    { label: 'SubCategories', route: '/main/subcategories', icon: 'subcategories' },
     { label: 'Vehicles', route: '/main/vehicles', icon: 'vehicles' },
     { label: 'Customers', route: '/main/customers', icon: 'users' },
     { label: 'Cities', route: '/main/cities', icon: 'cities' },

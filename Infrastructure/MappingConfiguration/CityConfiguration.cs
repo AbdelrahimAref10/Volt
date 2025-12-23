@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<City> builder)
         {
-            builder.ToTable("Cities");
+            builder.ToTable("VO_City");
 
             // Configure primary key
             builder.HasKey(c => c.CityId);

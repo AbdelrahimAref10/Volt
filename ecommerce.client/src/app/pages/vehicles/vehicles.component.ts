@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { VehicleClient, VehicleDto, PagedResultOfVehicleDto, CreateVehicleCommand, UpdateVehicleCommand, VehicleStatisticsDto } from '../../core/services/clientAPI';
-import { CategoryClient, CategoryLookupDto } from '../../core/services/clientAPI';
+import { SubCategoryClient, SubCategoryLookupDto } from '../../core/services/clientAPI';
 
 @Component({
   selector: 'app-vehicles',
@@ -14,7 +14,7 @@ import { CategoryClient, CategoryLookupDto } from '../../core/services/clientAPI
 })
 export class VehiclesComponent implements OnInit {
   vehicles: VehicleDto[] = [];
-  categories: CategoryLookupDto[] = [];
+  subCategories: SubCategoryLookupDto[] = [];
   statistics: VehicleStatisticsDto | null = null;
   
   currentPage = 1;
@@ -22,9 +22,9 @@ export class VehiclesComponent implements OnInit {
   totalCount = 0;
   totalPages = 0;
   searchTerm = '';
-  selectedCategoryId: number | null = null;
+  selectedSubCategoryId: number | null = null;
   selectedStatus: string | null = null;
-  selectedCategoryName: string | null = null;
+  selectedSubCategoryName: string | null = null;
   
   isLoading = false;
   isLoadingStats = false;
@@ -38,53 +38,51 @@ export class VehiclesComponent implements OnInit {
 
   constructor(
     private vehicleClient: VehicleClient,
-    private categoryClient: CategoryClient,
+    private subCategoryClient: SubCategoryClient,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.vehicleForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      categoryId: [null, [Validators.required]],
-      pricePerHour: [0, [Validators.required, Validators.min(0)]],
+      subCategoryId: [null, [Validators.required]],
       status: ['Available', [Validators.required]],
       imageUrl: [null]
     });
   }
 
   ngOnInit(): void {
-    // Check for category filter from query params
+    // Check for subcategory filter from query params
     this.route.queryParams.subscribe(params => {
-      if (params['categoryId']) {
-        this.selectedCategoryId = +params['categoryId'];
-        // Update category name after categories are loaded
-        if (this.categories.length > 0) {
-          const category = this.categories.find(c => c.categoryId === this.selectedCategoryId);
-          this.selectedCategoryName = category ? category.name : null;
-        }
+      if (params['subCategoryId']) {
+        this.selectedSubCategoryId = +params['subCategoryId'];
       } else {
-        this.selectedCategoryId = null;
-        this.selectedCategoryName = null;
+        this.selectedSubCategoryId = null;
+        this.selectedSubCategoryName = null;
       }
+      // Reload data when params change
+      this.loadStatistics();
+      this.loadVehicles();
     });
 
-    this.loadCategories();
+    // Initial load
+    this.loadSubCategories();
     this.loadStatistics();
     this.loadVehicles();
   }
 
-  loadCategories(): void {
-    this.categoryClient.getLookup().subscribe({
+  loadSubCategories(): void {
+    this.subCategoryClient.getLookup().subscribe({
       next: (result) => {
-        this.categories = result || [];
-        // Find category name if categoryId is selected
-        if (this.selectedCategoryId) {
-          const category = this.categories.find(c => c.categoryId === this.selectedCategoryId);
-          this.selectedCategoryName = category ? category.name : null;
+        this.subCategories = result || [];
+        // Find subcategory name if subCategoryId is selected
+        if (this.selectedSubCategoryId) {
+          const subCategory = this.subCategories.find(sc => sc.subCategoryId === this.selectedSubCategoryId);
+          this.selectedSubCategoryName = subCategory ? subCategory.name : null;
         }
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        console.error('Error loading subcategories:', error);
       }
     });
   }
@@ -92,7 +90,7 @@ export class VehiclesComponent implements OnInit {
   loadStatistics(): void {
     this.isLoadingStats = true;
 
-    this.vehicleClient.getStatistics(this.selectedCategoryId || undefined).subscribe({
+    this.vehicleClient.getStatistics(undefined, this.selectedSubCategoryId || undefined).subscribe({
       next: (result: VehicleStatisticsDto) => {
         this.statistics = result;
         this.isLoadingStats = false;
@@ -112,7 +110,8 @@ export class VehiclesComponent implements OnInit {
       this.currentPage,
       this.pageSize,
       this.searchTerm || undefined,
-      this.selectedCategoryId || undefined,
+      undefined, // categoryId
+      this.selectedSubCategoryId || undefined,
       this.selectedStatus || undefined
     ).subscribe({
       next: (result: PagedResultOfVehicleDto) => {
@@ -134,13 +133,13 @@ export class VehiclesComponent implements OnInit {
     this.loadVehicles();
   }
 
-  onCategoryFilter(categoryId: number | null): void {
-    this.selectedCategoryId = categoryId;
-    if (categoryId) {
-      const category = this.categories.find(c => c.categoryId === categoryId);
-      this.selectedCategoryName = category ? category.name : null;
+  onSubCategoryFilter(subCategoryId: number | null): void {
+    this.selectedSubCategoryId = subCategoryId;
+    if (subCategoryId) {
+      const subCategory = this.subCategories.find(sc => sc.subCategoryId === subCategoryId);
+      this.selectedSubCategoryName = subCategory ? subCategory.name : null;
     } else {
-      this.selectedCategoryName = null;
+      this.selectedSubCategoryName = null;
     }
     this.currentPage = 1;
     this.loadVehicles();
@@ -156,7 +155,7 @@ export class VehiclesComponent implements OnInit {
   onViewDetails(filter: string): void {
     switch(filter) {
       case 'all':
-        this.selectedCategoryId = null;
+        this.selectedSubCategoryId = null;
         this.selectedStatus = null;
         break;
       case 'available':
@@ -178,8 +177,7 @@ export class VehiclesComponent implements OnInit {
     this.isEditMode = false;
     this.selectedVehicleId = null;
     this.vehicleForm.reset({
-      status: 'Available',
-      pricePerHour: 0
+      status: 'Available'
     });
     this.imagePreview = null;
     this.showModal = true;
@@ -190,8 +188,7 @@ export class VehiclesComponent implements OnInit {
     this.selectedVehicleId = vehicle.vehicleId;
     this.vehicleForm.patchValue({
       name: vehicle.name,
-      categoryId: vehicle.categoryId,
-      pricePerHour: vehicle.pricePerHour,
+      subCategoryId: vehicle.subCategoryId,
       status: vehicle.status,
       imageUrl: vehicle.imageUrl
     });
@@ -241,8 +238,7 @@ export class VehiclesComponent implements OnInit {
       const command = new UpdateVehicleCommand();
       command.vehicleId = this.selectedVehicleId;
       command.name = formValue.name;
-      command.categoryId = formValue.categoryId;
-      command.pricePerHour = formValue.pricePerHour;
+      command.subCategoryId = formValue.subCategoryId;
       command.status = formValue.status;
       command.imageUrl = formValue.imageUrl;
 
@@ -260,8 +256,7 @@ export class VehiclesComponent implements OnInit {
     } else {
       const command = new CreateVehicleCommand();
       command.name = formValue.name;
-      command.categoryId = formValue.categoryId;
-      command.pricePerHour = formValue.pricePerHour;
+      command.subCategoryId = formValue.subCategoryId;
       command.status = formValue.status;
       command.imageUrl = formValue.imageUrl;
 

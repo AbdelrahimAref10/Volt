@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<RolePermission> builder)
         {
-            builder.ToTable("RolePermissions");
+            builder.ToTable("VO_RolePermission");
 
             // Configure composite primary key
             builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });

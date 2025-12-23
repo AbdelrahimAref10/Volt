@@ -27,6 +27,7 @@ namespace Application.Features.Category.Query.GetAllCategoriesQuery
         public async Task<Result<PagedResult<CategoryDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Categories
+                .Include(c => c.City)
                 .Where(c => c.IsActive)
                 .Select(c => new CategoryDto
                 {
@@ -35,7 +36,9 @@ namespace Application.Features.Category.Query.GetAllCategoriesQuery
                     Description = c.Description,
                     ImageUrl = c.ImageUrl,
                     IsActive = c.IsActive,
-                    VehicleCount = c.Vehicles.Count
+                    SubCategoryCount = c.SubCategories.Count(sc => sc.IsActive),
+                    CityId = c.CityId,
+                    CityName = c.City.Name
                 });
 
             var totalCount = await query.CountAsync(cancellationToken);

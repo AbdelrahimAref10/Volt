@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<IdentityUserRole<int>> builder)
         {
-            builder.ToTable("UserRoles");
+            builder.ToTable("VO_UserRole");
 
             // Configure composite primary key
             builder.HasKey(ur => new { ur.UserId, ur.RoleId });

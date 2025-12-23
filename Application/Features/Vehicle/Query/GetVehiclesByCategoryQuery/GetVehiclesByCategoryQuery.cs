@@ -38,8 +38,10 @@ namespace Application.Features.Vehicle.Query.GetVehiclesByCategoryQuery
             }
 
             var query = _context.Vehicles
-                .Include(v => v.Category)
-                .Where(v => v.CategoryId == request.CategoryId);
+                .Include(v => v.SubCategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.City)
+                .Where(v => v.SubCategory.CategoryId == request.CategoryId);
 
             var totalCount = await query.CountAsync(cancellationToken);
 
@@ -52,10 +54,14 @@ namespace Application.Features.Vehicle.Query.GetVehiclesByCategoryQuery
                     VehicleId = v.VehicleId,
                     Name = v.Name,
                     ImageUrl = v.ImageUrl,
-                    PricePerHour = v.PricePerHour,
                     Status = v.Status,
-                    CategoryId = v.CategoryId,
-                    CategoryName = v.Category.Name,
+                    SubCategoryId = v.SubCategoryId,
+                    SubCategoryName = v.SubCategory.Name,
+                    SubCategoryPrice = v.SubCategory.Price,
+                    CategoryId = v.SubCategory.CategoryId,
+                    CategoryName = v.SubCategory.Category.Name,
+                    CityId = v.SubCategory.Category.CityId,
+                    CityName = v.SubCategory.Category.City.Name,
                     IsNewThisMonth = v.IsNewThisMonth
                 })
                 .ToListAsync(cancellationToken);

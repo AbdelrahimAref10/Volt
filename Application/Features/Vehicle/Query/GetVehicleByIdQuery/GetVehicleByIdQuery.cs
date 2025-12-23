@@ -25,7 +25,9 @@ namespace Application.Features.Vehicle.Query.GetVehicleByIdQuery
         public async Task<Result<VehicleDto>> Handle(GetVehicleByIdQuery request, CancellationToken cancellationToken)
         {
             var vehicle = await _context.Vehicles
-                .Include(v => v.Category)
+                .Include(v => v.SubCategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.City)
                 .FirstOrDefaultAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
 
             if (vehicle == null)
@@ -38,10 +40,14 @@ namespace Application.Features.Vehicle.Query.GetVehicleByIdQuery
                 VehicleId = vehicle.VehicleId,
                 Name = vehicle.Name,
                 ImageUrl = vehicle.ImageUrl,
-                PricePerHour = vehicle.PricePerHour,
                 Status = vehicle.Status,
-                CategoryId = vehicle.CategoryId,
-                CategoryName = vehicle.Category.Name,
+                SubCategoryId = vehicle.SubCategoryId,
+                SubCategoryName = vehicle.SubCategory.Name,
+                SubCategoryPrice = vehicle.SubCategory.Price,
+                CategoryId = vehicle.SubCategory.CategoryId,
+                CategoryName = vehicle.SubCategory.Category.Name,
+                CityId = vehicle.SubCategory.Category.CityId,
+                CityName = vehicle.SubCategory.Category.City.Name,
                 IsNewThisMonth = vehicle.IsNewThisMonth
             };
 

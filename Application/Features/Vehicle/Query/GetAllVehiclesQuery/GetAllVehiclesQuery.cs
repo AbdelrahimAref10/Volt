@@ -16,6 +16,7 @@ namespace Application.Features.Vehicle.Query.GetAllVehiclesQuery
         public int PageSize { get; set; } = 10;
         public string? SearchTerm { get; set; }
         public int? CategoryId { get; set; }
+        public int? SubCategoryId { get; set; }
         public string? Status { get; set; }
     }
 
@@ -31,7 +32,9 @@ namespace Application.Features.Vehicle.Query.GetAllVehiclesQuery
         public async Task<Result<PagedResult<VehicleDto>>> Handle(GetAllVehiclesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Vehicles
-                .Include(v => v.Category)
+                .Include(v => v.SubCategory)
+                    .ThenInclude(sc => sc.Category)
+                        .ThenInclude(c => c.City)
                 .AsQueryable();
 
             // Apply filters
@@ -39,12 +42,18 @@ namespace Application.Features.Vehicle.Query.GetAllVehiclesQuery
             {
                 var searchTerm = request.SearchTerm.ToLower();
                 query = query.Where(v => v.Name.ToLower().Contains(searchTerm) || 
-                                       v.Category.Name.ToLower().Contains(searchTerm));
+                                       v.SubCategory.Name.ToLower().Contains(searchTerm) ||
+                                       v.SubCategory.Category.Name.ToLower().Contains(searchTerm));
             }
 
             if (request.CategoryId.HasValue)
             {
-                query = query.Where(v => v.CategoryId == request.CategoryId.Value);
+                query = query.Where(v => v.SubCategory.CategoryId == request.CategoryId.Value);
+            }
+
+            if (request.SubCategoryId.HasValue)
+            {
+                query = query.Where(v => v.SubCategoryId == request.SubCategoryId.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(request.Status))
@@ -63,10 +72,14 @@ namespace Application.Features.Vehicle.Query.GetAllVehiclesQuery
                     VehicleId = v.VehicleId,
                     Name = v.Name,
                     ImageUrl = v.ImageUrl,
-                    PricePerHour = v.PricePerHour,
                     Status = v.Status,
-                    CategoryId = v.CategoryId,
-                    CategoryName = v.Category.Name,
+                    SubCategoryId = v.SubCategoryId,
+                    SubCategoryName = v.SubCategory.Name,
+                    SubCategoryPrice = v.SubCategory.Price,
+                    CategoryId = v.SubCategory.CategoryId,
+                    CategoryName = v.SubCategory.Category.Name,
+                    CityId = v.SubCategory.Category.CityId,
+                    CityName = v.SubCategory.Category.City.Name,
                     IsNewThisMonth = v.IsNewThisMonth
                 })
                 .ToListAsync(cancellationToken);

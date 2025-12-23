@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<IdentityUserToken<int>> builder)
         {
-            builder.ToTable("UserTokens");
+            builder.ToTable("VO_UserToken");
 
             // Configure composite primary key
             builder.HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });

@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
-            builder.ToTable("User");
+            builder.ToTable("VO_User");
 
             // Configure primary key
             builder.HasKey(u => u.Id);

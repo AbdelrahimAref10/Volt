@@ -13,8 +13,7 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
     public record CreateVehicleCommand : IRequest<Result<VehicleDto>>
     {
         public string Name { get; set; } = string.Empty;
-        public int CategoryId { get; set; }
-        public decimal PricePerHour { get; set; }
+        public int SubCategoryId { get; set; }
         public string Status { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
     }
@@ -32,21 +31,22 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
 
         public async Task<Result<VehicleDto>> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
         {
-            // Verify category exists
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId && c.IsActive, cancellationToken);
+            // Verify subcategory exists
+            var subCategory = await _context.SubCategories
+                .Include(sc => sc.Category)
+                    .ThenInclude(c => c.City)
+                .FirstOrDefaultAsync(sc => sc.SubCategoryId == request.SubCategoryId && sc.IsActive, cancellationToken);
 
-            if (category == null)
+            if (subCategory == null)
             {
-                return Result.Failure<VehicleDto>($"Category with ID {request.CategoryId} not found");
+                return Result.Failure<VehicleDto>($"SubCategory with ID {request.SubCategoryId} not found");
             }
 
             try
             {
                 var vehicle = Domain.Models.Vehicle.Create(
                     request.Name,
-                    request.CategoryId,
-                    request.PricePerHour,
+                    request.SubCategoryId,
                     request.Status,
                     request.ImageUrl,
                     _userSession.UserName ?? "System"
@@ -60,10 +60,14 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
                     VehicleId = vehicle.VehicleId,
                     Name = vehicle.Name,
                     ImageUrl = vehicle.ImageUrl,
-                    PricePerHour = vehicle.PricePerHour,
                     Status = vehicle.Status,
-                    CategoryId = vehicle.CategoryId,
-                    CategoryName = category.Name,
+                    SubCategoryId = vehicle.SubCategoryId,
+                    SubCategoryName = subCategory.Name,
+                    SubCategoryPrice = subCategory.Price,
+                    CategoryId = subCategory.CategoryId,
+                    CategoryName = subCategory.Category.Name,
+                    CityId = subCategory.Category.CityId,
+                    CityName = subCategory.Category.City.Name,
                     IsNewThisMonth = vehicle.IsNewThisMonth
                 };
 

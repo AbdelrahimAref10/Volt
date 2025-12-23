@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<IdentityUserLogin<int>> builder)
         {
-            builder.ToTable("UserLogins");
+            builder.ToTable("VO_UserLogin");
 
             // Configure composite primary key
             builder.HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });

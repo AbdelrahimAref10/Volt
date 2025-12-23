@@ -57,9 +57,16 @@
             <svg class="categories__badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            {{ category.vehicleCount || 0 }}
+            {{ category.subCategoryCount || 0 }} SubCategories
           </span>
         </div>
+        <p class="categories__card-city">
+          <svg class="categories__city-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          {{ category.cityName }}
+        </p>
         <p class="categories__card-description">{{ category.description || 'No description available' }}</p>
       </div>
 
@@ -67,9 +74,9 @@
       <div class="categories__card-actions">
         <button 
           type="button"
-          (click)="onViewVehicles(category.categoryId)"
+          (click)="onViewSubCategories(category.categoryId)"
           class="categories__btn categories__btn--view"
-          title="View vehicles"
+          title="View subcategories"
         >
           <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -210,6 +217,32 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Description is required
+        </div>
+      </div>
+
+      <!-- City -->
+      <div class="categories__form-group">
+        <label class="categories__form-label">
+          <span>City</span>
+          <span class="categories__form-required">*</span>
+        </label>
+        <div class="categories__input-wrapper">
+          <select 
+            formControlName="cityId"
+            class="categories__form-select"
+            [class.categories__form-input--error]="categoryForm.get('cityId')?.invalid && categoryForm.get('cityId')?.touched"
+          >
+            <option value="">Select a city</option>
+            <option *ngFor="let city of cities" [value]="city.cityId">
+              {{ city.name }}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="categoryForm.get('cityId')?.invalid && categoryForm.get('cityId')?.touched" class="categories__form-error">
+          <svg class="categories__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          City is required
         </div>
       </div>
 

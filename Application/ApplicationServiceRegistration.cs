@@ -25,6 +25,8 @@ namespace Application
             services.AddScoped<Features.Admin.Command.AdminLoginCommand.AdminLoginCommandValidator>();
             services.AddScoped<Features.Category.Command.CreateCategoryCommand.CreateCategoryCommandValidator>();
             services.AddScoped<Features.Category.Command.UpdateCategoryCommand.UpdateCategoryCommandValidator>();
+            services.AddScoped<Features.SubCategory.Command.CreateSubCategoryCommand.CreateSubCategoryCommandValidator>();
+            services.AddScoped<Features.SubCategory.Command.UpdateSubCategoryCommand.UpdateSubCategoryCommandValidator>();
 
             return services;
         }

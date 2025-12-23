@@ -84,6 +84,14 @@
   @apply w-3.5 h-3.5;
 }
 
+.categories__card-city {
+  @apply flex items-center gap-1.5 text-xs text-neutral-500 mb-2 font-medium;
+}
+
+.categories__city-icon {
+  @apply w-4 h-4;
+}
+
 .categories__card-description {
   @apply text-sm text-neutral-600 leading-relaxed line-clamp-3 flex-1;
 }
@@ -211,7 +219,8 @@
 }
 
 .categories__form-input,
-.categories__form-textarea {
+.categories__form-textarea,
+.categories__form-select {
   @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
 }
 
@@ -224,7 +233,8 @@
 }
 
 .categories__form-input--error,
-.categories__form-textarea.categories__form-input--error {
+.categories__form-textarea.categories__form-input--error,
+.categories__form-select.categories__form-input--error {
   @apply border-error-500 focus:ring-error-500 focus:border-error-500;
 }
 

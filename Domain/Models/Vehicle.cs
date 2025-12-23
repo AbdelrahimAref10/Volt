@@ -8,13 +8,12 @@ namespace Domain.Models
         public int VehicleId { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string? ImageUrl { get; private set; }
-        public decimal PricePerHour { get; private set; }
         public string Status { get; private set; } = string.Empty; // "Available", "Under Maintenance", "Rented"
         public DateTime? CreatedThisMonth { get; private set; }
 
         // Foreign key and navigation property
-        public int CategoryId { get; private set; }
-        public Category Category { get; private set; } = null!;
+        public int SubCategoryId { get; private set; }
+        public SubCategory SubCategory { get; private set; } = null!;
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -28,8 +27,7 @@ namespace Domain.Models
         // Factory method for creating vehicles
         public static Vehicle Create(
             string name,
-            int categoryId,
-            decimal pricePerHour,
+            int subCategoryId,
             string status,
             string? imageUrl = null,
             string? createdBy = null)
@@ -37,11 +35,8 @@ namespace Domain.Models
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Vehicle name cannot be empty", nameof(name));
 
-            if (categoryId <= 0)
-                throw new ArgumentException("Category ID must be greater than zero", nameof(categoryId));
-
-            if (pricePerHour < 0)
-                throw new ArgumentException("Price per hour cannot be negative", nameof(pricePerHour));
+            if (subCategoryId <= 0)
+                throw new ArgumentException("SubCategory ID must be greater than zero", nameof(subCategoryId));
 
             if (string.IsNullOrWhiteSpace(status))
                 throw new ArgumentException("Status cannot be empty", nameof(status));
@@ -53,8 +48,7 @@ namespace Domain.Models
             return new Vehicle
             {
                 Name = name.Trim(),
-                CategoryId = categoryId,
-                PricePerHour = pricePerHour,
+                SubCategoryId = subCategoryId,
                 Status = status,
                 ImageUrl = imageUrl,
                 CreatedThisMonth = DateTime.UtcNow, // Track if created this month
@@ -67,8 +61,7 @@ namespace Domain.Models
         // Domain methods
         public void Update(
             string name,
-            int categoryId,
-            decimal pricePerHour,
+            int subCategoryId,
             string status,
             string? imageUrl = null,
             string? modifiedBy = null)
@@ -76,11 +69,8 @@ namespace Domain.Models
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Vehicle name cannot be empty", nameof(name));
 
-            if (categoryId <= 0)
-                throw new ArgumentException("Category ID must be greater than zero", nameof(categoryId));
-
-            if (pricePerHour < 0)
-                throw new ArgumentException("Price per hour cannot be negative", nameof(pricePerHour));
+            if (subCategoryId <= 0)
+                throw new ArgumentException("SubCategory ID must be greater than zero", nameof(subCategoryId));
 
             if (string.IsNullOrWhiteSpace(status))
                 throw new ArgumentException("Status cannot be empty", nameof(status));
@@ -90,8 +80,7 @@ namespace Domain.Models
                 throw new ArgumentException($"Status must be one of: {string.Join(", ", validStatuses)}", nameof(status));
 
             Name = name.Trim();
-            CategoryId = categoryId;
-            PricePerHour = pricePerHour;
+            SubCategoryId = subCategoryId;
             Status = status;
             ImageUrl = imageUrl;
             LastModifiedBy = modifiedBy;

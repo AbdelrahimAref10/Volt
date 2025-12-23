@@ -14,6 +14,7 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public int CityId { get; set; }
         public string? ImageUrl { get; set; }
     }
 
@@ -44,9 +45,19 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
 
             try
             {
+                // Verify city exists
+                var city = await _context.Cities
+                    .FirstOrDefaultAsync(c => c.CityId == request.CityId && c.IsActive, cancellationToken);
+
+                if (city == null)
+                {
+                    return Result.Failure<CategoryDto>("City not found or is not active");
+                }
+
                 var category = Domain.Models.Category.Create(
                     request.Name,
                     request.Description,
+                    request.CityId,
                     request.ImageUrl,
                     _userSession.UserName ?? "System"
                 );
@@ -61,7 +72,9 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
                     Description = category.Description,
                     ImageUrl = category.ImageUrl,
                     IsActive = category.IsActive,
-                    VehicleCount = 0
+                    SubCategoryCount = 0,
+                    CityId = category.CityId,
+                    CityName = city.Name
                 };
 
                 return Result.Success(categoryDto);

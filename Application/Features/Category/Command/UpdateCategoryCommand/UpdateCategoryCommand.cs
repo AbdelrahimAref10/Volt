@@ -14,6 +14,7 @@ namespace Application.Features.Category.Command.UpdateCategoryCommand
         public int CategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public int CityId { get; set; }
         public string? ImageUrl { get; set; }
     }
 
@@ -45,19 +46,34 @@ namespace Application.Features.Category.Command.UpdateCategoryCommand
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
 
+            if (category == null)
+            {
+                return Result.Failure<CategoryDto>($"Category with ID {request.CategoryId} not found");
+            }
+
+            // Verify city exists
+            var city = await _context.Cities
+                .FirstOrDefaultAsync(c => c.CityId == request.CityId && c.IsActive, cancellationToken);
+
+            if (city == null)
+            {
+                return Result.Failure<CategoryDto>("City not found or is not active");
+            }
+
             try
             {
                 category.Update(
                     request.Name,
                     request.Description,
+                    request.CityId,
                     request.ImageUrl,
                     _userSession.UserName ?? "System"
                 );
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                var vehicleCount = await _context.Vehicles
-                    .CountAsync(v => v.CategoryId == category.CategoryId, cancellationToken);
+                var subCategoryCount = await _context.SubCategories
+                    .CountAsync(sc => sc.CategoryId == category.CategoryId && sc.IsActive, cancellationToken);
 
                 var categoryDto = new CategoryDto
                 {
@@ -66,7 +82,9 @@ namespace Application.Features.Category.Command.UpdateCategoryCommand
                     Description = category.Description,
                     ImageUrl = category.ImageUrl,
                     IsActive = category.IsActive,
-                    VehicleCount = vehicleCount
+                    SubCategoryCount = subCategoryCount,
+                    CityId = category.CityId,
+                    CityName = city.Name
                 };
 
                 return Result.Success(categoryDto);

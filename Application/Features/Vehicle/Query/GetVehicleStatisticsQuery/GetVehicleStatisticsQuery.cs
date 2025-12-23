@@ -12,6 +12,7 @@ namespace Application.Features.Vehicle.Query.GetVehicleStatisticsQuery
     public record GetVehicleStatisticsQuery : IRequest<Result<VehicleStatisticsDto>>
     {
         public int? CategoryId { get; set; }
+        public int? SubCategoryId { get; set; }
     }
 
     public class GetVehicleStatisticsQueryHandler : IRequestHandler<GetVehicleStatisticsQuery, Result<VehicleStatisticsDto>>
@@ -25,11 +26,18 @@ namespace Application.Features.Vehicle.Query.GetVehicleStatisticsQuery
 
         public async Task<Result<VehicleStatisticsDto>> Handle(GetVehicleStatisticsQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.Vehicles.AsQueryable();
+            var query = _context.Vehicles
+                .Include(v => v.SubCategory)
+                .AsQueryable();
 
             if (request.CategoryId.HasValue)
             {
-                query = query.Where(v => v.CategoryId == request.CategoryId.Value);
+                query = query.Where(v => v.SubCategory.CategoryId == request.CategoryId.Value);
+            }
+
+            if (request.SubCategoryId.HasValue)
+            {
+                query = query.Where(v => v.SubCategoryId == request.SubCategoryId.Value);
             }
 
             var now = DateTime.UtcNow;

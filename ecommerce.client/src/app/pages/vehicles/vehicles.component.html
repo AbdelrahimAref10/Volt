@@ -3,7 +3,7 @@
   <div class="vehicles__header">
     <div>
       <h1 class="vehicles__title">
-        {{ selectedCategoryName ? selectedCategoryName + ' Vehicles' : 'Vehicles' }}
+        {{ selectedSubCategoryName ? selectedSubCategoryName + ' Vehicles' : 'Vehicles' }}
       </h1>
       <p class="vehicles__subtitle">Manage your vehicle fleet</p>
     </div>
@@ -110,8 +110,10 @@
         <tr>
           <th class="vehicles__table-header">Image</th>
           <th class="vehicles__table-header">Name</th>
+          <th class="vehicles__table-header">SubCategory</th>
           <th class="vehicles__table-header">Category</th>
-          <th class="vehicles__table-header">Price/Hr</th>
+          <th class="vehicles__table-header">City</th>
+          <th class="vehicles__table-header">Price</th>
           <th class="vehicles__table-header">Status</th>
           <th class="vehicles__table-header">Actions</th>
         </tr>
@@ -134,8 +136,10 @@
             </div>
           </td>
           <td class="vehicles__table-cell vehicles__table-cell--name">{{ vehicle.name }}</td>
+          <td class="vehicles__table-cell">{{ vehicle.subCategoryName }}</td>
           <td class="vehicles__table-cell">{{ vehicle.categoryName }}</td>
-          <td class="vehicles__table-cell">${{ vehicle.pricePerHour }}/hr</td>
+          <td class="vehicles__table-cell">{{ vehicle.cityName }}</td>
+          <td class="vehicles__table-cell">${{ vehicle.subCategoryPrice }}</td>
           <td class="vehicles__table-cell">
             <span class="vehicles__status" [ngClass]="getStatusClass(vehicle.status)">
               {{ vehicle.status }}
@@ -258,55 +262,29 @@
         </div>
       </div>
 
-      <!-- Category -->
+      <!-- SubCategory -->
       <div class="vehicles__form-group">
         <label class="vehicles__form-label">
-          <span>Category</span>
+          <span>SubCategory</span>
           <span class="vehicles__form-required">*</span>
         </label>
         <div class="vehicles__input-wrapper">
           <select 
-            formControlName="categoryId"
+            formControlName="subCategoryId"
             class="vehicles__form-select"
-            [class.vehicles__form-input--error]="vehicleForm.get('categoryId')?.invalid && vehicleForm.get('categoryId')?.touched"
+            [class.vehicles__form-input--error]="vehicleForm.get('subCategoryId')?.invalid && vehicleForm.get('subCategoryId')?.touched"
           >
-            <option value="">Select a category</option>
-            <option *ngFor="let category of categories" [value]="category.categoryId">
-              {{ category.name }}
+            <option value="">Select a subcategory</option>
+            <option *ngFor="let subCategory of subCategories" [value]="subCategory.subCategoryId">
+              {{ subCategory.name }} ({{ subCategory.categoryName }}) - ${{ subCategory.price }}
             </option>
           </select>
         </div>
-        <div *ngIf="vehicleForm.get('categoryId')?.invalid && vehicleForm.get('categoryId')?.touched" class="vehicles__form-error">
+        <div *ngIf="vehicleForm.get('subCategoryId')?.invalid && vehicleForm.get('subCategoryId')?.touched" class="vehicles__form-error">
           <svg class="vehicles__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          Category is required
-        </div>
-      </div>
-
-      <!-- Price Per Hour -->
-      <div class="vehicles__form-group">
-        <label class="vehicles__form-label">
-          <span>Price Per Hour</span>
-          <span class="vehicles__form-required">*</span>
-        </label>
-        <div class="vehicles__input-wrapper vehicles__input-wrapper--currency">
-          <span class="vehicles__currency-symbol">$</span>
-          <input 
-            type="number"
-            formControlName="pricePerHour"
-            step="0.01"
-            min="0"
-            class="vehicles__form-input"
-            [class.vehicles__form-input--error]="vehicleForm.get('pricePerHour')?.invalid && vehicleForm.get('pricePerHour')?.touched"
-            placeholder="0.00"
-          />
-        </div>
-        <div *ngIf="vehicleForm.get('pricePerHour')?.invalid && vehicleForm.get('pricePerHour')?.touched" class="vehicles__form-error">
-          <svg class="vehicles__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Price per hour is required and must be greater than 0
+          SubCategory is required
         </div>
       </div>
 

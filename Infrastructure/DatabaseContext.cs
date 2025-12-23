@@ -23,6 +23,7 @@ namespace Infrastructure
         public DbSet<Customer> Customers { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<City> Cities { get; set; }
 

@@ -72,7 +72,7 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("Role", (string)null);
+                    b.ToTable("VO_Role", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.ApplicationUser", b =>
@@ -184,7 +184,7 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("VO_User", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Category", b =>
@@ -195,6 +195,10 @@ namespace Infrastructure.Migrations
                         .HasColumnName("CategoryId");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("CityId");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
@@ -238,14 +242,17 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("CategoryId");
 
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("IX_VO_Category_CityId");
+
                     b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_Categories_IsActive");
+                        .HasDatabaseName("IX_VO_Category_IsActive");
 
                     b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("IX_Categories_Name");
+                        .HasDatabaseName("IX_VO_Category_Name");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("VO_Category", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.City", b =>
@@ -301,7 +308,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Cities_Name");
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("VO_City", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
@@ -412,7 +419,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("MobileNumber", "State")
                         .HasDatabaseName("IX_Customer_MobileNumber_State");
 
-                    b.ToTable("Customer", (string)null);
+                    b.ToTable("VO_Customer", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Permission", b =>
@@ -478,7 +485,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Module", "IsActive")
                         .HasDatabaseName("IX_Permissions_Module_IsActive");
 
-                    b.ToTable("Permissions", (string)null);
+                    b.ToTable("VO_Permission", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
@@ -552,7 +559,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId", "IsRevoked", "IsUsed");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("VO_RefreshToken", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.RolePermission", b =>
@@ -595,7 +602,88 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_RolePermissions_RoleId_PermissionId");
 
-                    b.ToTable("RolePermissions", (string)null);
+                    b.ToTable("VO_RolePermission", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.SubCategory", b =>
+                {
+                    b.Property<int>("SubCategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("SubCategoryId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubCategoryId"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("CategoryId");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("Description");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ImageUrl");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsOffer")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsOffer");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("Name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Price");
+
+                    b.HasKey("SubCategoryId");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("IX_VO_SubCategory_CategoryId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_VO_SubCategory_IsActive");
+
+                    b.HasIndex("IsOffer")
+                        .HasDatabaseName("IX_VO_SubCategory_IsOffer");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VO_SubCategory_Name");
+
+                    b.ToTable("VO_SubCategory", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Vehicle", b =>
@@ -606,10 +694,6 @@ namespace Infrastructure.Migrations
                         .HasColumnName("VehicleId");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VehicleId"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int")
-                        .HasColumnName("CategoryId");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
@@ -643,31 +727,31 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("Name");
 
-                    b.Property<decimal>("PricePerHour")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("PricePerHour");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("Status");
 
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("SubCategoryId");
+
                     b.HasKey("VehicleId");
 
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("IX_Vehicles_CategoryId");
-
                     b.HasIndex("CreatedThisMonth")
-                        .HasDatabaseName("IX_Vehicles_CreatedThisMonth");
+                        .HasDatabaseName("IX_VO_Vehicle_CreatedThisMonth");
 
                     b.HasIndex("Status")
-                        .HasDatabaseName("IX_Vehicles_Status");
+                        .HasDatabaseName("IX_VO_Vehicle_Status");
 
-                    b.HasIndex("CategoryId", "Status")
-                        .HasDatabaseName("IX_Vehicles_CategoryId_Status");
+                    b.HasIndex("SubCategoryId")
+                        .HasDatabaseName("IX_VO_Vehicle_SubCategoryId");
 
-                    b.ToTable("Vehicles", (string)null);
+                    b.HasIndex("SubCategoryId", "Status")
+                        .HasDatabaseName("IX_VO_Vehicle_SubCategoryId_Status");
+
+                    b.ToTable("VO_Vehicle", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -697,7 +781,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleClaims", (string)null);
+                    b.ToTable("VO_RoleClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
@@ -727,7 +811,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("VO_UserClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
@@ -755,7 +839,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogins", (string)null);
+                    b.ToTable("VO_UserLogin", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
@@ -772,7 +856,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("VO_UserRole", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -797,7 +881,18 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens", (string)null);
+                    b.ToTable("VO_UserToken", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.Category", b =>
+                {
+                    b.HasOne("Domain.Models.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
@@ -841,15 +936,26 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Domain.Models.Vehicle", b =>
+            modelBuilder.Entity("Domain.Models.SubCategory", b =>
                 {
                     b.HasOne("Domain.Models.Category", "Category")
-                        .WithMany("Vehicles")
+                        .WithMany("SubCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Domain.Models.Vehicle", b =>
+                {
+                    b.HasOne("Domain.Models.SubCategory", "SubCategory")
+                        .WithMany("Vehicles")
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -905,7 +1011,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Category", b =>
                 {
-                    b.Navigation("Vehicles");
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Domain.Models.City", b =>
@@ -916,6 +1022,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("Domain.Models.SubCategory", b =>
+                {
+                    b.Navigation("Vehicles");
                 });
 #pragma warning restore 612, 618
         }

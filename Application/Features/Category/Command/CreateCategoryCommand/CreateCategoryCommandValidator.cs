@@ -29,6 +29,20 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
                 return Result.Failure("Category name must be at least 2 characters long");
             }
 
+            if (request.CityId <= 0)
+            {
+                return Result.Failure("City ID must be greater than zero");
+            }
+
+            // Check if city exists and is active
+            var cityExists = await _context.Cities
+                .AnyAsync(c => c.CityId == request.CityId && c.IsActive, cancellationToken);
+
+            if (!cityExists)
+            {
+                return Result.Failure("City not found or is not active");
+            }
+
             // Check if category with same name already exists
             var existingCategory = await _context.Categories
                 .FirstOrDefaultAsync(c => c.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken);

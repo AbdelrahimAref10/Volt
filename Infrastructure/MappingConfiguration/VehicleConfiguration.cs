@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<Vehicle> builder)
         {
-            builder.ToTable("Vehicles");
+            builder.ToTable("VO_Vehicle");
 
             // Configure primary key
             builder.HasKey(v => v.VehicleId);
@@ -28,11 +28,6 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnName("ImageUrl")
                 .HasColumnType("nvarchar(max)");
 
-            builder.Property(v => v.PricePerHour)
-                .HasColumnName("PricePerHour")
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-
             builder.Property(v => v.Status)
                 .HasColumnName("Status")
                 .HasMaxLength(50)
@@ -41,8 +36,8 @@ namespace Infrastructure.MappingConfiguration
             builder.Property(v => v.CreatedThisMonth)
                 .HasColumnName("CreatedThisMonth");
 
-            builder.Property(v => v.CategoryId)
-                .HasColumnName("CategoryId")
+            builder.Property(v => v.SubCategoryId)
+                .HasColumnName("SubCategoryId")
                 .IsRequired();
 
             // Configure audit properties
@@ -63,24 +58,24 @@ namespace Infrastructure.MappingConfiguration
                 .IsRequired();
 
             // Configure relationships
-            builder.HasOne(v => v.Category)
-                .WithMany(c => c.Vehicles)
-                .HasForeignKey(v => v.CategoryId)
+            builder.HasOne(v => v.SubCategory)
+                .WithMany(sc => sc.Vehicles)
+                .HasForeignKey(v => v.SubCategoryId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             // Configure indexes
-            builder.HasIndex(v => v.CategoryId)
-                .HasDatabaseName("IX_Vehicles_CategoryId");
+            builder.HasIndex(v => v.SubCategoryId)
+                .HasDatabaseName("IX_VO_Vehicle_SubCategoryId");
 
             builder.HasIndex(v => v.Status)
-                .HasDatabaseName("IX_Vehicles_Status");
+                .HasDatabaseName("IX_VO_Vehicle_Status");
 
-            builder.HasIndex(v => new { v.CategoryId, v.Status })
-                .HasDatabaseName("IX_Vehicles_CategoryId_Status");
+            builder.HasIndex(v => new { v.SubCategoryId, v.Status })
+                .HasDatabaseName("IX_VO_Vehicle_SubCategoryId_Status");
 
             builder.HasIndex(v => v.CreatedThisMonth)
-                .HasDatabaseName("IX_Vehicles_CreatedThisMonth");
+                .HasDatabaseName("IX_VO_Vehicle_CreatedThisMonth");
         }
     }
 }

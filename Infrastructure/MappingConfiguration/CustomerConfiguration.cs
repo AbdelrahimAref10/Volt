@@ -9,7 +9,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
-            builder.ToTable("Customer");
+            builder.ToTable("VO_Customer");
 
             // Configure primary key
             builder.HasKey(c => c.CustomerId);

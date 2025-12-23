@@ -49,7 +49,41 @@
   
 
 	<Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
-		<Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" />
+		<Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" ContinueOnError="true" IgnoreExitCode="true" />
+	</Target>
+	
+	<!-- Clean wwwroot (except api folder) and copy Angular build output during publish -->
+	<Target Name="CopyAngularBuildOutput" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
+		<ItemGroup>
+			<AngularBuildFiles Include="$(SpaRoot)\dist\ecommerce.client\**\*.*" />
+			<FilesToDelete Include="$(PublishDir)wwwroot\*.js" />
+			<FilesToDelete Include="$(PublishDir)wwwroot\*.css" />
+			<FilesToDelete Include="$(PublishDir)wwwroot\*.html" />
+			<FilesToDelete Include="$(PublishDir)wwwroot\*.ico" />
+		</ItemGroup>
+		<Message Text="Cleaning old Angular files from $(PublishDir)wwwroot (keeping api folder)" Importance="high" />
+		<Delete Files="@(FilesToDelete)" ContinueOnError="true" />
+		<Message Text="Copying Angular build output from $(SpaRoot)\dist\ecommerce.client to $(PublishDir)wwwroot" Importance="high" />
+		<Copy SourceFiles="@(AngularBuildFiles)" 
+		      DestinationFiles="@(AngularBuildFiles->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" 
+		      SkipUnchangedFiles="true" />
+	</Target>
+	
+	<!-- Also copy during build for local testing -->
+	<Target Name="CopyAngularBuildOutputToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' AND '$(PublishDir)' == ''">
+		<ItemGroup>
+			<AngularBuildFilesLocal Include="$(SpaRoot)\dist\ecommerce.client\**\*.*" />
+			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.js" />
+			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.css" />
+			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.html" />
+			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.ico" />
+		</ItemGroup>
+		<Message Text="Cleaning old Angular files from $(ProjectDir)wwwroot (keeping api folder)" Importance="high" />
+		<Delete Files="@(FilesToDeleteLocal)" ContinueOnError="true" />
+		<Message Text="Copying Angular build output from $(SpaRoot)\dist\ecommerce.client to $(ProjectDir)wwwroot" Importance="high" />
+		<Copy SourceFiles="@(AngularBuildFilesLocal)" 
+		      DestinationFiles="@(AngularBuildFilesLocal->'$(ProjectDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" 
+		      SkipUnchangedFiles="true" />
 	</Target>
 	
 </Project>

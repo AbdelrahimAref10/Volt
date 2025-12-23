@@ -1,0 +1,398 @@
+/* SubCategories Component - BEM Methodology with Tailwind */
+
+.subcategories {
+  @apply p-6;
+}
+
+.subcategories__header {
+  @apply mb-6 flex items-center justify-between;
+}
+
+.subcategories__title {
+  @apply text-3xl font-bold text-neutral-900 mb-2;
+}
+
+.subcategories__subtitle {
+  @apply text-neutral-600;
+}
+
+.subcategories__filters {
+  @apply mb-6 flex items-center gap-4 flex-wrap;
+}
+
+.subcategories__search {
+  @apply flex items-center gap-2 flex-1 min-w-[300px];
+}
+
+.subcategories__search-input {
+  @apply flex-1 px-4 py-2 border border-neutral-300 rounded-lg bg-white text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.subcategories__search-btn {
+  @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategories__search-icon {
+  @apply w-5 h-5;
+}
+
+.subcategories__category-filter {
+  @apply min-w-[200px];
+}
+
+.subcategories__filter-select {
+  @apply w-full px-4 py-2 border border-neutral-300 rounded-lg bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.subcategories__error {
+  @apply flex items-center gap-3 p-4 bg-error-50 border border-error-200 rounded-lg text-error-700 mb-6;
+}
+
+.subcategories__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.subcategories__loading {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.subcategories__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+.subcategories__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8;
+}
+
+.subcategories__card {
+  @apply bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-neutral-100;
+}
+
+.subcategories__card-image {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.subcategories__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.subcategories__image-placeholder {
+  @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200;
+}
+
+.subcategories__placeholder-icon {
+  @apply w-20 h-20 text-neutral-400;
+}
+
+/* Card Content */
+.subcategories__card-content {
+  @apply p-5 flex-1 flex flex-col;
+}
+
+.subcategories__card-header {
+  @apply mb-2;
+}
+
+.subcategories__card-title {
+  @apply text-lg font-bold text-neutral-900 leading-tight;
+}
+
+.subcategories__badges {
+  @apply flex flex-wrap gap-2 mb-3;
+}
+
+.subcategories__price-badge {
+  @apply flex items-center gap-1.5 px-3 py-1.5 bg-success-50 text-success-700 rounded-full text-xs font-semibold whitespace-nowrap;
+}
+
+.subcategories__vehicle-badge {
+  @apply flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-full text-xs font-semibold whitespace-nowrap;
+}
+
+.subcategories__offer-badge {
+  @apply flex items-center gap-1.5 px-3 py-1.5 bg-warning-50 text-warning-700 rounded-full text-xs font-semibold whitespace-nowrap border border-warning-300;
+}
+
+.subcategories__badge-icon {
+  @apply w-3.5 h-3.5;
+}
+
+.subcategories__card-category {
+  @apply flex items-center gap-1.5 text-xs text-neutral-500 mb-1 font-medium;
+}
+
+.subcategories__category-icon {
+  @apply w-3.5 h-3.5;
+}
+
+.subcategories__card-city {
+  @apply flex items-center gap-1.5 text-xs text-neutral-500 mb-2 font-medium;
+}
+
+.subcategories__city-icon {
+  @apply w-3.5 h-3.5;
+}
+
+.subcategories__card-description {
+  @apply text-sm text-neutral-600 leading-relaxed line-clamp-3 flex-1;
+}
+
+/* Card Actions */
+.subcategories__card-actions {
+  @apply p-4 border-t border-neutral-100 flex items-center gap-2;
+}
+
+.subcategories__btn {
+  @apply flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.subcategories__btn-icon {
+  @apply w-5 h-5;
+}
+
+.subcategories__btn--view {
+  @apply flex-1 bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+}
+
+.subcategories__btn--edit {
+  @apply bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 focus:ring-primary-500;
+}
+
+.subcategories__btn--delete {
+  @apply bg-error-50 text-error-700 hover:bg-error-100 border border-error-200 focus:ring-error-500;
+}
+
+.subcategories__add-btn {
+  @apply flex items-center justify-center w-10 h-10 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-sm hover:shadow-md;
+}
+
+.subcategories__add-icon {
+  @apply w-5 h-5;
+}
+
+.subcategories__empty {
+  @apply flex flex-col items-center justify-center py-12;
+}
+
+.subcategories__empty-icon {
+  @apply w-16 h-16 text-neutral-400 mb-4;
+}
+
+.subcategories__empty-text {
+  @apply text-neutral-600 text-lg;
+}
+
+.subcategories__pagination {
+  @apply flex items-center justify-center gap-2 mt-8;
+}
+
+.subcategories__pagination-btn {
+  @apply flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.subcategories__pagination-btn--disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.subcategories__pagination-icon {
+  @apply w-4 h-4;
+}
+
+.subcategories__pagination-numbers {
+  @apply flex items-center gap-1;
+}
+
+.subcategories__pagination-number {
+  @apply w-10 h-10 rounded-lg border border-neutral-300 bg-surface-50 text-neutral-700 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategories__pagination-number--active {
+  @apply bg-primary-500 text-white border-primary-500 hover:bg-primary-600;
+}
+
+/* Modal */
+.subcategories__modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.subcategories__modal {
+  @apply bg-surface-50 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto;
+}
+
+.subcategories__modal-header {
+  @apply flex items-center justify-between p-6 border-b border-neutral-200;
+}
+
+.subcategories__modal-title {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.subcategories__modal-close {
+  @apply p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategories__modal-close-icon {
+  @apply w-5 h-5;
+}
+
+.subcategories__modal-form {
+  @apply p-6 space-y-6;
+}
+
+.subcategories__form-group {
+  @apply mb-0;
+}
+
+.subcategories__form-group--image {
+  @apply pt-6 border-t border-neutral-200;
+}
+
+.subcategories__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-3;
+}
+
+.subcategories__form-required {
+  @apply text-error-500;
+}
+
+.subcategories__input-wrapper {
+  @apply relative;
+}
+
+.subcategories__input-wrapper--currency {
+  @apply flex items-center;
+}
+
+.subcategories__currency-symbol {
+  @apply absolute left-4 text-neutral-600 font-medium z-10;
+}
+
+.subcategories__form-input,
+.subcategories__form-textarea,
+.subcategories__form-select {
+  @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
+}
+
+.subcategories__form-input {
+  @apply h-12;
+}
+
+.subcategories__input-wrapper--currency .subcategories__form-input {
+  @apply pl-8;
+}
+
+.subcategories__form-textarea {
+  @apply resize-none min-h-[100px];
+}
+
+.subcategories__form-input--error,
+.subcategories__form-textarea.subcategories__form-input--error,
+.subcategories__form-select.subcategories__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.subcategories__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.subcategories__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+.subcategories__form-checkbox-label {
+  @apply flex items-center gap-3 cursor-pointer;
+}
+
+.subcategories__form-checkbox {
+  @apply w-5 h-5 rounded border-neutral-300 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer;
+}
+
+.subcategories__checkbox-text {
+  @apply text-sm font-medium text-neutral-700;
+}
+
+.subcategories__form-hint {
+  @apply text-xs text-neutral-500 mt-1;
+}
+
+/* Image Upload */
+.subcategories__image-upload {
+  @apply space-y-4;
+}
+
+.subcategories__image-preview-wrapper {
+  @apply flex justify-center;
+}
+
+.subcategories__image-preview {
+  @apply relative inline-block;
+}
+
+.subcategories__preview-image {
+  @apply w-40 h-40 object-cover rounded-xl border-2 border-neutral-200 shadow-md;
+}
+
+.subcategories__image-remove {
+  @apply absolute -top-2 -right-2 w-8 h-8 bg-error-500 text-white rounded-full flex items-center justify-center hover:bg-error-600 transition-colors duration-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-error-500;
+}
+
+.subcategories__image-remove svg {
+  @apply w-4 h-4;
+}
+
+.subcategories__image-upload-area {
+  @apply relative;
+}
+
+.subcategories__file-input {
+  @apply hidden;
+}
+
+.subcategories__file-label {
+  @apply flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-neutral-300 rounded-xl bg-neutral-50 hover:border-primary-400 hover:bg-primary-50 cursor-pointer transition-all duration-200;
+}
+
+.subcategories__image-upload-area--has-image .subcategories__file-label {
+  @apply p-4 border-solid border-neutral-300 hover:border-primary-400;
+}
+
+.subcategories__file-icon {
+  @apply w-10 h-10 text-primary-500;
+}
+
+.subcategories__file-text {
+  @apply flex flex-col items-center gap-1;
+}
+
+.subcategories__file-text span:first-child {
+  @apply text-sm font-semibold text-neutral-700;
+}
+
+.subcategories__file-hint {
+  @apply text-xs text-neutral-500;
+}
+
+/* Modal Actions */
+.subcategories__modal-actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200;
+}
+
+.subcategories__modal-btn {
+  @apply px-6 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategories__modal-btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.subcategories__modal-btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+

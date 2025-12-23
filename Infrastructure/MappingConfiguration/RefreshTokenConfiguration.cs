@@ -8,7 +8,7 @@ namespace Infrastructure.MappingConfiguration
     {
         public void Configure(EntityTypeBuilder<RefreshToken> builder)
         {
-            builder.ToTable("RefreshTokens");
+            builder.ToTable("VO_RefreshToken");
 
             builder.HasKey(rt => rt.RefreshTokenId);
 

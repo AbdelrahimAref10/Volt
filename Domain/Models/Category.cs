@@ -11,8 +11,11 @@ namespace Domain.Models
         public string? ImageUrl { get; private set; }
         public bool IsActive { get; private set; } = true;
 
+        public int CityId { get; private set; }
+        public City City { get; private set; } = null!; // Navigation property
+
         // Navigation property
-        public ICollection<Vehicle> Vehicles { get; private set; } = new List<Vehicle>();
+        public ICollection<SubCategory> SubCategories { get; private set; } = new List<SubCategory>();
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -27,16 +30,20 @@ namespace Domain.Models
         public static Category Create(
             string name,
             string description,
+            int cityId,
             string? imageUrl = null,
             string? createdBy = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Category name cannot be empty", nameof(name));
+            if (cityId <= 0)
+                throw new ArgumentException("City ID must be greater than zero", nameof(cityId));
 
             return new Category
             {
                 Name = name.Trim(),
                 Description = description ?? string.Empty,
+                CityId = cityId,
                 ImageUrl = imageUrl,
                 IsActive = true,
                 CreatedBy = createdBy,
@@ -46,13 +53,16 @@ namespace Domain.Models
         }
 
         // Domain methods
-        public void Update(string name, string description, string? imageUrl = null, string? modifiedBy = null)
+        public void Update(string name, string description, int cityId, string? imageUrl = null, string? modifiedBy = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Category name cannot be empty", nameof(name));
+            if (cityId <= 0)
+                throw new ArgumentException("City ID must be greater than zero", nameof(cityId));
 
             Name = name.Trim();
             Description = description ?? string.Empty;
+            CityId = cityId;
             ImageUrl = imageUrl;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
