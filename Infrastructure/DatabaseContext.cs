@@ -24,17 +24,18 @@ namespace Infrastructure
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
-        
+        public DbSet<City> Cities { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             // Apply all entity configurations from the assembly
             // This will automatically pick up all IEntityTypeConfiguration implementations
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
         }
 
-        public  async Task<DbResult> SaveChangesAsyncWithResult(CancellationToken cancellationToken = default)
+        public async Task<DbResult> SaveChangesAsyncWithResult(CancellationToken cancellationToken = default)
         {
             try
             {

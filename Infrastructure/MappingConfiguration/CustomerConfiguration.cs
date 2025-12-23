@@ -30,6 +30,11 @@ namespace Infrastructure.MappingConfiguration
                 .HasMaxLength(256)
                 .IsRequired();
 
+            builder.Property(c => c.FullName)
+                .HasColumnName("FullName")
+                .HasMaxLength(256)
+                .IsRequired();
+
             builder.Property(c => c.NationalNumber)
                 .HasColumnName("NationalNumber")
                 .HasMaxLength(50)
@@ -39,6 +44,10 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnName("Gender")
                 .HasMaxLength(20)
                 .IsRequired();
+
+            builder.Property(c => c.FullAddress)
+                .HasColumnName("FullAddress")
+                .HasMaxLength(500);
 
             builder.Property(c => c.State)
                 .HasColumnName("State")
@@ -58,8 +67,13 @@ namespace Infrastructure.MappingConfiguration
                 .HasDefaultValue(false)
                 .IsRequired();
 
-            builder.Property(c => c.UserId)
-                .HasColumnName("UserId")
+            builder.Property(c => c.PasswordHash)
+                .HasColumnName("PasswordHash")
+                .HasMaxLength(256)
+                .IsRequired();
+
+            builder.Property(c => c.CityId)
+                .HasColumnName("CityId")
                 .IsRequired();
 
             // Configure audit properties
@@ -80,11 +94,10 @@ namespace Infrastructure.MappingConfiguration
                 .IsRequired();
 
             // Configure relationships
-            builder.HasOne(c => c.User)
-                .WithMany()
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+            builder.HasOne(c => c.City)
+                .WithMany(c => c.Customers)
+                .HasForeignKey(c => c.CityId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configure indexes
             builder.HasIndex(c => c.MobileNumber)
@@ -93,10 +106,6 @@ namespace Infrastructure.MappingConfiguration
 
             builder.HasIndex(c => c.NationalNumber)
                 .HasDatabaseName("IX_Customer_NationalNumber")
-                .IsUnique();
-
-            builder.HasIndex(c => c.UserId)
-                .HasDatabaseName("IX_Customer_UserId")
                 .IsUnique();
 
             builder.HasIndex(c => new { c.MobileNumber, c.State })

@@ -1,0 +1,193 @@
+/* Notification Dropdown - Modern Design with Glassmorphism */
+
+.notification-dropdown {
+  @apply absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white/80 backdrop-blur-xl 
+         rounded-2xl shadow-2xl border border-white/20 z-50 opacity-0 invisible 
+         transform translate-y-2 scale-95 transition-all duration-300 ease-out
+         max-h-[600px] flex flex-col;
+}
+
+.notification-dropdown--open {
+  @apply opacity-100 visible translate-y-0 scale-100;
+}
+
+.notification-dropdown__header {
+  @apply px-6 py-4 border-b border-neutral-200/50 flex items-center justify-between;
+}
+
+.notification-dropdown__title {
+  @apply text-lg font-semibold text-neutral-900;
+}
+
+.notification-dropdown__mark-all {
+  @apply text-sm text-primary-600 hover:text-primary-700 font-medium 
+         transition-colors duration-200 focus:outline-none focus:ring-2 
+         focus:ring-primary-500 rounded px-2 py-1;
+}
+
+.notification-dropdown__content {
+  @apply flex-1 overflow-y-auto;
+}
+
+.notification-dropdown__empty {
+  @apply flex flex-col items-center justify-center py-12 px-6 text-center;
+}
+
+.notification-dropdown__empty-icon {
+  @apply w-16 h-16 text-neutral-300 mb-4;
+}
+
+.notification-dropdown__empty-text {
+  @apply text-lg font-medium text-neutral-700 mb-1;
+}
+
+.notification-dropdown__empty-subtext {
+  @apply text-sm text-neutral-500;
+}
+
+.notification-dropdown__list {
+  @apply py-2;
+}
+
+.notification-dropdown__item {
+  @apply relative flex items-start gap-4 px-6 py-4 hover:bg-neutral-50/50 
+         transition-all duration-200 cursor-pointer border-l-4 border-transparent;
+}
+
+.notification-dropdown__item--unread {
+  @apply bg-primary-50/30 border-l-primary-500;
+}
+
+.notification-dropdown__item:hover {
+  @apply bg-primary-50/50;
+}
+
+.notification-dropdown__item-icon {
+  @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+         transition-transform duration-200 group-hover:scale-110;
+}
+
+.notification-dropdown__item-icon svg {
+  @apply w-5 h-5;
+}
+
+.notification-dropdown__item-content {
+  @apply flex-1 min-w-0;
+}
+
+.notification-dropdown__item-header {
+  @apply flex items-start justify-between gap-2 mb-1;
+}
+
+.notification-dropdown__item-title {
+  @apply text-sm font-semibold text-neutral-900 line-clamp-1;
+}
+
+.notification-dropdown__item-mark {
+  @apply w-6 h-6 rounded-full bg-white border border-neutral-200 
+         flex items-center justify-center text-primary-600 hover:bg-primary-50
+         hover:border-primary-300 transition-all duration-200 flex-shrink-0
+         focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.notification-dropdown__item-mark svg {
+  @apply w-3 h-3;
+}
+
+.notification-dropdown__item-message {
+  @apply text-sm text-neutral-600 line-clamp-2 mb-2;
+}
+
+.notification-dropdown__item-footer {
+  @apply flex items-center justify-between gap-2;
+}
+
+.notification-dropdown__item-time {
+  @apply text-xs text-neutral-500;
+}
+
+.notification-dropdown__item-type {
+  @apply text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 
+         uppercase font-medium;
+}
+
+.notification-dropdown__item-indicator {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full 
+         bg-primary-500 animate-pulse-slow;
+}
+
+.notification-dropdown__footer {
+  @apply px-6 py-4 border-t border-neutral-200/50;
+}
+
+.notification-dropdown__view-all {
+  @apply block text-center text-sm font-medium text-primary-600 hover:text-primary-700
+         transition-colors duration-200;
+}
+
+/* Scrollbar styling */
+.notification-dropdown__content::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.notification-dropdown__content::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.notification-dropdown__content::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+
+.notification-dropdown__content::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-400;
+}
+
+/* Animation for stagger effect */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  animation: fadeIn 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+
+/* Performance optimizations */
+.notification-dropdown__item {
+  @apply will-change-transform;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .notification-dropdown {
+    @apply transition-opacity duration-100;
+  }
+  
+  .stagger-item {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .notification-dropdown__item {
+    @apply transform-none;
+  }
+  
+  .notification-dropdown__item-indicator {
+    animation: none;
+  }
+}
+

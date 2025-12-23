@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminCustomerClient, CustomerDto, PagedResultOfCustomerDto, UpdateCustomerCommand, CustomerState } from '../../core/services/clientAPI';
+import { HttpClient } from '@angular/common/http';
+import { AdminCustomerClient, CustomerDto, PagedResultOfCustomerDto, UpdateCustomerCommand, CustomerState, CityDto, PagedResultOfCityDto } from '../../core/services/clientAPI';
 
 @Component({
   selector: 'app-customers',
@@ -25,6 +26,8 @@ export class CustomersComponent implements OnInit {
   isEditMode = false;
   customerForm: FormGroup;
   selectedCustomerId: number | null = null;
+  cities: CityDto[] = [];
+  isLoadingCities = false;
 
   customerStates = [
     { value: null, label: 'All States' },
@@ -33,19 +36,46 @@ export class CustomersComponent implements OnInit {
     { value: CustomerState.Blocked, label: 'Blocked' }
   ];
 
+  genders = [
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' }
+  ];
+
   constructor(
     private customerClient: AdminCustomerClient,
+    private http: HttpClient,
     private fb: FormBuilder
   ) {
     this.customerForm = this.fb.group({
+      mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       userName: ['', [Validators.required, Validators.minLength(2)]],
+      fullName: ['', [Validators.required, Validators.minLength(2)]],
       nationalNumber: ['', [Validators.required]],
-      gender: ['', [Validators.required]]
+      gender: ['', [Validators.required]],
+      cityId: [0, [Validators.required, Validators.min(1)]],
+      fullAddress: [''],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   ngOnInit(): void {
     this.loadCustomers();
+    this.loadCities();
+  }
+
+  loadCities(): void {
+    this.isLoadingCities = true;
+    const url = `/api/City?PageNumber=1&PageSize=1000&IsActive=true`;
+    this.http.get<PagedResultOfCityDto>(url).subscribe({
+      next: (result: PagedResultOfCityDto) => {
+        this.cities = result.items || [];
+        this.isLoadingCities = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading cities:', error);
+        this.isLoadingCities = false;
+      }
+    });
   }
 
   loadCustomers(): void {
@@ -81,6 +111,17 @@ export class CustomersComponent implements OnInit {
     this.selectedState = state;
     this.currentPage = 1;
     this.loadCustomers();
+  }
+
+  onAddNew(): void {
+    this.isEditMode = false;
+    this.selectedCustomerId = null;
+    this.customerForm.reset();
+    this.customerForm.patchValue({
+      cityId: 0,
+      gender: ''
+    });
+    this.showModal = true;
   }
 
   onEdit(customer: CustomerDto): void {
@@ -142,33 +183,60 @@ export class CustomersComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedCustomerId) {
-      return;
-    }
-
     const formValue = this.customerForm.value;
-    const command = new UpdateCustomerCommand();
-    command.customerId = this.selectedCustomerId;
-    command.userName = formValue.userName;
-    command.nationalNumber = formValue.nationalNumber;
-    command.gender = formValue.gender;
 
-    this.customerClient.update(this.selectedCustomerId, command).subscribe({
-      next: () => {
-        this.showModal = false;
-        this.loadCustomers();
-      },
-      error: (error: any) => {
-        alert('Failed to update customer. Please try again.');
-        console.error('Error updating customer:', error);
-      }
-    });
+    if (this.isEditMode && this.selectedCustomerId) {
+      // Update existing customer
+      const command = new UpdateCustomerCommand();
+      command.customerId = this.selectedCustomerId;
+      command.userName = formValue.userName;
+      command.nationalNumber = formValue.nationalNumber;
+      command.gender = formValue.gender;
+
+      this.customerClient.update(this.selectedCustomerId, command).subscribe({
+        next: () => {
+          this.showModal = false;
+          this.loadCustomers();
+        },
+        error: (error: any) => {
+          const errorMessage = error.error?.detail || error.error?.title || 'Failed to update customer. Please try again.';
+          alert(errorMessage);
+          console.error('Error updating customer:', error);
+        }
+      });
+    } else {
+      // Create new customer
+      const url = `/api/AdminCustomer`;
+      const command = {
+        mobileNumber: formValue.mobileNumber,
+        userName: formValue.userName,
+        fullName: formValue.fullName,
+        nationalNumber: formValue.nationalNumber,
+        gender: formValue.gender,
+        cityId: formValue.cityId,
+        fullAddress: formValue.fullAddress || null,
+        password: formValue.password
+      };
+
+      this.http.post<number>(url, command).subscribe({
+        next: () => {
+          this.showModal = false;
+          this.loadCustomers();
+        },
+        error: (error: any) => {
+          const errorMessage = error.error?.detail || error.error?.title || 'Failed to create customer. Please try again.';
+          alert(errorMessage);
+          console.error('Error creating customer:', error);
+        }
+      });
+    }
   }
 
   onCloseModal(): void {
     this.showModal = false;
     this.customerForm.reset();
     this.selectedCustomerId = null;
+    this.isEditMode = false;
   }
 
   onPageChange(page: number): void {

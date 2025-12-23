@@ -109,11 +109,14 @@ Application/Features/
 
 ### Response Patterns
 - Use `Result<T>` from CSharpFunctionalExtensions for domain operations
-- Commands typically return `Result<int>` (ID of created entity) or `Result<bool>`
-- Queries return `Result<T>` where T is the response DTO
+- **Add/Create Commands**: Must return `Result<int>` (ID of created entity)
+- **Update Commands**: Must return `Result<int>` (ID of updated entity)
+- **Delete Commands**: Return `Result<bool>` (success/failure)
+- **Queries**: Return `Result<T>` where T is the response DTO
 - Always include error handling in responses
 - Use `Result.Failure<T>(errorMessage)` for errors
 - Use `Result.Success(value)` for successful operations
+- **Rule**: Add and Update commands should return only the entity ID, not the full DTO
 
 ### Handler Guidelines
 - Keep handlers focused on a single responsibility
@@ -207,12 +210,78 @@ public static IServiceCollection AddApplicationServices(
 
 ## 6. Validation Rules
 
-### Input Validation
-- Use FluentValidation for all input validation
-- Create validators for each Command/Query
-- Implement validation behavior as MediatR pipeline behavior
-- Validate at the application layer boundary
-- Return validation errors in a consistent format
+### Validation Architecture Rule
+**MANDATORY**: All Command validation logic MUST be separated into a dedicated validator class in a separate file.
+
+### Validation File Structure
+- **File Naming**: `[CommandName]Validator.cs` (e.g., `AdminCreateCustomerCommandValidator.cs`)
+- **Location**: Same folder as the command (e.g., `Application/Features/Customer/Command/AdminCreateCustomerCommand/AdminCreateCustomerCommandValidator.cs`)
+- **Class Naming**: `[CommandName]Validator` (e.g., `AdminCreateCustomerCommandValidator`)
+
+### Validator Implementation Pattern
+- Validators must be separate classes (not in the command handler file)
+- Validators should be registered in DI container (Scoped lifetime)
+- Validators return `Result` from CSharpFunctionalExtensions
+- Validators handle all input validation and business rule validation
+- Command handlers call validators at the start of `Handle` method
+- Command handlers should NOT contain validation logic
+
+### Validator Example
+```csharp
+// AdminCreateCustomerCommandValidator.cs (separate file)
+public class AdminCreateCustomerCommandValidator
+{
+    private readonly DatabaseContext _context;
+
+    public AdminCreateCustomerCommandValidator(DatabaseContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<Result> ValidateAsync(AdminCreateCustomerCommand request, CancellationToken cancellationToken)
+    {
+        // All validation logic here
+        if (string.IsNullOrWhiteSpace(request.MobileNumber))
+        {
+            return Result.Failure("Mobile number is required");
+        }
+        // ... more validations
+        return Result.Success();
+    }
+}
+
+// AdminCreateCustomerCommand.cs (command handler)
+public class AdminCreateCustomerCommandHandler : IRequestHandler<AdminCreateCustomerCommand, Result<int>>
+{
+    private readonly AdminCreateCustomerCommandValidator _validator;
+    
+    public async Task<Result<int>> Handle(AdminCreateCustomerCommand request, CancellationToken cancellationToken)
+    {
+        // Validate first
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure<int>(validationResult.Error);
+        }
+        
+        // Business logic only (no validation)
+        // ...
+    }
+}
+```
+
+### Validation Responsibilities
+- **Validators**: Handle all validation (required fields, format validation, uniqueness checks, business rules)
+- **Command Handlers**: Focus only on business logic (create, update, delete operations)
+- **Domain Entities**: Validate their own internal state through factory methods and domain methods
+
+### Registration
+- Register all validators in `ApplicationServiceRegistration.cs`
+- Use Scoped lifetime (matches DatabaseContext lifetime)
+- Example:
+  ```csharp
+  services.AddScoped<Features.Customer.Command.AdminCreateCustomerCommand.AdminCreateCustomerCommandValidator>();
+  ```
 
 ### Business Rule Validation
 - Implement business rules in domain entities
@@ -220,20 +289,6 @@ public static IServiceCollection AddApplicationServices(
 - Return meaningful error messages
 - Use Result pattern for validation results
 - Validate before persisting to database
-
-### Validation Example
-```csharp
-// In Application layer
-public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
-{
-    public CreateRoleCommandValidator()
-    {
-        RuleFor(x => x.RoleName)
-            .NotEmpty().WithMessage("Role name is required")
-            .MaximumLength(50).WithMessage("Role name must not exceed 50 characters");
-    }
-}
-```
 
 ## 7. Exception Handling
 

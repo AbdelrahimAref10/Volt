@@ -21,31 +21,29 @@ namespace Application.Features.Category.Command.UpdateCategoryCommand
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly UpdateCategoryCommandValidator _validator;
 
-        public UpdateCategoryCommandHandler(DatabaseContext context, IUserSession userSession)
+        public UpdateCategoryCommandHandler(
+            DatabaseContext context, 
+            IUserSession userSession,
+            UpdateCategoryCommandValidator validator)
         {
             _context = context;
             _userSession = userSession;
+            _validator = validator;
         }
 
         public async Task<Result<CategoryDto>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
+            {
+                return Result.Failure<CategoryDto>(validationResult.Error);
+            }
+
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
-
-            if (category == null)
-            {
-                return Result.Failure<CategoryDto>($"Category with ID {request.CategoryId} not found");
-            }
-
-            // Check if another category with same name exists
-            var existingCategory = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == request.Name.ToLower().Trim() && c.CategoryId != request.CategoryId, cancellationToken);
-
-            if (existingCategory != null)
-            {
-                return Result.Failure<CategoryDto>("A category with this name already exists");
-            }
 
             try
             {

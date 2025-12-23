@@ -23,7 +23,7 @@ namespace ECommerce.Server
 
             builder.Services.AddOpenApiDocument(document =>
             {
-                document.Title = "Ecommerce API";
+                document.Title = "Vot";
             });
             return builder.Build();
         }
@@ -36,11 +36,8 @@ namespace ECommerce.Server
             app.UseCors("AllowAll");
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwaggerUi();
-                app.UseOpenApi();
-            }
+            app.UseSwaggerUi();
+            app.UseOpenApi();
             app.UseRouting();
             app.UseHttpsRedirection();
             

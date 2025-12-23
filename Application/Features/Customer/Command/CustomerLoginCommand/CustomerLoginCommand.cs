@@ -8,6 +8,10 @@ using Infrastructure.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,59 +26,39 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
 
     public class CustomerLoginCommandHandler : IRequestHandler<CustomerLoginCommand, Result<LoginResponse>>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly DatabaseContext _context;
-        private readonly IJwtTokenService _jwtTokenService;
         private readonly IJwtSettings _jwtSettings;
+        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly CustomerLoginCommandValidator _validator;
 
         public CustomerLoginCommandHandler(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
             DatabaseContext context,
-            IJwtTokenService jwtTokenService,
-            IJwtSettings jwtSettings)
+            IJwtSettings jwtSettings,
+            IPasswordHasher<ApplicationUser> passwordHasher,
+            CustomerLoginCommandValidator validator)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _context = context;
-            _jwtTokenService = jwtTokenService;
             _jwtSettings = jwtSettings;
+            _passwordHasher = passwordHasher;
+            _validator = validator;
         }
 
         public async Task<Result<LoginResponse>> Handle(CustomerLoginCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.MobileNumber))
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
             {
-                return Result.Failure<LoginResponse>("Mobile number is required");
+                return Result.Failure<LoginResponse>(validationResult.Error);
             }
 
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                return Result.Failure<LoginResponse>("Password is required");
-            }
-
-            // Find user by mobile number (username)
-            var user = await _userManager.FindByNameAsync(request.MobileNumber);
-            if (user == null)
-            {
-                return Result.Failure<LoginResponse>("Invalid mobile number or password");
-            }
-
-            // Check if user is in Customer role
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            if (!isCustomer)
-            {
-                return Result.Failure<LoginResponse>("User is not a customer");
-            }
-
-            // Find customer record
+            // Find customer by mobile number
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.UserId == user.Id, cancellationToken);
+                .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
 
             if (customer == null)
             {
-                return Result.Failure<LoginResponse>("Customer record not found");
+                return Result.Failure<LoginResponse>("Invalid mobile number or password");
             }
 
             // Check if customer is activated and not blocked
@@ -88,42 +72,67 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
             }
 
             // Verify password
-            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
-            if (!signInResult.Succeeded)
+            var tempUser = new ApplicationUser(); // Just for password verification
+            var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(tempUser, customer.PasswordHash, request.Password);
+            if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
                 return Result.Failure<LoginResponse>("Invalid mobile number or password");
             }
 
-            // Get user roles
-            var roles = await _userManager.GetRolesAsync(user);
-
-            // Generate JWT token
-            var token = _jwtTokenService.GenerateToken(user, roles);
+            // Generate JWT token for customer
+            var token = GenerateCustomerToken(customer);
 
             // Generate refresh token
-            var refreshToken = _jwtTokenService.GenerateRefreshToken();
-            var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
-
-            // Save refresh token to database
-            var refreshTokenEntity = Domain.Models.RefreshToken.Create(
-                user.Id,
-                refreshToken,
-                refreshTokenExpires,
-                user.UserName ?? "System"
-            );
-
-            _context.RefreshTokens.Add(refreshTokenEntity);
-            await _context.SaveChangesAsync(cancellationToken);
+            var refreshToken = GenerateRefreshToken();
+            
+            // Note: RefreshToken is currently linked to ApplicationUser
+            // For customers, we'll return the refresh token but not store it in RefreshTokens table
+            // This can be updated later if needed
 
             return Result.Success(new LoginResponse
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                UserId = user.Id,
-                UserName = user.UserName ?? string.Empty,
-                Roles = roles.ToList(),
+                UserId = customer.CustomerId, // Return CustomerId as UserId for compatibility
+                UserName = customer.UserName,
+                Roles = new List<string> { "Customer" },
                 CustomerId = customer.CustomerId
             });
+        }
+
+        private string GenerateCustomerToken(Domain.Models.Customer customer)
+        {
+            if (string.IsNullOrWhiteSpace(_jwtSettings.Key))
+            {
+                throw new InvalidOperationException("JWT Key is not configured");
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, customer.CustomerId.ToString()),
+                new Claim(ClaimTypes.Name, customer.UserName),
+                new Claim("MobileNumber", customer.MobileNumber),
+                new Claim(ClaimTypes.Role, "Customer"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string GenerateRefreshToken()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 

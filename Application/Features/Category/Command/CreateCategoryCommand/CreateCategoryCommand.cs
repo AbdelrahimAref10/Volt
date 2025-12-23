@@ -21,22 +21,25 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly CreateCategoryCommandValidator _validator;
 
-        public CreateCategoryCommandHandler(DatabaseContext context, IUserSession userSession)
+        public CreateCategoryCommandHandler(
+            DatabaseContext context, 
+            IUserSession userSession,
+            CreateCategoryCommandValidator validator)
         {
             _context = context;
             _userSession = userSession;
+            _validator = validator;
         }
 
         public async Task<Result<CategoryDto>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            // Check if category with same name already exists
-            var existingCategory = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken);
-
-            if (existingCategory != null)
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
             {
-                return Result.Failure<CategoryDto>("A category with this name already exists");
+                return Result.Failure<CategoryDto>(validationResult.Error);
             }
 
             try

@@ -18,41 +18,32 @@ namespace Application.Features.Customer.Command.ActivateCustomerCommand
     public class ActivateCustomerCommandHandler : IRequestHandler<ActivateCustomerCommand, Result<bool>>
     {
         private readonly DatabaseContext _context;
+        private readonly ActivateCustomerCommandValidator _validator;
 
-        public ActivateCustomerCommandHandler(DatabaseContext context)
+        public ActivateCustomerCommandHandler(
+            DatabaseContext context,
+            ActivateCustomerCommandValidator validator)
         {
             _context = context;
+            _validator = validator;
         }
 
         public async Task<Result<bool>> Handle(ActivateCustomerCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.MobileNumber))
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
             {
-                return Result.Failure<bool>("Mobile number is required");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.InvitationCode))
-            {
-                return Result.Failure<bool>("Invitation code is required");
+                return Result.Failure<bool>(validationResult.Error);
             }
 
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
 
+            // Customer should exist (validator already checked), but add null check for safety
             if (customer == null)
             {
                 return Result.Failure<bool>("Customer not found");
-            }
-
-            if (customer.State == Domain.Enums.CustomerState.Active)
-            {
-                return Result.Failure<bool>("Customer is already activated");
-            }
-
-            // Validate invitation code
-            if (!customer.ValidateInvitationCode(request.InvitationCode))
-            {
-                return Result.Failure<bool>("Invalid or expired invitation code");
             }
 
             // Activate customer

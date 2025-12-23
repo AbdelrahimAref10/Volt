@@ -29,9 +29,10 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
         }
 
         public async Task<Result<PagedResult<CustomerDto>>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
+        
         {
             var query = _context.Customers
-                .Include(c => c.User)
+                .Include(c => c.City)
                 .AsQueryable();
 
             // Apply filters
@@ -39,9 +40,11 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
             {
                 var searchTerm = request.SearchTerm.ToLower();
                 query = query.Where(c => c.UserName.ToLower().Contains(searchTerm) ||
+                                       c.FullName.ToLower().Contains(searchTerm) ||
                                        c.MobileNumber.Contains(searchTerm) ||
                                        c.NationalNumber.Contains(searchTerm) ||
-                                       (c.User != null && c.User.Email != null && c.User.Email.ToLower().Contains(searchTerm)));
+                                       (c.FullAddress != null && c.FullAddress.ToLower().Contains(searchTerm)) ||
+                                       (c.City != null && c.City.Name.ToLower().Contains(searchTerm)));
             }
 
             if (request.State.HasValue)
@@ -60,10 +63,14 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                     CustomerId = c.CustomerId,
                     MobileNumber = c.MobileNumber,
                     UserName = c.UserName,
+                    FullName = c.FullName,
                     NationalNumber = c.NationalNumber,
                     Gender = c.Gender,
+                    FullAddress = c.FullAddress,
+                    CityId = c.CityId,
+                    CityName = c.City != null ? c.City.Name : string.Empty,
                     State = c.State,
-                    Email = c.User != null ? c.User.Email : null,
+                    Email = null, // Customers don't have email anymore
                     CreatedDate = c.CreatedDate
                 })
                 .ToListAsync(cancellationToken);

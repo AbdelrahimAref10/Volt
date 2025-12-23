@@ -15,79 +15,45 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
     {
         public string MobileNumber { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string NationalNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
+        public int CityId { get; set; }
+        public string? FullAddress { get; set; }
         public string Password { get; set; } = string.Empty;
     }
 
     public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, Result<RegisterCustomerResponse>>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly DatabaseContext _context;
         private readonly IInvitationCodeService _invitationCodeService;
+        private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly RegisterCustomerCommandValidator _validator;
 
         public RegisterCustomerCommandHandler(
-            UserManager<ApplicationUser> userManager,
             DatabaseContext context,
-            IInvitationCodeService invitationCodeService)
+            IInvitationCodeService invitationCodeService,
+            IPasswordHasher<ApplicationUser> passwordHasher,
+            RegisterCustomerCommandValidator validator)
         {
-            _userManager = userManager;
             _context = context;
             _invitationCodeService = invitationCodeService;
+            _passwordHasher = passwordHasher;
+            _validator = validator;
         }
 
         public async Task<Result<RegisterCustomerResponse>> Handle(RegisterCustomerCommand request, CancellationToken cancellationToken)
         {
-            // Validate mobile number format
-            if (string.IsNullOrWhiteSpace(request.MobileNumber))
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
             {
-                return Result.Failure<RegisterCustomerResponse>("Mobile number is required");
+                return Result.Failure<RegisterCustomerResponse>(validationResult.Error);
             }
 
-            // Check if customer with this mobile number already exists
-            var existingCustomer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
-
-            if (existingCustomer != null)
-            {
-                return Result.Failure<RegisterCustomerResponse>("Customer with this mobile number already exists");
-            }
-
-            // Check if national number already exists
-            var existingNationalNumber = await _context.Customers
-                .FirstOrDefaultAsync(c => c.NationalNumber == request.NationalNumber, cancellationToken);
-
-            if (existingNationalNumber != null)
-            {
-                return Result.Failure<RegisterCustomerResponse>("Customer with this national number already exists");
-            }
-
-            // Create ApplicationUser
-            var user = new ApplicationUser
-            {
-                UserName = request.MobileNumber, // Use mobile number as username
-                Email = $"{request.MobileNumber}@customer.com", // Temporary email
-                PhoneNumber = request.MobileNumber,
-                PhoneNumberConfirmed = false,
-                EmailConfirmed = false
-            };
-
-            var createUserResult = await _userManager.CreateAsync(user, request.Password);
-            if (!createUserResult.Succeeded)
-            {
-                var errors = string.Join(", ", createUserResult.Errors.Select(e => e.Description));
-                return Result.Failure<RegisterCustomerResponse>($"Failed to create user: {errors}");
-            }
-
-            // Assign Customer role
-            var addToRoleResult = await _userManager.AddToRoleAsync(user, "Customer");
-            if (!addToRoleResult.Succeeded)
-            {
-                // Rollback user creation
-                await _userManager.DeleteAsync(user);
-                var errors = string.Join(", ", addToRoleResult.Errors.Select(e => e.Description));
-                return Result.Failure<RegisterCustomerResponse>($"Failed to assign role: {errors}");
-            }
+            // Hash password
+            var tempUser = new ApplicationUser(); // Just for password hashing
+            var passwordHash = _passwordHasher.HashPassword(tempUser, request.Password);
 
             // Generate invitation code
             var invitationCode = _invitationCodeService.GenerateInvitationCode();
@@ -96,10 +62,13 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             var customer = Domain.Models.Customer.Create(
                 request.MobileNumber,
                 request.UserName,
+                request.FullName,
                 request.NationalNumber,
                 request.Gender,
                 invitationCode,
-                user.Id,
+                passwordHash,
+                request.CityId,
+                request.FullAddress,
                 "System"
             );
 
@@ -108,7 +77,6 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             var saveResult = await _context.SaveChangesAsyncWithResult(cancellationToken);
             if (!saveResult.IsSuccess)
             {
-                await _userManager.DeleteAsync(user);
                 return Result.Failure<RegisterCustomerResponse>($"Failed to save customer: {saveResult.ErrorMessage}");
             }
 

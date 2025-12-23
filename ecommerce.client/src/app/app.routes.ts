@@ -12,36 +12,40 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { 
-        path: 'dashboard', 
+      {
+        path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-      { 
-        path: 'categories', 
+      {
+        path: 'categories',
         loadComponent: () => import('./pages/categories/categories.component').then(m => m.CategoriesComponent)
       },
-      { 
-        path: 'vehicles', 
+      {
+        path: 'vehicles',
         loadComponent: () => import('./pages/vehicles/vehicles.component').then(m => m.VehiclesComponent)
       },
-      { 
-        path: 'customers', 
+      {
+        path: 'customers',
         loadComponent: () => import('./pages/customers/customers.component').then(m => m.CustomersComponent)
       },
-      { 
-        path: 'orders', 
+      {
+        path: 'cities',
+        loadComponent: () => import('./pages/cities/cities.component').then(m => m.CitiesComponent)
+      },
+      {
+        path: 'orders',
         loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
       },
-      { 
-        path: 'reports', 
+      {
+        path: 'reports',
         loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent)
       },
-      { 
-        path: 'support', 
+      {
+        path: 'support',
         loadComponent: () => import('./pages/support/support.component').then(m => m.SupportComponent)
       },
-      { 
-        path: 'profile', 
+      {
+        path: 'profile',
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
       },
     ]

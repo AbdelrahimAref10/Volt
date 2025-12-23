@@ -248,14 +248,14 @@ namespace Infrastructure.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Models.Customer", b =>
+            modelBuilder.Entity("Domain.Models.City", b =>
                 {
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("CityId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("CustomerId");
+                        .HasColumnName("CityId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
@@ -265,6 +265,77 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("Description");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("CityId");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Cities_IsActive");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Cities_Name");
+
+                    b.ToTable("Cities", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.Customer", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("CityId");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("FullAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("FullAddress");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("FullName");
 
                     b.Property<string>("Gender")
                         .IsRequired()
@@ -280,12 +351,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("InvitationCodeExpiry")
                         .HasColumnType("datetime2")
                         .HasColumnName("InvitationCodeExpiry");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsActive");
 
                     b.Property<bool>("IsInvitationCodeUsed")
                         .ValueGeneratedOnAdd()
@@ -314,9 +379,17 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("NationalNumber");
 
-                    b.Property<int>("UserId")
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("PasswordHash");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("UserId");
+                        .HasDefaultValue(0)
+                        .HasColumnName("State");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -326,6 +399,8 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("CustomerId");
 
+                    b.HasIndex("CityId");
+
                     b.HasIndex("MobileNumber")
                         .IsUnique()
                         .HasDatabaseName("IX_Customer_MobileNumber");
@@ -334,12 +409,8 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Customer_NationalNumber");
 
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Customer_UserId");
-
-                    b.HasIndex("MobileNumber", "IsActive")
-                        .HasDatabaseName("IX_Customer_MobileNumber_IsActive");
+                    b.HasIndex("MobileNumber", "State")
+                        .HasDatabaseName("IX_Customer_MobileNumber_State");
 
                     b.ToTable("Customer", (string)null);
                 });
@@ -731,13 +802,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
                 {
-                    b.HasOne("Domain.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Domain.Models.City", "City")
+                        .WithMany("Customers")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
@@ -835,6 +906,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Category", b =>
                 {
                     b.Navigation("Vehicles");
+                });
+
+            modelBuilder.Entity("Domain.Models.City", b =>
+                {
+                    b.Navigation("Customers");
                 });
 
             modelBuilder.Entity("Domain.Models.Permission", b =>

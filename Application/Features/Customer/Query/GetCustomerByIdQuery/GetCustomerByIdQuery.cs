@@ -25,7 +25,7 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
         public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
             var customer = await _context.Customers
-                .Include(c => c.User)
+                .Include(c => c.City)
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             if (customer == null)
@@ -38,10 +38,14 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
                 CustomerId = customer.CustomerId,
                 MobileNumber = customer.MobileNumber,
                 UserName = customer.UserName,
+                FullName = customer.FullName,
                 NationalNumber = customer.NationalNumber,
                 Gender = customer.Gender,
+                FullAddress = customer.FullAddress,
+                CityId = customer.CityId,
+                CityName = customer.City != null ? customer.City.Name : string.Empty,
                 State = customer.State,
-                Email = customer.User != null ? customer.User.Email : null,
+                Email = null, // Customers don't have email anymore
                 CreatedDate = customer.CreatedDate
             };
 

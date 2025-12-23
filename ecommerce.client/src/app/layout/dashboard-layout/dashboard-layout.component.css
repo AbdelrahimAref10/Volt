@@ -1,15 +1,29 @@
-/* Dashboard Layout - BEM Methodology with Tailwind */
+/* Dashboard Layout - Modern Design with Animations */
 
 .dashboard-layout {
-  @apply min-h-screen flex bg-background-secondary;
+  @apply min-h-screen flex;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #f0fdfa 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .dashboard-layout__sidebar {
-  @apply fixed left-0 top-0 h-full z-30 transition-transform duration-300 ease-in-out;
+  @apply fixed left-0 top-0 h-full z-30 transition-transform duration-500 ease-out;
+  will-change: transform;
 }
 
 .dashboard-layout__main {
-  @apply flex-1 flex flex-col ml-64 transition-all duration-300 ease-in-out;
+  @apply flex-1 flex flex-col ml-64 transition-all duration-500 ease-out;
+  will-change: margin-left;
 }
 
 .dashboard-layout__main--sidebar-closed {
@@ -21,7 +35,8 @@
 }
 
 .dashboard-layout__content {
-  @apply flex-1 p-6 overflow-auto;
+  @apply flex-1 p-6 overflow-auto animate-fade-in;
+  will-change: opacity;
 }
 
 /* Responsive */
@@ -42,6 +57,27 @@
 
   .dashboard-layout__main {
     @apply ml-0;
+  }
+}
+
+/* Page transition animations */
+:host ::ng-deep router-outlet + * {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-layout {
+    animation: none;
+    background: #ffffff;
+  }
+  
+  .dashboard-layout__content {
+    animation: none;
+  }
+  
+  :host ::ng-deep router-outlet + * {
+    animation: none;
   }
 }
 

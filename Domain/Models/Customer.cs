@@ -5,20 +5,22 @@ namespace Domain.Models
 {
     public class Customer : IAuditable
     {
-        // Private setters for encapsulation
         public int CustomerId { get; private set; }
         public string MobileNumber { get; private set; } = string.Empty;
         public string UserName { get; private set; } = string.Empty;
+        public string FullName { get; private set; } = string.Empty;
         public string NationalNumber { get; private set; } = string.Empty;
         public string Gender { get; private set; } = string.Empty; // "Male", "Female", etc.
+        public string? FullAddress { get; private set; }
         public CustomerState State { get; private set; } = CustomerState.InActive;
         public string? InvitationCode { get; private set; }
         public DateTime? InvitationCodeExpiry { get; private set; }
         public bool IsInvitationCodeUsed { get; private set; } = false;
+        public string PasswordHash { get; private set; } = string.Empty;
 
-        // Navigation property to ApplicationUser
-        public int UserId { get; private set; }
-        public ApplicationUser? User { get; private set; }
+        // Navigation property to City
+        public int CityId { get; private set; }
+        public City City { get; private set; } = null!;
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -30,10 +32,13 @@ namespace Domain.Models
         public static Customer Create(
             string mobileNumber,
             string userName,
+            string fullName,
             string nationalNumber,
             string gender,
             string invitationCode,
-            int userId,
+            string passwordHash,
+            int cityId,
+            string? fullAddress = null,
             string? createdBy = null)
         {
             if (string.IsNullOrWhiteSpace(mobileNumber))
@@ -41,6 +46,9 @@ namespace Domain.Models
 
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentException("User name cannot be empty", nameof(userName));
+
+            if (string.IsNullOrWhiteSpace(fullName))
+                throw new ArgumentException("Full name cannot be empty", nameof(fullName));
 
             if (string.IsNullOrWhiteSpace(nationalNumber))
                 throw new ArgumentException("National number cannot be empty", nameof(nationalNumber));
@@ -55,13 +63,16 @@ namespace Domain.Models
             {
                 MobileNumber = mobileNumber,
                 UserName = userName,
+                FullName = fullName,
                 NationalNumber = nationalNumber,
                 Gender = gender,
-                State = CustomerState.InActive, // New customers start as InActive
+                FullAddress = fullAddress,
+                State = CustomerState.InActive,
                 InvitationCode = invitationCode,
-                InvitationCodeExpiry = DateTime.UtcNow.AddHours(24), // Code expires in 24 hours
+                InvitationCodeExpiry = DateTime.UtcNow.AddHours(24),
                 IsInvitationCodeUsed = false,
-                UserId = userId,
+                PasswordHash = passwordHash,
+                CityId = cityId,
                 CreatedBy = createdBy,
                 CreatedDate = DateTime.UtcNow,
                 LastModifiedDate = DateTime.UtcNow
@@ -73,8 +84,15 @@ namespace Domain.Models
         {
             State = CustomerState.Active;
             IsInvitationCodeUsed = true;
-            InvitationCode = null; // Clear the code after use
-            InvitationCodeExpiry = null;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
+        }
+
+        // Activate without clearing invitation code (for admin-created customers)
+        public void ActivateWithoutClearingCode(string? modifiedBy = null)
+        {
+            State = CustomerState.Active;
+            IsInvitationCodeUsed = true;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }
@@ -110,10 +128,13 @@ namespace Domain.Models
             return InvitationCode == code;
         }
 
-        public void UpdateProfile(string userName, string nationalNumber, string gender, string? modifiedBy = null)
+        public void UpdateProfile(string userName, string fullName, string nationalNumber, string gender, int cityId, string? fullAddress = null, string? modifiedBy = null)
         {
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentException("User name cannot be empty", nameof(userName));
+
+            if (string.IsNullOrWhiteSpace(fullName))
+                throw new ArgumentException("Full name cannot be empty", nameof(fullName));
 
             if (string.IsNullOrWhiteSpace(nationalNumber))
                 throw new ArgumentException("National number cannot be empty", nameof(nationalNumber));
@@ -122,8 +143,11 @@ namespace Domain.Models
                 throw new ArgumentException("Gender cannot be empty", nameof(gender));
 
             UserName = userName;
+            FullName = fullName;
             NationalNumber = nationalNumber;
             Gender = gender;
+            CityId = cityId;
+            FullAddress = fullAddress;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }

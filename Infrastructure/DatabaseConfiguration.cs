@@ -14,7 +14,7 @@ namespace Infrastructure
         {
             // Register strongly-typed configuration settings
             services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
-            
+
             // Register settings as singletons for direct injection
             services.AddSingleton<IJwtSettings>(sp =>
             {

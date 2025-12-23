@@ -24,31 +24,31 @@ namespace Application.Features.Admin.Command.AdminLoginCommand
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IJwtSettings _jwtSettings;
         private readonly DatabaseContext _context;
+        private readonly AdminLoginCommandValidator _validator;
 
         public AdminLoginCommandHandler(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IJwtTokenService jwtTokenService,
             IJwtSettings jwtSettings,
-            DatabaseContext context)
+            DatabaseContext context,
+            AdminLoginCommandValidator validator)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenService = jwtTokenService;
             _jwtSettings = jwtSettings;
             _context = context;
+            _validator = validator;
         }
 
         public async Task<Result<AdminLoginResponse>> Handle(AdminLoginCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.UserName))
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
             {
-                return Result.Failure<AdminLoginResponse>("User name is required");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                return Result.Failure<AdminLoginResponse>("Password is required");
+                return Result.Failure<AdminLoginResponse>(validationResult.Error);
             }
 
             // Find user by username

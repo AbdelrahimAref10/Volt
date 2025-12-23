@@ -13,35 +13,48 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
     {
         public int CustomerId { get; set; }
         public string UserName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string NationalNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
+        public int CityId { get; set; }
+        public string? FullAddress { get; set; }
     }
 
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<bool>>
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly UpdateCustomerCommandValidator _validator;
 
-        public UpdateCustomerCommandHandler(DatabaseContext context, IUserSession userSession)
+        public UpdateCustomerCommandHandler(
+            DatabaseContext context, 
+            IUserSession userSession,
+            UpdateCustomerCommandValidator validator)
         {
             _context = context;
             _userSession = userSession;
+            _validator = validator;
         }
 
         public async Task<Result<bool>> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
         {
+            // Validate command using validator
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            if (validationResult.IsFailure)
+            {
+                return Result.Failure<bool>(validationResult.Error);
+            }
+
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
-            if (customer == null)
-            {
-                return Result.Failure<bool>("Customer not found");
-            }
-
             customer.UpdateProfile(
                 request.UserName,
+                request.FullName,
                 request.NationalNumber,
                 request.Gender,
+                request.CityId,
+                request.FullAddress,
                 _userSession.UserId.ToString()
             );
 

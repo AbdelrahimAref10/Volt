@@ -23,6 +23,7 @@ export class DashboardSidebarComponent {
     { label: 'Categories', route: '/main/categories', icon: 'categories' },
     { label: 'Vehicles', route: '/main/vehicles', icon: 'vehicles' },
     { label: 'Customers', route: '/main/customers', icon: 'users' },
+    { label: 'Cities', route: '/main/cities', icon: 'cities' },
     { label: 'Orders', route: '/main/orders', icon: 'orders' },
     { label: 'Reports', route: '/main/reports', icon: 'reports' },
     { label: 'Support', route: '/main/support', icon: 'support' },

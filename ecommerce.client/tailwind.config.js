@@ -6,20 +6,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary/Button Colors - Use for primary buttons, links, active states, focus rings
+        // Primary/Button Colors - Modern Teal/Cyan - Use for primary buttons, links, active states, focus rings
         // Usage: bg-primary-500, text-primary-600, border-primary-300, hover:bg-primary-600
         primary: {
-          50: '#eff6ff',   // Very light background tints
-          100: '#dbeafe',  // Light background tints
-          200: '#bfdbfe',  // Subtle backgrounds
-          300: '#93c5fd',  // Borders, dividers
-          400: '#60a5fa',  // Hover states
-          500: '#3b82f6',  // Primary button color (main brand)
-          600: '#2563eb',  // Primary button hover
-          700: '#1d4ed8',  // Primary button active
-          800: '#1e40af',  // Darker variants
-          900: '#1e3a8a',  // Darkest variants
-          950: '#172554',
+          50: '#f0fdfa',   // Very light teal
+          100: '#ccfbf1',  // Light teal
+          200: '#99f6e4',  // Subtle teal
+          300: '#5eead4',  // Borders, dividers
+          400: '#2dd4bf',  // Hover states
+          500: '#14b8a6',  // Primary button color (main brand)
+          600: '#0d9488',  // Primary button hover
+          700: '#0f766e',  // Primary button active
+          800: '#115e59',  // Darker variants
+          900: '#134e4a',  // Darkest variants
+          950: '#042f2e',
         },
         
         // Secondary/Neutral Colors - Use for text, backgrounds, borders, cards
@@ -117,6 +117,36 @@ module.exports = {
           primary: '#ffffff',    // Main page background
           secondary: '#f8f9fa',  // Secondary background
           tertiary: '#f1f3f5',   // Tertiary background
+        },
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-in-out',
+        'slide-in-right': 'slideInRight 0.3s ease-out',
+        'slide-in-down': 'slideInDown 0.3s ease-out',
+        'scale-in': 'scaleIn 0.2s ease-out',
+        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideInDown: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
         },
       },
     },

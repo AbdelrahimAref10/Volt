@@ -1,8 +1,9 @@
-/* Dashboard Sidebar - BEM Methodology with Tailwind */
+/* Dashboard Sidebar - Modern Design with Animations */
 
 .dashboard-sidebar {
-  @apply bg-surface-50 border-r border-neutral-200 h-full w-64 fixed left-0 top-0 flex flex-col 
-         transition-all duration-300 ease-in-out shadow-sm;
+  @apply bg-white/80 backdrop-blur-xl border-r border-neutral-200/50 h-full w-64 fixed left-0 top-0 
+         flex flex-col transition-all duration-500 ease-out shadow-lg;
+  will-change: width;
 }
 
 .dashboard-sidebar--collapsed {
@@ -10,23 +11,26 @@
 }
 
 .dashboard-sidebar__header {
-  @apply px-6 py-4 border-b border-neutral-200;
+  @apply px-6 py-4 border-b border-neutral-200/50 transition-all duration-300;
 }
 
 .dashboard-sidebar__logo {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-3 transition-all duration-300;
 }
 
 .dashboard-sidebar__logo-icon {
-  @apply w-8 h-8 text-primary-600 flex-shrink-0;
+  @apply w-8 h-8 text-primary-600 flex-shrink-0 transition-transform duration-300 
+         hover:scale-110 hover:rotate-12;
+  will-change: transform;
 }
 
 .dashboard-sidebar__logo-text {
-  @apply text-xl font-bold text-neutral-900 whitespace-nowrap;
+  @apply text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text 
+         text-transparent whitespace-nowrap transition-opacity duration-300;
 }
 
 .dashboard-sidebar--collapsed .dashboard-sidebar__logo-text {
-  @apply hidden;
+  @apply opacity-0 w-0 overflow-hidden;
 }
 
 .dashboard-sidebar__nav {
@@ -34,25 +38,42 @@
 }
 
 .dashboard-sidebar__item {
-  @apply flex items-center gap-3 px-6 py-3 mx-2 mb-1 rounded-lg text-neutral-700 
-         hover:bg-primary-50 hover:text-primary-600 transition-colors duration-200 
-         focus:outline-none focus:ring-2 focus:ring-primary-500;
+  @apply relative flex items-center gap-3 px-6 py-3 mx-2 mb-1 rounded-xl text-neutral-700 
+         hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100/50 
+         hover:text-primary-600 transition-all duration-300 focus:outline-none 
+         focus:ring-2 focus:ring-primary-500 transform hover:translate-x-1 
+         overflow-hidden;
+  will-change: transform;
+}
+
+.dashboard-sidebar__item::before {
+  content: '';
+  @apply absolute left-0 top-0 bottom-0 w-1 bg-primary-500 transform scale-y-0 
+         transition-transform duration-300 origin-center;
+}
+
+.dashboard-sidebar__item:hover::before,
+.dashboard-sidebar__item--active::before {
+  @apply scale-y-100;
 }
 
 .dashboard-sidebar__item--active {
-  @apply bg-primary-100 text-primary-700 font-medium;
+  @apply bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 font-semibold 
+         shadow-sm;
 }
 
 .dashboard-sidebar__item-icon {
-  @apply w-6 h-6 flex-shrink-0;
+  @apply w-6 h-6 flex-shrink-0 transition-all duration-300 group-hover:scale-110 
+         group-hover:rotate-3;
+  will-change: transform;
 }
 
 .dashboard-sidebar__item-label {
-  @apply text-sm font-medium whitespace-nowrap;
+  @apply text-sm font-medium whitespace-nowrap transition-opacity duration-300;
 }
 
 .dashboard-sidebar--collapsed .dashboard-sidebar__item-label {
-  @apply hidden;
+  @apply opacity-0 w-0 overflow-hidden;
 }
 
 /* Scrollbar styling */
@@ -69,7 +90,31 @@
 }
 
 .dashboard-sidebar__nav::-webkit-scrollbar-thumb:hover {
-  @apply bg-neutral-400;
+  @apply bg-primary-400;
+}
+
+/* Performance optimizations */
+.dashboard-sidebar__item,
+.dashboard-sidebar__logo-icon,
+.dashboard-sidebar__item-icon {
+  @apply will-change-transform;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-sidebar {
+    @apply transition-all duration-100;
+  }
+  
+  .dashboard-sidebar__item,
+  .dashboard-sidebar__logo-icon,
+  .dashboard-sidebar__item-icon {
+    @apply transform-none transition-none hover:transform-none;
+  }
+  
+  .dashboard-sidebar__item::before {
+    @apply transition-opacity duration-100;
+  }
 }
 
 

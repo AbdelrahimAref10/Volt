@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Features.Customer.Command.AdminCreateCustomerCommand;
 using Application.Features.Customer.Command.BlockCustomerCommand;
 using Application.Features.Customer.Command.DeleteCustomerCommand;
 using Application.Features.Customer.Command.UnblockCustomerCommand;
@@ -46,6 +47,19 @@ namespace ECommerce.Server.Controllers
         {
             var query = new GetCustomerByIdQuery { CustomerId = id };
             var result = await _mediator.Send(query);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] AdminCreateCustomerCommand command)
+        {
+            var result = await _mediator.Send(command);
             if (result.IsFailure)
             {
                 return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
