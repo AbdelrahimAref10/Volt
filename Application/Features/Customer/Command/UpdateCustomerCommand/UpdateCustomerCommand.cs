@@ -14,10 +14,10 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
         public int CustomerId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string NationalNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
         public string? FullAddress { get; set; }
+        public string? PersonalImage { get; set; }
     }
 
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<bool>>
@@ -51,10 +51,10 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
             customer.UpdateProfile(
                 request.UserName,
                 request.FullName,
-                request.NationalNumber,
                 request.Gender,
                 request.CityId,
                 request.FullAddress,
+                request.PersonalImage,
                 _userSession.UserId.ToString()
             );
 

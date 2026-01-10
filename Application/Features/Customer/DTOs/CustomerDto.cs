@@ -8,9 +8,11 @@ namespace Application.Features.Customer.DTOs
         public string MobileNumber { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string NationalNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
+        public string? PersonalImage { get; set; }
         public string? FullAddress { get; set; }
+        public int RegisterAs { get; set; }
+        public int VerificationBy { get; set; }
         public int CityId { get; set; }
         public string CityName { get; set; } = string.Empty;
         public CustomerState State { get; set; }
