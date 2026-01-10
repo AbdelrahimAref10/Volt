@@ -9,9 +9,11 @@ namespace Domain.Models
         public string MobileNumber { get; private set; } = string.Empty;
         public string UserName { get; private set; } = string.Empty;
         public string FullName { get; private set; } = string.Empty;
-        public string NationalNumber { get; private set; } = string.Empty;
         public string Gender { get; private set; } = string.Empty; // "Male", "Female", etc.
+        public string? PersonalImage { get; private set; }
         public string? FullAddress { get; private set; }
+        public int RegisterAs { get; private set; } // 0 = Individual, 1 = Institution
+        public int VerificationBy { get; private set; } // 0 = Phone, 1 = Email
         public CustomerState State { get; private set; } = CustomerState.InActive;
         public string? InvitationCode { get; private set; }
         public DateTime? InvitationCodeExpiry { get; private set; }
@@ -33,12 +35,14 @@ namespace Domain.Models
             string mobileNumber,
             string userName,
             string fullName,
-            string nationalNumber,
             string gender,
             string invitationCode,
             string passwordHash,
             int cityId,
+            int registerAs,
+            int verificationBy,
             string? fullAddress = null,
+            string? personalImage = null,
             string? createdBy = null)
         {
             if (string.IsNullOrWhiteSpace(mobileNumber))
@@ -50,23 +54,28 @@ namespace Domain.Models
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new ArgumentException("Full name cannot be empty", nameof(fullName));
 
-            if (string.IsNullOrWhiteSpace(nationalNumber))
-                throw new ArgumentException("National number cannot be empty", nameof(nationalNumber));
-
             if (string.IsNullOrWhiteSpace(gender))
                 throw new ArgumentException("Gender cannot be empty", nameof(gender));
 
             if (string.IsNullOrWhiteSpace(invitationCode))
                 throw new ArgumentException("Invitation code cannot be empty", nameof(invitationCode));
 
+            if (!Enum.IsDefined(typeof(RegisterAs), registerAs))
+                throw new ArgumentException("Invalid RegisterAs value", nameof(registerAs));
+
+            if (!Enum.IsDefined(typeof(VerificationBy), verificationBy))
+                throw new ArgumentException("Invalid VerificationBy value", nameof(verificationBy));
+
             return new Customer
             {
                 MobileNumber = mobileNumber,
                 UserName = userName,
                 FullName = fullName,
-                NationalNumber = nationalNumber,
                 Gender = gender,
+                PersonalImage = personalImage,
                 FullAddress = fullAddress,
+                RegisterAs = registerAs,
+                VerificationBy = verificationBy,
                 State = CustomerState.InActive,
                 InvitationCode = invitationCode,
                 InvitationCodeExpiry = DateTime.UtcNow.AddHours(24),
@@ -128,7 +137,7 @@ namespace Domain.Models
             return InvitationCode == code;
         }
 
-        public void UpdateProfile(string userName, string fullName, string nationalNumber, string gender, int cityId, string? fullAddress = null, string? modifiedBy = null)
+        public void UpdateProfile(string userName, string fullName, string gender, int cityId, string? fullAddress = null, string? personalImage = null, string? modifiedBy = null)
         {
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentException("User name cannot be empty", nameof(userName));
@@ -136,18 +145,15 @@ namespace Domain.Models
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new ArgumentException("Full name cannot be empty", nameof(fullName));
 
-            if (string.IsNullOrWhiteSpace(nationalNumber))
-                throw new ArgumentException("National number cannot be empty", nameof(nationalNumber));
-
             if (string.IsNullOrWhiteSpace(gender))
                 throw new ArgumentException("Gender cannot be empty", nameof(gender));
 
             UserName = userName;
             FullName = fullName;
-            NationalNumber = nationalNumber;
             Gender = gender;
             CityId = cityId;
             FullAddress = fullAddress;
+            PersonalImage = personalImage;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }
