@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Enums;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,14 +36,21 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
                 return Result.Failure("User name is required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.NationalNumber))
-            {
-                return Result.Failure("National number is required");
-            }
-
             if (string.IsNullOrWhiteSpace(request.Gender))
             {
                 return Result.Failure("Gender is required");
+            }
+
+            // Validate RegisterAs enum value
+            if (!Enum.IsDefined(typeof(RegisterAs), request.RegisterAs))
+            {
+                return Result.Failure("Invalid RegisterAs value");
+            }
+
+            // Validate VerificationBy enum value
+            if (!Enum.IsDefined(typeof(VerificationBy), request.VerificationBy))
+            {
+                return Result.Failure("Invalid VerificationBy value");
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
@@ -75,16 +83,6 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
             {
                 return Result.Failure("Customer with this mobile number already exists");
             }
-
-            // Check if national number already exists
-            var existingNationalNumber = await _context.Customers
-                .FirstOrDefaultAsync(c => c.NationalNumber == request.NationalNumber, cancellationToken);
-
-            if (existingNationalNumber != null)
-            {
-                return Result.Failure("Customer with this national number already exists");
-            }
-
 
             return Result.Success();
         }

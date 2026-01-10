@@ -16,10 +16,12 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
         public string MobileNumber { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string NationalNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
         public string? FullAddress { get; set; }
+        public string? PersonalImage { get; set; }
+        public int RegisterAs { get; set; } // 0 = Individual, 1 = Institution
+        public int VerificationBy { get; set; } // 0 = Phone, 1 = Email
         public string Password { get; set; } = string.Empty;
     }
 
@@ -63,12 +65,14 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 request.MobileNumber,
                 request.UserName,
                 request.FullName,
-                request.NationalNumber,
                 request.Gender,
                 invitationCode,
                 passwordHash,
                 request.CityId,
+                request.RegisterAs,
+                request.VerificationBy,
                 request.FullAddress,
+                request.PersonalImage,
                 "System"
             );
 
