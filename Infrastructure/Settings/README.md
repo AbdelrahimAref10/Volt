@@ -18,8 +18,8 @@ Interface and class for JWT configuration settings.
 {
   "Jwt": {
     "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLongForHS256Algorithm",
-    "Issuer": "ECommerceAPI",
-    "Audience": "ECommerceClient",
+    "Issuer": "VoltApi",
+    "Audience": "VoltClient",
     "ExpirationHours": "24"
   }
 }

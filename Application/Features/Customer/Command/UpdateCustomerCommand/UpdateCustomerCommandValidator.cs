@@ -41,11 +41,6 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
                 return Result.Failure("Full name is required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.NationalNumber))
-            {
-                return Result.Failure("National number is required");
-            }
-
             if (string.IsNullOrWhiteSpace(request.Gender))
             {
                 return Result.Failure("Gender is required");

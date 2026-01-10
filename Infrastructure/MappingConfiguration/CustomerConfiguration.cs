@@ -35,14 +35,22 @@ namespace Infrastructure.MappingConfiguration
                 .HasMaxLength(256)
                 .IsRequired();
 
-            builder.Property(c => c.NationalNumber)
-                .HasColumnName("NationalNumber")
-                .HasMaxLength(50)
-                .IsRequired();
-
             builder.Property(c => c.Gender)
                 .HasColumnName("Gender")
                 .HasMaxLength(20)
+                .IsRequired();
+
+            builder.Property(c => c.PersonalImage)
+                .HasColumnName("PersonalImage");
+
+            builder.Property(c => c.RegisterAs)
+                .HasColumnName("RegisterAs")
+                .HasConversion<int>()
+                .IsRequired();
+
+            builder.Property(c => c.VerificationBy)
+                .HasColumnName("VerificationBy")
+                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(c => c.FullAddress)
@@ -99,14 +107,6 @@ namespace Infrastructure.MappingConfiguration
                 .HasForeignKey(c => c.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure indexes
-            builder.HasIndex(c => c.MobileNumber)
-                .HasDatabaseName("IX_Customer_MobileNumber")
-                .IsUnique();
-
-            builder.HasIndex(c => c.NationalNumber)
-                .HasDatabaseName("IX_Customer_NationalNumber")
-                .IsUnique();
 
             builder.HasIndex(c => new { c.MobileNumber, c.State })
                 .HasDatabaseName("IX_Customer_MobileNumber_State");

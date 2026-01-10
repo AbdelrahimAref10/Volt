@@ -42,7 +42,6 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                 query = query.Where(c => c.UserName.ToLower().Contains(searchTerm) ||
                                        c.FullName.ToLower().Contains(searchTerm) ||
                                        c.MobileNumber.Contains(searchTerm) ||
-                                       c.NationalNumber.Contains(searchTerm) ||
                                        (c.FullAddress != null && c.FullAddress.ToLower().Contains(searchTerm)) ||
                                        (c.City != null && c.City.Name.ToLower().Contains(searchTerm)));
             }
@@ -64,9 +63,11 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                     MobileNumber = c.MobileNumber,
                     UserName = c.UserName,
                     FullName = c.FullName,
-                    NationalNumber = c.NationalNumber,
                     Gender = c.Gender,
+                    PersonalImage = c.PersonalImage,
                     FullAddress = c.FullAddress,
+                    RegisterAs = c.RegisterAs,
+                    VerificationBy = c.VerificationBy,
                     CityId = c.CityId,
                     CityName = c.City != null ? c.City.Name : string.Empty,
                     State = c.State,
