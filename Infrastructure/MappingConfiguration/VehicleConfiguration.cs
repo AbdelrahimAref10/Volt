@@ -24,6 +24,11 @@ namespace Infrastructure.MappingConfiguration
                 .HasMaxLength(256)
                 .IsRequired();
 
+            builder.Property(v => v.VehicleCode)
+                .HasColumnName("VehicleCode")
+                .HasMaxLength(50)
+                .IsRequired();
+
             builder.Property(v => v.ImageUrl)
                 .HasColumnName("ImageUrl")
                 .HasColumnType("nvarchar(max)");
@@ -76,6 +81,10 @@ namespace Infrastructure.MappingConfiguration
 
             builder.HasIndex(v => v.CreatedThisMonth)
                 .HasDatabaseName("IX_VO_Vehicle_CreatedThisMonth");
+
+            builder.HasIndex(v => v.VehicleCode)
+                .HasDatabaseName("IX_VO_Vehicle_VehicleCode")
+                .IsUnique();
         }
     }
 }

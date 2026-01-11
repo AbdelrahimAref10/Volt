@@ -4,6 +4,7 @@ namespace Application.Features.Vehicle.DTOs
     {
         public int VehicleId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string VehicleCode { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
         public string Status { get; set; } = string.Empty;
         public int SubCategoryId { get; set; }
