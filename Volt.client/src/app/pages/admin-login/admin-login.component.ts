@@ -64,19 +64,34 @@ export class AdminLoginComponent implements OnInit {
         this.isLoading = false;
         console.error('Login error details:', error);
         
-        // Handle different error types
-        if (error?.result?.errorMessage) {
-          this.errorMessage = error.result.errorMessage;
+        // Extract error message from different possible error structures
+        let extractedMessage = '';
+        
+        if (error?.errorMessage) {
+          extractedMessage = error.errorMessage;
+        } else if (error?.result?.errorMessage) {
+          extractedMessage = error.result.errorMessage;
         } else if (error?.message) {
-          this.errorMessage = error.message;
+          extractedMessage = error.message;
+        }
+        
+        // Normalize login-related error messages to show "Wrong User name or password"
+        const errorMsgLower = extractedMessage.toLowerCase();
+        if (errorMsgLower.includes('invalid') && 
+            (errorMsgLower.includes('user') || errorMsgLower.includes('password') || errorMsgLower.includes('name'))) {
+          this.errorMessage = 'Wrong User name or password';
+        } else if (error?.status === 400) {
+          // For 400 errors (Bad Request), it's likely a login failure
+          this.errorMessage = 'Wrong User name or password';
         } else if (error?.status === 0) {
           this.errorMessage = 'Unable to connect to server. Please check if the backend is running.';
-        } else if (error?.status === 400) {
-          this.errorMessage = 'Invalid username or password. Please try again.';
         } else if (error?.status === 500) {
           this.errorMessage = 'Server error occurred. Please try again later.';
+        } else if (extractedMessage) {
+          this.errorMessage = extractedMessage;
         } else {
-          this.errorMessage = 'An unexpected error occurred. Please try again.';
+          // Default message for login failures
+          this.errorMessage = 'Wrong User name or password';
         }
       }
     });

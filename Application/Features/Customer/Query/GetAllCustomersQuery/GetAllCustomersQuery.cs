@@ -17,6 +17,8 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
         public int PageSize { get; set; } = 10;
         public string? SearchTerm { get; set; }
         public Domain.Enums.CustomerState? State { get; set; }
+        public int? CityId { get; set; }
+        public int? RegisterAs { get; set; } // 0 = Individual, 1 = Institution
     }
 
     public class GetAllCustomersQueryHandler : IRequestHandler<GetAllCustomersQuery, Result<PagedResult<CustomerDto>>>
@@ -39,8 +41,7 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(c => c.UserName.ToLower().Contains(searchTerm) ||
-                                       c.FullName.ToLower().Contains(searchTerm) ||
+                query = query.Where(c => c.FullName.ToLower().Contains(searchTerm) ||
                                        c.MobileNumber.Contains(searchTerm) ||
                                        (c.FullAddress != null && c.FullAddress.ToLower().Contains(searchTerm)) ||
                                        (c.City != null && c.City.Name.ToLower().Contains(searchTerm)));
@@ -49,6 +50,16 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
             if (request.State.HasValue)
             {
                 query = query.Where(c => c.State == request.State.Value);
+            }
+
+            if (request.CityId.HasValue && request.CityId.Value > 0)
+            {
+                query = query.Where(c => c.CityId == request.CityId.Value);
+            }
+
+            if (request.RegisterAs.HasValue)
+            {
+                query = query.Where(c => c.RegisterAs == request.RegisterAs.Value);
             }
 
             var totalCount = await query.CountAsync(cancellationToken);
@@ -61,7 +72,6 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                 {
                     CustomerId = c.CustomerId,
                     MobileNumber = c.MobileNumber,
-                    UserName = c.UserName,
                     FullName = c.FullName,
                     Gender = c.Gender,
                     PersonalImage = c.PersonalImage,
@@ -71,6 +81,7 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                     CityId = c.CityId,
                     CityName = c.City != null ? c.City.Name : string.Empty,
                     State = c.State,
+                    CashBlock = c.CashBlock,
                     Email = null, // Customers don't have email anymore
                     CreatedDate = c.CreatedDate
                 })

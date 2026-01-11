@@ -12,7 +12,6 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
     public record UpdateCustomerCommand : IRequest<Result<bool>>
     {
         public int CustomerId { get; set; }
-        public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
@@ -49,7 +48,6 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             customer.UpdateProfile(
-                request.UserName,
                 request.FullName,
                 request.Gender,
                 request.CityId,
