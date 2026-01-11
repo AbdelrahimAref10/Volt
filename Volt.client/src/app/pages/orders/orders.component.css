@@ -1,0 +1,367 @@
+/* Orders Component - Modern Design (Matching Customer Page) */
+
+/* Header */
+.orders {
+  @apply p-6;
+}
+
+.orders__header {
+  @apply mb-8 flex items-center justify-between;
+}
+
+.orders__title {
+  @apply text-3xl font-bold text-neutral-900 mb-2;
+}
+
+.orders__subtitle {
+  @apply text-neutral-600 text-sm;
+}
+
+/* Messages */
+.orders__message {
+  @apply flex items-center gap-3 p-4 rounded-xl mb-6 shadow-sm;
+}
+
+.orders__message--success {
+  @apply bg-success-50 border border-success-200 text-success-700;
+}
+
+.orders__message--error {
+  @apply bg-error-50 border border-error-200 text-error-700;
+}
+
+.orders__message-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Stats Cards */
+.orders__stats {
+  @apply grid grid-cols-1 md:grid-cols-5 gap-4 mb-6;
+}
+
+.orders__stat-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-6 shadow-sm;
+}
+
+.orders__stat-card--pending {
+  @apply border-l-4 border-l-warning-500;
+}
+
+.orders__stat-card--confirmed {
+  @apply border-l-4 border-l-primary-500;
+}
+
+.orders__stat-card--onway {
+  @apply border-l-4 border-l-info-500;
+}
+
+.orders__stat-card--completed {
+  @apply border-l-4 border-l-success-500;
+}
+
+.orders__stat-value {
+  @apply text-3xl font-bold text-neutral-900 mb-1;
+}
+
+.orders__stat-label {
+  @apply text-sm text-neutral-600;
+}
+
+/* Text Search Input */
+.orders__text-search {
+  @apply mb-4;
+}
+
+.orders__search {
+  @apply flex items-center gap-2 bg-white rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 transition-all;
+}
+
+.orders__search-icon-left {
+  @apply w-5 h-5 text-neutral-400 flex-shrink-0;
+}
+
+.orders__search-input {
+  @apply flex-1 border-0 outline-none bg-transparent text-neutral-900 placeholder-neutral-400;
+}
+
+/* Advanced Search Box */
+.orders__search-box {
+  @apply mb-6 bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden;
+}
+
+.orders__search-box-header {
+  @apply flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-primary-100/50 border-b border-neutral-200;
+}
+
+.orders__search-box-title {
+  @apply flex items-center gap-2;
+}
+
+.orders__search-box-icon {
+  @apply w-5 h-5 text-primary-600;
+}
+
+.orders__search-box-title-text {
+  @apply text-lg font-semibold text-neutral-900;
+}
+
+.orders__search-box-clear {
+  @apply flex items-center gap-1.5 px-3 py-1.5 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-white/60 rounded-lg transition-colors duration-200;
+}
+
+.orders__search-box-clear svg {
+  @apply w-4 h-4;
+}
+
+.orders__search-box-content {
+  @apply p-4;
+}
+
+.orders__search-box-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.orders__search-box-field {
+  @apply flex flex-col gap-2;
+}
+
+.orders__search-box-label {
+  @apply flex items-center gap-2 text-sm font-medium text-neutral-700;
+}
+
+.orders__search-box-label-icon {
+  @apply w-4 h-4 text-neutral-500;
+}
+
+.orders__search-box-input,
+.orders__search-box-select {
+  @apply w-full px-4 py-2.5 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all;
+}
+
+.orders__search-box-actions {
+  @apply flex items-center justify-end gap-3 mt-4 pt-4 border-t border-neutral-200;
+}
+
+.orders__search-box-btn {
+  @apply flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.orders__search-box-btn--primary {
+  @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-lg shadow-primary-500/20;
+}
+
+.orders__search-box-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.orders__search-box-btn-icon {
+  @apply w-5 h-5;
+}
+
+/* Table */
+.orders__table-wrapper {
+  @apply bg-white rounded-xl border border-neutral-200 shadow-sm mb-6;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.orders__table {
+  @apply w-full;
+  min-width: 1000px;
+}
+
+.orders__table thead {
+  @apply bg-gradient-to-r from-primary-50 to-primary-100/50;
+}
+
+.orders__table th {
+  @apply px-6 py-4 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider;
+}
+
+.orders__table tbody tr {
+  @apply border-b border-neutral-200 hover:bg-neutral-50 transition-colors;
+}
+
+.orders__table td {
+  @apply px-6 py-4 text-sm text-neutral-900;
+}
+
+.orders__table-loading-row {
+  @apply border-b-0;
+}
+
+.orders__table-loading-cell {
+  @apply p-0;
+}
+
+.orders__table-loading {
+  @apply flex flex-col items-center justify-center py-16 min-h-[300px];
+}
+
+.orders__table-empty-row {
+  @apply border-b-0;
+}
+
+.orders__table-empty-cell {
+  @apply p-0;
+}
+
+.orders__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+/* Order Code */
+.orders__order-code {
+  @apply flex items-center gap-2;
+}
+
+.orders__order-code-text {
+  @apply font-mono font-semibold text-primary-600;
+}
+
+.orders__urgent-badge {
+  @apply px-2 py-0.5 text-xs font-semibold bg-error-100 text-error-700 rounded;
+}
+
+/* Customer Info */
+.orders__customer-info {
+  @apply flex flex-col;
+}
+
+.orders__customer-name {
+  @apply font-medium text-neutral-900;
+}
+
+.orders__customer-city {
+  @apply text-xs text-neutral-500;
+}
+
+/* SubCategory */
+.orders__subcategory {
+  @apply text-neutral-700;
+}
+
+/* Dates */
+.orders__dates {
+  @apply flex flex-col gap-1;
+}
+
+.orders__date-item {
+  @apply flex items-center gap-1.5 text-xs text-neutral-600;
+}
+
+.orders__date-icon {
+  @apply w-3.5 h-3.5;
+}
+
+/* Vehicles Count */
+.orders__vehicles-count {
+  @apply font-semibold text-neutral-900;
+}
+
+/* Total */
+.orders__total {
+  @apply font-semibold text-neutral-900;
+}
+
+/* Payment */
+.orders__payment {
+  @apply inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium;
+}
+
+.orders__payment--cash {
+  @apply bg-success-100 text-success-700;
+}
+
+.orders__payment--paypal {
+  @apply bg-primary-100 text-primary-700;
+}
+
+/* State */
+.orders__state {
+  @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+}
+
+.orders__state--pending {
+  @apply bg-warning-100 text-warning-700;
+}
+
+.orders__state--confirmed {
+  @apply bg-primary-100 text-primary-700;
+}
+
+.orders__state--onway {
+  @apply bg-info-100 text-info-700;
+}
+
+.orders__state--received {
+  @apply bg-purple-100 text-purple-700;
+}
+
+.orders__state--completed {
+  @apply bg-success-100 text-success-700;
+}
+
+/* Date/Time */
+.orders__date {
+  @apply text-neutral-700;
+}
+
+.orders__time {
+  @apply text-xs text-neutral-500;
+}
+
+/* View Button */
+.orders__view-btn {
+  @apply flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.orders__view-btn svg {
+  @apply w-4 h-4;
+}
+
+/* Empty State */
+.orders__empty {
+  @apply flex flex-col items-center justify-center py-16 min-h-[300px];
+}
+
+.orders__empty-icon {
+  @apply w-16 h-16 text-neutral-300 mb-4;
+}
+
+.orders__empty-text {
+  @apply text-lg font-semibold text-neutral-700 mb-1;
+}
+
+.orders__empty-subtext {
+  @apply text-sm text-neutral-500;
+}
+
+/* Pagination */
+.orders__pagination {
+  @apply flex items-center justify-between bg-white rounded-xl border border-neutral-200 shadow-sm p-4;
+}
+
+.orders__pagination-btn {
+  @apply flex items-center gap-2 px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.orders__pagination-btn--disabled {
+  @apply opacity-50 cursor-not-allowed hover:bg-transparent;
+}
+
+.orders__pagination-icon {
+  @apply w-4 h-4;
+}
+
+.orders__pagination-numbers {
+  @apply flex items-center gap-2;
+}
+
+.orders__pagination-number {
+  @apply w-10 h-10 flex items-center justify-center border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.orders__pagination-number--active {
+  @apply bg-primary-500 text-white border-primary-500 hover:bg-primary-600;
+}

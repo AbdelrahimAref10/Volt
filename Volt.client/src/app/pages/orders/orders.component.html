@@ -1,0 +1,282 @@
+<div class="orders">
+  <!-- Header -->
+  <div class="orders__header">
+    <div>
+      <h1 class="orders__title">Order Management</h1>
+      <p class="orders__subtitle">Manage and monitor customer orders</p>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="orders__message orders__message--success">
+    <svg class="orders__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="orders__message orders__message--error">
+    <svg class="orders__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="orders__stats">
+    <div class="orders__stat-card">
+      <div class="orders__stat-value">{{ totalCount }}</div>
+      <div class="orders__stat-label">Total Orders</div>
+    </div>
+    <div class="orders__stat-card orders__stat-card--pending">
+      <div class="orders__stat-value">{{ pendingOrdersCount }}</div>
+      <div class="orders__stat-label">Pending</div>
+    </div>
+    <div class="orders__stat-card orders__stat-card--confirmed">
+      <div class="orders__stat-value">{{ confirmedOrdersCount }}</div>
+      <div class="orders__stat-label">Confirmed</div>
+    </div>
+    <div class="orders__stat-card orders__stat-card--onway">
+      <div class="orders__stat-value">{{ onWayOrdersCount }}</div>
+      <div class="orders__stat-label">On Way</div>
+    </div>
+    <div class="orders__stat-card orders__stat-card--completed">
+      <div class="orders__stat-value">{{ completedOrdersCount }}</div>
+      <div class="orders__stat-label">Completed</div>
+    </div>
+  </div>
+
+  <!-- Text Search Input -->
+  <div class="orders__text-search">
+    <div class="orders__search">
+      <svg class="orders__search-icon-left" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="searchOrderCode"
+        (input)="onSearchTermChange()"
+        placeholder="Search by order code..."
+        class="orders__search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Advanced Search Box -->
+  <div class="orders__search-box">
+    <div class="orders__search-box-header">
+      <div class="orders__search-box-title">
+        <svg class="orders__search-box-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <h3 class="orders__search-box-title-text">Advanced Search</h3>
+      </div>
+      <button
+        type="button"
+        (click)="onClearSearch()"
+        class="orders__search-box-clear"
+        *ngIf="hasActiveFilters()"
+        title="Clear all filters"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Clear
+      </button>
+    </div>
+    <div class="orders__search-box-content">
+      <div class="orders__search-box-grid">
+        <!-- State Filter -->
+        <div class="orders__search-box-field">
+          <label class="orders__search-box-label">
+            <svg class="orders__search-box-label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Status
+          </label>
+          <select
+            [(ngModel)]="searchFilters.state"
+            (change)="onFilterChange()"
+            class="orders__search-box-select"
+          >
+            <option *ngFor="let state of orderStates" [value]="state.value === null ? null : state.value">
+              {{ state.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- City Filter -->
+        <div class="orders__search-box-field">
+          <label class="orders__search-box-label">
+            <svg class="orders__search-box-label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243m8.244-8.243a6 6 0 00-8.485-8.485l-4.243 4.243a6 6 0 108.485 8.485z" />
+            </svg>
+            City
+          </label>
+          <select
+            [(ngModel)]="searchFilters.cityId"
+            (change)="onFilterChange()"
+            class="orders__search-box-select"
+            [disabled]="isLoadingCities"
+          >
+            <option [value]="null">All Cities</option>
+            <option *ngFor="let city of cities" [value]="city.cityId">
+              {{ city.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="orders__search-box-actions">
+        <button
+          type="button"
+          (click)="onAdvancedSearch()"
+          class="orders__search-box-btn orders__search-box-btn--primary"
+          [disabled]="isLoading"
+        >
+          <svg class="orders__search-box-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="orders__table-wrapper">
+    <table class="orders__table">
+      <thead>
+        <tr>
+          <th>Order Code</th>
+          <th>Customer</th>
+          <th>SubCategory</th>
+          <th>Vehicles Count</th>
+          <th>Total</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Loading State (inside tbody) -->
+        <tr *ngIf="isLoading" class="orders__table-loading-row">
+          <td colspan="10" class="orders__table-loading-cell">
+            <div class="orders__table-loading">
+              <div class="orders__spinner"></div>
+              <p>Loading orders...</p>
+            </div>
+          </td>
+        </tr>
+        <!-- Table Rows -->
+        <ng-container *ngIf="!isLoading && orders.length > 0">
+          <tr *ngFor="let order of orders" class="orders__table-row">
+            <td>
+              <div class="orders__order-code">
+                <span class="orders__order-code-text">{{ order.orderCode }}</span>
+                <span *ngIf="order.isUrgent" class="orders__urgent-badge">Urgent</span>
+              </div>
+            </td>
+            <td>
+              <div class="orders__customer-info">
+                <div class="orders__customer-name">{{ order.customerName }}</div>
+                <div class="orders__customer-city">{{ order.cityName }}</div>
+              </div>
+            </td>
+            <td>
+              <div class="orders__subcategory">{{ order.subCategoryName }}</div>
+            </td>
+            <td>
+              <div class="orders__vehicles-count">{{ order.vehiclesCount }}</div>
+            </td>
+            <td>
+              <div class="orders__total">{{ order.orderTotal | number : '1.2-2' }} EGP</div>
+            </td>
+            <td>
+              <span [class]="'orders__payment ' + getPaymentMethodClass(order.paymentMethod)">
+                {{ getPaymentMethodLabel(order.paymentMethod) }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'orders__state ' + getStateClass(order.orderState)">
+                {{ getStateLabel(order.orderState) }}
+              </span>
+            </td>
+            <td>
+              <div class="orders__date">{{ order.createdDate | date : "MMM d, y" }}</div>
+              <div class="orders__time">{{ order.createdDate | date : "h:mm a" }}</div>
+            </td>
+            <td>
+              <button
+                type="button"
+                (click)="onView(order.orderId)"
+                class="orders__view-btn"
+                title="View Order Details"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View
+              </button>
+            </td>
+          </tr>
+        </ng-container>
+        <!-- Empty State (inside tbody) -->
+        <tr *ngIf="!isLoading && orders.length === 0" class="orders__table-empty-row">
+          <td colspan="10" class="orders__table-empty-cell">
+            <div class="orders__empty">
+              <svg class="orders__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p class="orders__empty-text">No orders found</p>
+              <p class="orders__empty-subtext">Try adjusting your search or filters</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="orders__pagination">
+    <button
+      type="button"
+      (click)="onPageChange(currentPage - 1)"
+      [disabled]="currentPage === 1"
+      class="orders__pagination-btn"
+      [class.orders__pagination-btn--disabled]="currentPage === 1"
+    >
+      <svg class="orders__pagination-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Previous
+    </button>
+
+    <div class="orders__pagination-numbers">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        type="button"
+        (click)="onPageChange(page)"
+        class="orders__pagination-number"
+        [class.orders__pagination-number--active]="page === currentPage"
+      >
+        {{ page }}
+      </button>
+    </div>
+
+    <button
+      type="button"
+      (click)="onPageChange(currentPage + 1)"
+      [disabled]="currentPage === totalPages"
+      class="orders__pagination-btn"
+      [class.orders__pagination-btn--disabled]="currentPage === totalPages"
+    >
+      Next
+      <svg class="orders__pagination-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+</div>

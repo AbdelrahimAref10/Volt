@@ -1,0 +1,558 @@
+<div class="order-detail" *ngIf="order">
+  <!-- Header -->
+  <div class="order-detail__header">
+    <button type="button" (click)="onBack()" class="order-detail__back-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Orders
+    </button>
+    <div class="order-detail__header-content">
+      <div class="order-detail__title-section">
+        <div class="order-detail__icon-section">
+          <div class="order-detail__icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="order-detail__title-info">
+          <h1 class="order-detail__title">Order Details</h1>
+          <div class="order-detail__meta">
+            <span class="order-detail__meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
+              {{ order.orderCode }}
+            </span>
+            <span class="order-detail__meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {{ order.customerName }}
+            </span>
+            <span class="order-detail__meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Created {{ order.createdDate | date : "MMM d, y" }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="order-detail__status-badge">
+        <span [class]="'order-detail__status ' + getStateClass(order.orderState)">
+          {{ getStateLabel(order.orderState) }}
+        </span>
+        <span *ngIf="order.isUrgent" class="order-detail__urgent-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Urgent
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="order-detail__message order-detail__message--success">
+    <svg class="order-detail__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="order-detail__message order-detail__message--error">
+    <svg class="order-detail__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="order-detail__content">
+    <!-- Left Column - Order Information -->
+    <div class="order-detail__info-section">
+      <!-- Order Summary Card -->
+      <div class="order-detail__card">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Order Summary</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__info-grid">
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">SubCategory</label>
+              <div class="order-detail__info-value">{{ order.subCategoryName }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Vehicles Count</label>
+              <div class="order-detail__info-value">{{ order.vehiclesCount }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Reservation From</label>
+              <div class="order-detail__info-value">{{ order.reservationDateFrom | date : "fullDate" }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Reservation To</label>
+              <div class="order-detail__info-value">{{ order.reservationDateTo | date : "fullDate" }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Payment Method</label>
+              <div class="order-detail__info-value">
+                <span [class]="'order-detail__badge order-detail__badge--' + (order.paymentMethod === PaymentMethod.Cash ? 'success' : 'primary')">
+                  {{ getPaymentMethodLabel(order.paymentMethod) }}
+                </span>
+              </div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Order Total</label>
+              <div class="order-detail__info-value order-detail__info-value--total">{{ order.orderTotal | number : '1.2-2' }} EGP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Information Card -->
+      <div class="order-detail__card">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Customer Information</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__info-grid">
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Full Name</label>
+              <div class="order-detail__info-value">{{ order.customerName }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Mobile Number</label>
+              <div class="order-detail__info-value">{{ order.customerMobileNumber }}</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">City</label>
+              <div class="order-detail__info-value">{{ order.cityName }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hotel Information Card -->
+      <div class="order-detail__card">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Hotel Information</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__info-grid">
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Hotel Name</label>
+              <div class="order-detail__info-value">{{ order.hotelName }}</div>
+            </div>
+            <div class="order-detail__info-item order-detail__info-item--full">
+              <label class="order-detail__info-label">Address</label>
+              <div class="order-detail__info-value">{{ order.hotelAddress }}</div>
+            </div>
+            <div class="order-detail__info-item" *ngIf="order.hotelPhone">
+              <label class="order-detail__info-label">Phone</label>
+              <div class="order-detail__info-value">{{ order.hotelPhone }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Details Card -->
+      <div class="order-detail__card">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Financial Details</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__financial-grid">
+            <div class="order-detail__financial-item">
+              <label class="order-detail__info-label">SubTotal</label>
+              <div class="order-detail__info-value">{{ order.orderSubTotal | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__financial-item order-detail__financial-item--total">
+              <label class="order-detail__info-label">Total Amount</label>
+              <div class="order-detail__info-value order-detail__info-value--total">{{ order.orderTotal | number : '1.2-2' }} EGP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assigned Vehicles Card -->
+      <div class="order-detail__card" *ngIf="order.orderVehicles && order.orderVehicles.length > 0">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Assigned Vehicles</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__vehicles">
+            <div *ngFor="let vehicle of order.orderVehicles" class="order-detail__vehicle-item">
+              <div class="order-detail__vehicle-info">
+                <div class="order-detail__vehicle-name">{{ vehicle.vehicleName }}</div>
+                <div class="order-detail__vehicle-code">{{ vehicle.vehicleCode }}</div>
+              </div>
+              <span class="order-detail__vehicle-status">{{ vehicle.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Details Card -->
+      <div class="order-detail__card" *ngIf="order.orderTotals">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Payment Details</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__payment-breakdown">
+            <div class="order-detail__breakdown-item">
+              <label class="order-detail__breakdown-label">SubTotal</label>
+              <div class="order-detail__breakdown-value">{{ order.orderTotals.subTotal | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__breakdown-item">
+              <label class="order-detail__breakdown-label">Service Fees</label>
+              <div class="order-detail__breakdown-value">{{ order.orderTotals.serviceFees | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__breakdown-item">
+              <label class="order-detail__breakdown-label">Delivery Fees</label>
+              <div class="order-detail__breakdown-value">{{ order.orderTotals.deliveryFees | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__breakdown-item" *ngIf="order.orderTotals.urgentFees > 0">
+              <label class="order-detail__breakdown-label">Urgent Fees</label>
+              <div class="order-detail__breakdown-value">{{ order.orderTotals.urgentFees | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__breakdown-divider"></div>
+            <div class="order-detail__breakdown-item order-detail__breakdown-item--total">
+              <label class="order-detail__breakdown-label">Total After All Fees</label>
+              <div class="order-detail__breakdown-value order-detail__breakdown-value--total">{{ order.orderTotals.totalAfterAllFees | number : '1.2-2' }} EGP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Information Card -->
+      <div class="order-detail__card" *ngIf="order.orderPayments && order.orderPayments.length > 0">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Payment Information</h2>
+          <button
+            *ngIf="canUpdatePayment() && order.orderPayments[0].state === PaymentState.Pending"
+            type="button"
+            (click)="onUpdatePaymentState(PaymentState.Paid)"
+            class="order-detail__header-btn order-detail__header-btn--success"
+            [disabled]="isActionLoading('payment-' + PaymentState.Paid)"
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Mark as Paid
+          </button>
+        </div>
+        <div class="order-detail__card-body">
+          <div *ngFor="let payment of order.orderPayments" class="order-detail__payment-item">
+            <div class="order-detail__info-grid">
+              <div class="order-detail__info-item">
+                <label class="order-detail__info-label">Amount</label>
+                <div class="order-detail__info-value">{{ payment.total | number : '1.2-2' }} EGP</div>
+              </div>
+              <div class="order-detail__info-item">
+                <label class="order-detail__info-label">Method</label>
+                <div class="order-detail__info-value">
+                  <span [class]="'order-detail__badge order-detail__badge--' + (payment.paymentMethod === PaymentMethod.Cash ? 'success' : 'primary')">
+                    {{ getPaymentMethodLabel(payment.paymentMethod) }}
+                  </span>
+                </div>
+              </div>
+              <div class="order-detail__info-item">
+                <label class="order-detail__info-label">Status</label>
+                <span [class]="'order-detail__payment-state ' + getPaymentStateClass(payment.state)">
+                  {{ getPaymentStateLabel(payment.state) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancellation Fee Card -->
+      <div class="order-detail__card" *ngIf="order.orderCancellationFee">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Cancellation Fee</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__info-grid">
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Amount</label>
+              <div class="order-detail__info-value">{{ order.orderCancellationFee.amount | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Status</label>
+              <div class="order-detail__info-value">
+                <span [class]="'order-detail__badge ' + (order.orderCancellationFee.state === 0 ? 'order-detail__badge--warning' : 'order-detail__badge--success')">
+                  {{ order.orderCancellationFee.state === 0 ? 'Not Yet' : 'Paid' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Refund Information Card -->
+      <div class="order-detail__card" *ngIf="order.refundablePaypalAmount">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Refund Information</h2>
+          <div class="order-detail__refund-actions" *ngIf="canProcessRefund()">
+            <button
+              type="button"
+              (click)="onProcessRefund(RefundState.Success)"
+              class="order-detail__header-btn order-detail__header-btn--success"
+              [disabled]="isActionLoading('refund-' + RefundState.Success)"
+            >
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Mark Success
+            </button>
+            <button
+              type="button"
+              (click)="onProcessRefund(RefundState.Failed)"
+              class="order-detail__header-btn order-detail__header-btn--danger"
+              [disabled]="isActionLoading('refund-' + RefundState.Failed)"
+            >
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Mark Failed
+            </button>
+          </div>
+        </div>
+        <div class="order-detail__card-body">
+          <div class="order-detail__info-grid">
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Order Total</label>
+              <div class="order-detail__info-value">{{ order.refundablePaypalAmount.orderTotal | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Cancellation Fees</label>
+              <div class="order-detail__info-value">{{ order.refundablePaypalAmount.cancellationFees | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__info-item order-detail__info-item--full">
+              <label class="order-detail__info-label">Refundable Amount</label>
+              <div class="order-detail__info-value order-detail__info-value--total">{{ order.refundablePaypalAmount.refundableAmount | number : '1.2-2' }} EGP</div>
+            </div>
+            <div class="order-detail__info-item">
+              <label class="order-detail__info-label">Status</label>
+              <div class="order-detail__info-value">
+                <span [class]="'order-detail__badge ' + (order.refundablePaypalAmount.state === RefundState.Pending ? 'order-detail__badge--warning' : order.refundablePaypalAmount.state === RefundState.Success ? 'order-detail__badge--success' : 'order-detail__badge--danger')">
+                  {{ getRefundStateLabel(order.refundablePaypalAmount.state) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Card -->
+      <div class="order-detail__card" *ngIf="order.notes">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Notes</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <p class="order-detail__notes">{{ order.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Passport Image Card -->
+      <div class="order-detail__card" *ngIf="order.passportImage">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Passport Image</h2>
+        </div>
+        <div class="order-detail__card-body">
+          <img [src]="order.passportImage" alt="Passport" class="order-detail__passport-image" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Control Panel -->
+    <div class="order-detail__control-section">
+      <div class="order-detail__card order-detail__card--control">
+        <div class="order-detail__card-header">
+          <h2 class="order-detail__card-title">Order Control Panel</h2>
+          <p class="order-detail__card-subtitle">Manage order status and actions</p>
+        </div>
+        <div class="order-detail__card-body">
+          <!-- Order Status Actions -->
+          <div class="order-detail__action-group">
+            <h3 class="order-detail__action-group-title">Order Status</h3>
+            <div class="order-detail__actions">
+              <button
+                *ngIf="canConfirm()"
+                type="button"
+                (click)="onAssignVehicles()"
+                [disabled]="isActionLoading('confirm')"
+                class="order-detail__action-btn order-detail__action-btn--primary"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ isActionLoading('confirm') ? 'Processing...' : 'Assign Vehicles & Confirm' }}</span>
+              </button>
+
+              <button
+                *ngIf="canUpdateToOnWay()"
+                type="button"
+                (click)="onUpdateState(OrderState.OnWay)"
+                [disabled]="isActionLoading('state-' + OrderState.OnWay)"
+                class="order-detail__action-btn order-detail__action-btn--info"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>{{ isActionLoading('state-' + OrderState.OnWay) ? 'Updating...' : 'Mark On Way' }}</span>
+              </button>
+
+              <button
+                *ngIf="canUpdateToCustomerReceived()"
+                type="button"
+                (click)="onUpdateState(OrderState.CustomerReceived)"
+                [disabled]="isActionLoading('state-' + OrderState.CustomerReceived)"
+                class="order-detail__action-btn order-detail__action-btn--info"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ isActionLoading('state-' + OrderState.CustomerReceived) ? 'Updating...' : 'Mark Customer Received' }}</span>
+              </button>
+
+              <button
+                *ngIf="canComplete()"
+                type="button"
+                (click)="onUpdateState(OrderState.Completed)"
+                [disabled]="isActionLoading('state-' + OrderState.Completed)"
+                class="order-detail__action-btn order-detail__action-btn--success"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{{ isActionLoading('state-' + OrderState.Completed) ? 'Completing...' : 'Complete Order' }}</span>
+              </button>
+            </div>
+            <p class="order-detail__action-description">
+              Update the order status as it progresses through the delivery and return process.
+            </p>
+          </div>
+
+          <!-- Cancellation Actions -->
+          <div class="order-detail__action-group">
+            <h3 class="order-detail__action-group-title">Order Cancellation</h3>
+            <div class="order-detail__actions">
+              <button
+                *ngIf="canCancel()"
+                type="button"
+                (click)="onCancelOrder()"
+                [disabled]="isActionLoading('cancel')"
+                class="order-detail__action-btn order-detail__action-btn--danger"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>{{ isActionLoading('cancel') ? 'Cancelling...' : 'Cancel Order' }}</span>
+              </button>
+            </div>
+            <p class="order-detail__action-description">
+              Cancel this order. Cancellation fees may apply based on the order creation date.
+            </p>
+          </div>
+
+          <!-- Order Quick Info -->
+          <div class="order-detail__quick-info">
+            <div class="order-detail__quick-info-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <div>
+                <div class="order-detail__quick-info-label">Order Created</div>
+                <div class="order-detail__quick-info-value">{{ order.createdDate | date : "fullDate" }}</div>
+                <div class="order-detail__quick-info-time">{{ order.createdDate | date : "shortTime" }}</div>
+              </div>
+            </div>
+            <div class="order-detail__quick-info-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <div class="order-detail__quick-info-label">Total Amount</div>
+                <div class="order-detail__quick-info-value">{{ order.orderTotal | number : '1.2-2' }} EGP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="order-detail order-detail--loading">
+  <div class="order-detail__spinner"></div>
+  <p>Loading order details...</p>
+</div>
+
+<!-- Vehicle Assignment Modal -->
+<div *ngIf="showVehicleModal" class="order-detail__modal-overlay" (click)="onCloseVehicleModal()">
+  <div class="order-detail__modal" (click)="$event.stopPropagation()">
+    <div class="order-detail__modal-header">
+      <h2 class="order-detail__modal-title">Assign Vehicles</h2>
+      <button type="button" (click)="onCloseVehicleModal()" class="order-detail__modal-close">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="order-detail__modal-content">
+      <p class="order-detail__modal-subtitle">Select {{ order?.vehiclesCount || 0 }} vehicle(s) to assign to this order</p>
+      <p class="order-detail__modal-selected">Selected: {{ selectedVehicleIds.length }} / {{ order?.vehiclesCount || 0 }}</p>
+      
+      <div *ngIf="isLoadingVehicles" class="order-detail__loading">
+        <div class="order-detail__spinner"></div>
+        <p>Loading vehicles...</p>
+      </div>
+
+      <div *ngIf="!isLoadingVehicles" class="order-detail__vehicles-list">
+        <div
+          *ngFor="let vehicle of availableVehicles"
+          (click)="toggleVehicleSelection(vehicle.vehicleId)"
+          [class]="'order-detail__vehicle-option ' + (isVehicleSelected(vehicle.vehicleId) ? 'order-detail__vehicle-option--selected' : '')"
+        >
+          <div class="order-detail__vehicle-option-info">
+            <div class="order-detail__vehicle-option-name">{{ vehicle.name }}</div>
+            <div class="order-detail__vehicle-option-code">{{ vehicle.vehicleCode }}</div>
+          </div>
+          <div *ngIf="isVehicleSelected(vehicle.vehicleId)" class="order-detail__vehicle-option-check">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingVehicles && availableVehicles.length === 0" class="order-detail__empty">
+        <p>No available vehicles found for this subcategory</p>
+      </div>
+    </div>
+    <div class="order-detail__modal-actions">
+      <button
+        type="button"
+        (click)="onCloseVehicleModal()"
+        class="order-detail__modal-btn order-detail__modal-btn--cancel"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="onConfirmOrder()"
+        [disabled]="!order || selectedVehicleIds.length !== order.vehiclesCount || isActionLoading('confirm')"
+        class="order-detail__modal-btn order-detail__modal-btn--submit"
+      >
+        <span *ngIf="!isActionLoading('confirm')">Confirm Order</span>
+        <span *ngIf="isActionLoading('confirm')">Confirming...</span>
+      </button>
+    </div>
+  </div>
+</div>

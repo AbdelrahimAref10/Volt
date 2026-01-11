@@ -7,6 +7,7 @@ namespace Domain.Models
         // Private setters for encapsulation
         public int VehicleId { get; private set; }
         public string Name { get; private set; } = string.Empty;
+        public string VehicleCode { get; private set; } = string.Empty;
         public string? ImageUrl { get; private set; }
         public string Status { get; private set; } = string.Empty; // "Available", "Under Maintenance", "Rented"
         public DateTime? CreatedThisMonth { get; private set; }
@@ -27,6 +28,7 @@ namespace Domain.Models
         // Factory method for creating vehicles
         public static Vehicle Create(
             string name,
+            string vehicleCode,
             int subCategoryId,
             string status,
             string? imageUrl = null,
@@ -34,6 +36,9 @@ namespace Domain.Models
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Vehicle name cannot be empty", nameof(name));
+
+            if (string.IsNullOrWhiteSpace(vehicleCode))
+                throw new ArgumentException("Vehicle code cannot be empty", nameof(vehicleCode));
 
             if (subCategoryId <= 0)
                 throw new ArgumentException("SubCategory ID must be greater than zero", nameof(subCategoryId));
@@ -48,6 +53,7 @@ namespace Domain.Models
             return new Vehicle
             {
                 Name = name.Trim(),
+                VehicleCode = vehicleCode.Trim(),
                 SubCategoryId = subCategoryId,
                 Status = status,
                 ImageUrl = imageUrl,
@@ -61,6 +67,7 @@ namespace Domain.Models
         // Domain methods
         public void Update(
             string name,
+            string vehicleCode,
             int subCategoryId,
             string status,
             string? imageUrl = null,
@@ -68,6 +75,9 @@ namespace Domain.Models
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Vehicle name cannot be empty", nameof(name));
+
+            if (string.IsNullOrWhiteSpace(vehicleCode))
+                throw new ArgumentException("Vehicle code cannot be empty", nameof(vehicleCode));
 
             if (subCategoryId <= 0)
                 throw new ArgumentException("SubCategory ID must be greater than zero", nameof(subCategoryId));
@@ -80,9 +90,20 @@ namespace Domain.Models
                 throw new ArgumentException($"Status must be one of: {string.Join(", ", validStatuses)}", nameof(status));
 
             Name = name.Trim();
+            VehicleCode = vehicleCode.Trim();
             SubCategoryId = subCategoryId;
             Status = status;
             ImageUrl = imageUrl;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
+        }
+
+        public void UpdateVehicleCode(string vehicleCode, string? modifiedBy = null)
+        {
+            if (string.IsNullOrWhiteSpace(vehicleCode))
+                throw new ArgumentException("Vehicle code cannot be empty", nameof(vehicleCode));
+
+            VehicleCode = vehicleCode.Trim();
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }

@@ -13,6 +13,7 @@ namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
     {
         public int VehicleId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string VehicleCode { get; set; } = string.Empty;
         public int SubCategoryId { get; set; }
         public string Status { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
@@ -57,6 +58,7 @@ namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
             {
                 vehicle.Update(
                     request.Name,
+                    request.VehicleCode,
                     request.SubCategoryId,
                     request.Status,
                     request.ImageUrl,
@@ -69,6 +71,7 @@ namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
                 {
                     VehicleId = vehicle.VehicleId,
                     Name = vehicle.Name,
+                    VehicleCode = vehicle.VehicleCode,
                     ImageUrl = vehicle.ImageUrl,
                     Status = vehicle.Status,
                     SubCategoryId = vehicle.SubCategoryId,

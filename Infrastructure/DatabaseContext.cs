@@ -26,6 +26,14 @@ namespace Infrastructure
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderVehicle> OrderVehicles { get; set; }
+        public DbSet<ReservedVehiclesPerDays> ReservedVehiclesPerDays { get; set; }
+        public DbSet<OrderPayment> OrderPayments { get; set; }
+        public DbSet<OrderCancellationFee> OrderCancellationFees { get; set; }
+        public DbSet<RefundablePaypalAmount> RefundablePaypalAmounts { get; set; }
+        public DbSet<CompanyTreasury> CompanyTreasuries { get; set; }
+        public DbSet<OrderTotals> OrderTotals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
