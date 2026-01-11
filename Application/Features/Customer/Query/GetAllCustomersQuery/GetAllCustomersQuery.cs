@@ -31,7 +31,6 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
         }
 
         public async Task<Result<PagedResult<CustomerDto>>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
-        
         {
             var query = _context.Customers
                 .Include(c => c.City)

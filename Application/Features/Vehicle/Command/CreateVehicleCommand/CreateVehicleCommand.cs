@@ -13,6 +13,7 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
     public record CreateVehicleCommand : IRequest<Result<VehicleDto>>
     {
         public string Name { get; set; } = string.Empty;
+        public string VehicleCode { get; set; } = string.Empty;
         public int SubCategoryId { get; set; }
         public string Status { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
@@ -46,6 +47,7 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
             {
                 var vehicle = Domain.Models.Vehicle.Create(
                     request.Name,
+                    request.VehicleCode,
                     request.SubCategoryId,
                     request.Status,
                     request.ImageUrl,
@@ -59,6 +61,7 @@ namespace Application.Features.Vehicle.Command.CreateVehicleCommand
                 {
                     VehicleId = vehicle.VehicleId,
                     Name = vehicle.Name,
+                    VehicleCode = vehicle.VehicleCode,
                     ImageUrl = vehicle.ImageUrl,
                     Status = vehicle.Status,
                     SubCategoryId = vehicle.SubCategoryId,

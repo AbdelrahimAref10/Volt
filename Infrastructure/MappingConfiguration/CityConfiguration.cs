@@ -33,6 +33,22 @@ namespace Infrastructure.MappingConfiguration
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            builder.Property(c => c.DeliveryFees)
+                .HasColumnName("DeliveryFees")
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(c => c.UrgentDelivery)
+                .HasColumnName("UrgentDelivery")
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(c => c.ServiceFees)
+                .HasColumnName("ServiceFees")
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(c => c.CancellationFees)
+                .HasColumnName("CancellationFees")
+                .HasColumnType("decimal(18,2)");
+
             // Configure audit properties
             builder.Property(c => c.CreatedBy)
                 .HasColumnName("CreatedBy")

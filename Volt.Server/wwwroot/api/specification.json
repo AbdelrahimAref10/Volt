@@ -485,6 +485,740 @@
         }
       }
     },
+    "/api/AdminOrder": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetAllOrders",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "State",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OrderState"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
+            "name": "OrderCode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfOrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{id}": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetOrderById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{orderId}/Confirm": {
+      "post": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_ConfirmOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "vehicleIds",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{orderId}/UpdateState": {
+      "post": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_UpdateOrderState",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{orderId}/Cancel": {
+      "post": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_CancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{orderId}/Payment/UpdateState": {
+      "post": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_UpdatePaymentState",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePaymentStateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderPaymentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/{orderId}/Refund": {
+      "post": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_ProcessRefund",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessRefundCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefundablePaypalAmountDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/OrdersByState": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetOrdersByStateReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrdersByStateReportDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/OrdersByDateRange": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetOrdersByDateRangeReport",
+        "parameters": [
+          {
+            "name": "FromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "ToDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/Revenue": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetRevenueReport",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevenueReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/Cancellations": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetCancellationReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancellationReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/VehicleUtilization": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetVehicleUtilizationReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleUtilizationReportDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/CustomerOrderHistory": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetCustomerOrderHistoryReport",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/TreasuryBalance": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetTreasuryBalanceReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/RevenueByPeriod": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetRevenueByPeriodReport",
+        "parameters": [
+          {
+            "name": "Period",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "NumberOfPeriods",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RevenueReportDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminOrder/Reports/CancellationFees": {
+      "get": {
+        "tags": [
+          "AdminOrder"
+        ],
+        "operationId": "AdminOrder_GetCancellationFeesReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderCancellationFeeDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/AdminUser": {
       "get": {
         "tags": [
@@ -1554,6 +2288,214 @@
                   "items": {
                     "$ref": "#/components/schemas/CityLookupDto"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CustomerOrder/CityFees": {
+      "get": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_GetCityFees",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CityFeesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CustomerOrder/ReservedVehiclePerSubCategory": {
+      "get": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_GetReservedVehiclePerSubCategory",
+        "parameters": [
+          {
+            "name": "subCategoryId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservedDateDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CustomerOrder": {
+      "post": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_CreateOrder",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CustomerOrder/MyOrders": {
+      "get": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_GetMyOrders",
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfOrderDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CustomerOrder/{orderId}/Cancel": {
+      "post": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_CancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
                 }
               }
             }
@@ -2940,6 +3882,615 @@
           }
         }
       },
+      "PagedResultOfOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderCode": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "subCategoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subCategoryName": {
+            "type": "string"
+          },
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cityName": {
+            "type": "string"
+          },
+          "reservationDateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reservationDateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vehiclesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderSubTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "orderTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "hotelName": {
+            "type": "string"
+          },
+          "hotelAddress": {
+            "type": "string"
+          },
+          "hotelPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "isUrgent": {
+            "type": "boolean"
+          },
+          "paymentMethod": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "orderState": {
+            "$ref": "#/components/schemas/OrderState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentMethod": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Cash",
+          "PayPal"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "OrderState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Confirmed",
+          "OnWay",
+          "CustomerReceived",
+          "Completed"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "OrderDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderCode": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "customerMobileNumber": {
+            "type": "string"
+          },
+          "subCategoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subCategoryName": {
+            "type": "string"
+          },
+          "subCategoryPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cityName": {
+            "type": "string"
+          },
+          "reservationDateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reservationDateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vehiclesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderSubTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "orderTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "passportImage": {
+            "type": "string"
+          },
+          "hotelName": {
+            "type": "string"
+          },
+          "hotelAddress": {
+            "type": "string"
+          },
+          "hotelPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "isUrgent": {
+            "type": "boolean"
+          },
+          "paymentMethod": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "orderState": {
+            "$ref": "#/components/schemas/OrderState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderVehicles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderVehicleDto"
+            }
+          },
+          "orderPayments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderPaymentDto"
+            }
+          },
+          "orderCancellationFee": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderCancellationFeeDto"
+              }
+            ]
+          },
+          "refundablePaypalAmount": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RefundablePaypalAmountDto"
+              }
+            ]
+          },
+          "orderTotals": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderTotalsDto"
+              }
+            ]
+          }
+        }
+      },
+      "OrderVehicleDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vehicleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vehicleName": {
+            "type": "string"
+          },
+          "vehicleCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderPaymentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paymentMethod": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "total": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PaymentState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Paid",
+          "Failed",
+          "Refunded"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "OrderCancellationFeeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CancellationFeeState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CancellationFeeState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "NotYet",
+          "Paid"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "RefundablePaypalAmountDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "cancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "refundableAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "state": {
+            "$ref": "#/components/schemas/RefundState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RefundState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Success",
+          "Failed"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "OrderTotalsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "serviceFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "deliveryFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "urgentFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalAfterAllFees": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UpdateOrderStateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newState": {
+            "$ref": "#/components/schemas/OrderState"
+          }
+        }
+      },
+      "UpdatePaymentStateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newState": {
+            "$ref": "#/components/schemas/PaymentState"
+          }
+        }
+      },
+      "ProcessRefundCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "refundState": {
+            "$ref": "#/components/schemas/RefundState"
+          }
+        }
+      },
+      "OrdersByStateReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderState": {
+            "$ref": "#/components/schemas/OrderState"
+          },
+          "orderStateName": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RevenueReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageOrderValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "period": {
+            "type": "string"
+          }
+        }
+      },
+      "CancellationReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCancelledOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "paidCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unpaidCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "VehicleUtilizationReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "vehicleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vehicleName": {
+            "type": "string"
+          },
+          "vehicleCode": {
+            "type": "string"
+          },
+          "totalDaysBooked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "utilizationPercentage": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "TreasuryReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PagedResultOfUserDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3456,6 +5007,100 @@
           }
         }
       },
+      "CityFeesDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "serviceFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "deliveryFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "urgentFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "cancellationFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
+      "ReservedDateDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateOrderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subCategoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reservationDateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reservationDateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vehiclesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "passportImage": {
+            "type": "string"
+          },
+          "hotelName": {
+            "type": "string"
+          },
+          "hotelAddress": {
+            "type": "string"
+          },
+          "hotelPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "isUrgent": {
+            "type": "boolean"
+          },
+          "paymentMethodId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mobileTotal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
       "SubCategoryDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3736,6 +5381,9 @@
           "name": {
             "type": "string"
           },
+          "vehicleCode": {
+            "type": "string"
+          },
           "imageUrl": {
             "type": "string",
             "nullable": true
@@ -3802,6 +5450,9 @@
           "name": {
             "type": "string"
           },
+          "vehicleCode": {
+            "type": "string"
+          },
           "subCategoryId": {
             "type": "integer",
             "format": "int32"
@@ -3824,6 +5475,9 @@
             "format": "int32"
           },
           "name": {
+            "type": "string"
+          },
+          "vehicleCode": {
             "type": "string"
           },
           "subCategoryId": {

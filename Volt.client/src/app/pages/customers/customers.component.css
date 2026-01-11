@@ -1,7 +1,7 @@
 /* Customers Component - Modern Design */
 
 .customers {
-  @apply p-6 max-w-7xl mx-auto;
+  @apply p-6;
 }
 
 /* Header */
