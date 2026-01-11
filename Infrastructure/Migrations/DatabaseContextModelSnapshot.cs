@@ -270,6 +270,10 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
 
+                    b.Property<decimal?>("CancellationFees")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("CancellationFees");
+
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
@@ -278,6 +282,10 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedDate");
+
+                    b.Property<decimal?>("DeliveryFees")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("DeliveryFees");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -305,6 +313,14 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("Name");
 
+                    b.Property<decimal?>("ServiceFees")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("ServiceFees");
+
+                    b.Property<decimal?>("UrgentDelivery")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("UrgentDelivery");
+
                     b.HasKey("CityId");
 
                     b.HasIndex("IsActive")
@@ -315,6 +331,54 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("IX_Cities_Name");
 
                     b.ToTable("VO_City", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.CompanyTreasury", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastUpdated");
+
+                    b.Property<decimal>("TotalCancellationFees")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("TotalCancellationFees");
+
+                    b.Property<decimal>("TotalRevenue")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("TotalRevenue");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VO_CompanyTreasury", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
@@ -424,6 +488,321 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("IX_Customer_MobileNumber_State");
 
                     b.ToTable("VO_Customer", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("CityId");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    b.Property<string>("HotelAddress")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("HotelAddress");
+
+                    b.Property<string>("HotelName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("HotelName");
+
+                    b.Property<string>("HotelPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("HotelPhone");
+
+                    b.Property<bool>("IsUrgent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsUrgent");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("Notes");
+
+                    b.Property<string>("OrderCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("OrderCode");
+
+                    b.Property<int>("OrderState")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("OrderState");
+
+                    b.Property<decimal>("OrderSubTotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("OrderSubTotal");
+
+                    b.Property<decimal>("OrderTotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("OrderTotal");
+
+                    b.Property<string>("PassportImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PassportImage");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("int")
+                        .HasColumnName("PaymentMethodId");
+
+                    b.Property<DateTime>("ReservationDateFrom")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ReservationDateFrom");
+
+                    b.Property<DateTime>("ReservationDateTo")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ReservationDateTo");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("SubCategoryId");
+
+                    b.Property<int>("VehiclesCount")
+                        .HasColumnType("int")
+                        .HasColumnName("VehiclesCount");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("CityId");
+
+                    b.HasIndex("CreatedDate")
+                        .HasDatabaseName("IX_VO_Order_CreatedDate");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_VO_Order_CustomerId");
+
+                    b.HasIndex("OrderCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VO_Order_OrderCode");
+
+                    b.HasIndex("OrderState")
+                        .HasDatabaseName("IX_VO_Order_OrderState");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.ToTable("VO_Order", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderCancellationFee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Amount");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("State");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_VO_OrderCancellationFee_CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VO_OrderCancellationFee_OrderId");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("IX_VO_OrderCancellationFee_State");
+
+                    b.ToTable("VO_OrderCancellationFee", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("int")
+                        .HasColumnName("PaymentMethodId");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("State");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Total");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("IX_VO_OrderPayment_OrderId");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("IX_VO_OrderPayment_State");
+
+                    b.ToTable("VO_OrderPayment", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderTotals", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("DeliveryFees")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ServiceFees")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalAfterAllFees")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UrgentFees")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("OrderTotals", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderVehicle", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int")
+                        .HasColumnName("VehicleId");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.HasKey("OrderId", "VehicleId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("VO_OrderVehicle", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Permission", b =>
@@ -564,6 +943,151 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId", "IsRevoked", "IsUsed");
 
                     b.ToTable("VO_RefreshToken", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.RefundablePaypalAmount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CancellationFees")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("CancellationFees");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<decimal>("OrderTotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("OrderTotal");
+
+                    b.Property<decimal>("RefundableAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("RefundableAmount");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("State");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_VO_RefundablePaypalAmount_CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("IX_VO_RefundablePaypalAmount_OrderId");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("IX_VO_RefundablePaypalAmount_State");
+
+                    b.ToTable("VO_RefundablePaypalAmount", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.ReservedVehiclesPerDays", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<DateTime>("DateFrom")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DateFrom");
+
+                    b.Property<DateTime>("DateTo")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DateTo");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("State")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("State");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("SubCategoryId");
+
+                    b.Property<string>("VehicleCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("VehicleCode");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int")
+                        .HasColumnName("VehicleId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("IX_VO_ReservedVehiclesPerDays_State");
+
+                    b.HasIndex("SubCategoryId")
+                        .HasDatabaseName("IX_VO_ReservedVehiclesPerDays_SubCategoryId");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("IX_VO_ReservedVehiclesPerDays_VehicleId");
+
+                    b.HasIndex("SubCategoryId", "DateFrom", "DateTo")
+                        .HasDatabaseName("IX_VO_ReservedVehiclesPerDays_SubCategoryId_Dates");
+
+                    b.ToTable("VO_ReservedVehiclesPerDays", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.RolePermission", b =>
@@ -741,6 +1265,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("SubCategoryId");
 
+                    b.Property<string>("VehicleCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("VehicleCode");
+
                     b.HasKey("VehicleId");
 
                     b.HasIndex("CreatedThisMonth")
@@ -751,6 +1281,10 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SubCategoryId")
                         .HasDatabaseName("IX_VO_Vehicle_SubCategoryId");
+
+                    b.HasIndex("VehicleCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VO_Vehicle_VehicleCode");
 
                     b.HasIndex("SubCategoryId", "Status")
                         .HasDatabaseName("IX_VO_Vehicle_SubCategoryId_Status");
@@ -910,6 +1444,93 @@ namespace Infrastructure.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Domain.Models.Order", b =>
+                {
+                    b.HasOne("Domain.Models.City", "City")
+                        .WithMany()
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.SubCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("City");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderCancellationFee", b =>
+                {
+                    b.HasOne("Domain.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithOne("OrderCancellationFee")
+                        .HasForeignKey("Domain.Models.OrderCancellationFee", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderPayment", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany("OrderPayments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderTotals", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithOne()
+                        .HasForeignKey("Domain.Models.OrderTotals", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Domain.Models.OrderVehicle", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany("OrderVehicles")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Vehicle");
+                });
+
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Models.ApplicationUser", "User")
@@ -919,6 +1540,52 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.RefundablePaypalAmount", b =>
+                {
+                    b.HasOne("Domain.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Domain.Models.ReservedVehiclesPerDays", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany("ReservedVehiclesPerDays")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.SubCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("SubCategory");
+
+                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("Domain.Models.RolePermission", b =>
@@ -1021,6 +1688,17 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.City", b =>
                 {
                     b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("Domain.Models.Order", b =>
+                {
+                    b.Navigation("OrderCancellationFee");
+
+                    b.Navigation("OrderPayments");
+
+                    b.Navigation("OrderVehicles");
+
+                    b.Navigation("ReservedVehiclesPerDays");
                 });
 
             modelBuilder.Entity("Domain.Models.Permission", b =>
