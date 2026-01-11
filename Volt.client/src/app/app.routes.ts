@@ -33,6 +33,22 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/customers/customers.component').then(m => m.CustomersComponent)
       },
       {
+        path: 'customers/:id',
+        loadComponent: () => import('./pages/customers/customer-detail/customer-detail.component').then(m => m.CustomerDetailComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent)
+      },
+      {
+        path: 'users/:id',
+        loadComponent: () => import('./pages/users/user-detail/user-detail.component').then(m => m.UserDetailComponent)
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./pages/roles/roles.component').then(m => m.RolesComponent)
+      },
+      {
         path: 'cities',
         loadComponent: () => import('./pages/cities/cities.component').then(m => m.CitiesComponent)
       },

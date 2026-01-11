@@ -37,7 +37,6 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
             {
                 CustomerId = customer.CustomerId,
                 MobileNumber = customer.MobileNumber,
-                UserName = customer.UserName,
                 FullName = customer.FullName,
                 Gender = customer.Gender,
                 PersonalImage = customer.PersonalImage,
@@ -47,6 +46,7 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
                 CityId = customer.CityId,
                 CityName = customer.City != null ? customer.City.Name : string.Empty,
                 State = customer.State,
+                CashBlock = customer.CashBlock,
                 Email = null, // Customers don't have email anymore
                 CreatedDate = customer.CreatedDate
             };

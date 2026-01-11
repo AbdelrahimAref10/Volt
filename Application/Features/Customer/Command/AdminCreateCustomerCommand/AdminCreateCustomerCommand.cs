@@ -15,7 +15,6 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
     public record AdminCreateCustomerCommand : IRequest<Result<int>>
     {
         public string MobileNumber { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
@@ -67,7 +66,6 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
             // Create Customer (will be created as InActive initially)
             var customer = Domain.Models.Customer.Create(
                 request.MobileNumber,
-                request.UserName,
                 request.FullName,
                 request.Gender,
                 invitationCode,

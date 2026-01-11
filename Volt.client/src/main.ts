@@ -8,6 +8,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideToastr } from 'ngx-toastr';
 import { API_BASE_URL } from './app/core/services/clientAPI';
 import { AuthInterceptor } from './app/core/interceptors/auth.interceptor';
+import { ErrorInterceptor } from './app/core/interceptors/error.interceptor';
 
 bootstrapApplication(AppComponent, {
     providers: [
@@ -24,6 +25,12 @@ bootstrapApplication(AppComponent, {
         {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
+            multi: true
+        },
+        // Provide Error Interceptor (must be after AuthInterceptor to catch 401 errors)
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: ErrorInterceptor,
             multi: true
         }
     ]

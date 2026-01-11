@@ -7,11 +7,20 @@ namespace Infrastructure.Services
     {
         string GenerateInvitationCode();
         Task SendInvitationCodeAsync(string mobileNumber, string code);
+        Task SendInvitationCodeAsync(string mobileNumber, string? email, int verificationBy, string code);
     }
 
     public class InvitationCodeService : IInvitationCodeService
     {
         private readonly Random _random = new Random();
+        private readonly ISmsService _smsService;
+        private readonly IEmailService _emailService;
+
+        public InvitationCodeService(ISmsService smsService, IEmailService emailService)
+        {
+            _smsService = smsService;
+            _emailService = emailService;
+        }
 
         public string GenerateInvitationCode()
         {
@@ -21,18 +30,23 @@ namespace Infrastructure.Services
 
         public async Task SendInvitationCodeAsync(string mobileNumber, string code)
         {
-            // TODO: Implement SMS service integration
-            // For now, just log it (remove in production)
-            Console.WriteLine($"SMS to {mobileNumber}: Your activation code is {code}");
-            
-            // Simulate async operation
-            await Task.CompletedTask;
-            
-            // In production, integrate with SMS provider like:
-            // - Twilio
-            // - AWS SNS
-            // - Azure Communication Services
-            // - Local SMS gateway
+            // Legacy method - send via SMS
+            await _smsService.SendActivationCodeAsync(mobileNumber, code);
+        }
+
+        public async Task SendInvitationCodeAsync(string mobileNumber, string? email, int verificationBy, string code)
+        {
+            // verificationBy: 0 = Phone, 1 = Email
+            if (verificationBy == 1 && !string.IsNullOrWhiteSpace(email))
+            {
+                // Send via Email
+                await _emailService.SendActivationCodeAsync(email, code);
+            }
+            else
+            {
+                // Send via SMS
+                await _smsService.SendActivationCodeAsync(mobileNumber, code);
+            }
         }
     }
 }

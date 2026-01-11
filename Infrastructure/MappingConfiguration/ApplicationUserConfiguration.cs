@@ -70,6 +70,10 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnName("AccessFailedCount")
                 .HasDefaultValue(0);
 
+            builder.Property(u => u.Active)
+                .HasColumnName("Active")
+                .HasDefaultValue(true);
+
             // Configure audit properties
             builder.Property(u => u.CreatedBy)
                 .HasColumnName("CreatedBy")
