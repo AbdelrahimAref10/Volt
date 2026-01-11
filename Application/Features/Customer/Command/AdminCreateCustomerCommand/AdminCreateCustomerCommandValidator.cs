@@ -31,11 +31,6 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
                 return Result.Failure("Full name is required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.UserName))
-            {
-                return Result.Failure("User name is required");
-            }
-
             if (string.IsNullOrWhiteSpace(request.Gender))
             {
                 return Result.Failure("Gender is required");

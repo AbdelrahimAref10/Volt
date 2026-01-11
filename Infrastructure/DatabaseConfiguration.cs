@@ -57,6 +57,12 @@ namespace Infrastructure
             // Register JWT Token Service
             services.AddScoped<Infrastructure.Services.IJwtTokenService, Infrastructure.Services.JwtTokenService>();
 
+            // Register Email Service
+            services.AddScoped<Infrastructure.Services.IEmailService, Infrastructure.Services.EmailService>();
+
+            // Register SMS Service
+            services.AddScoped<Infrastructure.Services.ISmsService, Infrastructure.Services.SmsService>();
+
             // Register Invitation Code Service
             services.AddScoped<Infrastructure.Services.IInvitationCodeService, Infrastructure.Services.InvitationCodeService>();
 

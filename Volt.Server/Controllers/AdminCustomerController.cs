@@ -1,9 +1,11 @@
 using Application.Common;
+using Application.Features.Customer.Command.AdminActivateCustomerCommand;
 using Application.Features.Customer.Command.AdminCreateCustomerCommand;
 using Application.Features.Customer.Command.BlockCustomerCommand;
-using Application.Features.Customer.Command.DeleteCustomerCommand;
+using Application.Features.Customer.Command.BlockCashPaymentCommand;
+using Application.Features.Customer.Command.DeactivateCustomerCommand;
+using Application.Features.Customer.Command.UnblockCashPaymentCommand;
 using Application.Features.Customer.Command.UnblockCustomerCommand;
-using Application.Features.Customer.Command.UpdateCustomerCommand;
 using Application.Features.Customer.Query.GetAllCustomersQuery;
 using Application.Features.Customer.Query.GetCustomerByIdQuery;
 using MediatR;
@@ -67,24 +69,6 @@ namespace Volt.Server.Controllers
             return Ok(result.Value);
         }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update(int id, UpdateCustomerCommand command)
-        {
-            if (id != command.CustomerId)
-            {
-                return BadRequest(ProblemDetail.CreateProblemDetail("Customer ID mismatch"));
-            }
-
-            var result = await _mediator.Send(command);
-            if (result.IsFailure)
-            {
-                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
-            }
-            return Ok(result.Value);
-        }
-
         [HttpPost("{id}/block")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
@@ -113,12 +97,54 @@ namespace Volt.Server.Controllers
             return Ok(result.Value);
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}/activate")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Activate(int id)
         {
-            var command = new DeleteCustomerCommand { CustomerId = id };
+            var command = new AdminActivateCustomerCommand { CustomerId = id };
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("{id}/deactivate")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            var command = new DeactivateCustomerCommand { CustomerId = id };
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("{id}/block-cash")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BlockCash(int id)
+        {
+            var command = new BlockCashPaymentCommand { CustomerId = id };
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("{id}/unblock-cash")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UnblockCash(int id)
+        {
+            var command = new UnblockCashPaymentCommand { CustomerId = id };
             var result = await _mediator.Send(command);
             if (result.IsFailure)
             {

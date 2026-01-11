@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { AdminClient, AdminLoginCommand, AdminLoginResponse } from './clientAPI';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { AdminClient, AdminLoginCommand, AdminLoginResponse, CustomerClient, RefreshTokenCommand, RefreshTokenResponse } from './clientAPI';
+import { Observable, tap, catchError, throwError, BehaviorSubject, map, filter, take } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,9 +10,12 @@ export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'user_data';
+  private refreshTokenInProgress = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
   constructor(
     private adminClient: AdminClient,
+    private customerClient: CustomerClient,
     private router: Router
   ) {}
 
@@ -73,6 +76,48 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+  }
+
+  refreshToken(): Observable<string> {
+    const currentToken = this.getToken();
+    const refreshTokenValue = this.getRefreshToken();
+
+    if (!currentToken || !refreshTokenValue) {
+      this.logout();
+      return throwError(() => new Error('No token or refresh token available'));
+    }
+
+    // If refresh is already in progress, wait for it to complete
+    if (this.refreshTokenInProgress) {
+      return this.refreshTokenSubject.asObservable().pipe(
+        filter(token => token !== null),
+        take(1),
+        map(token => token as string)
+      );
+    }
+
+    this.refreshTokenInProgress = true;
+    this.refreshTokenSubject.next(null);
+
+    const command = new RefreshTokenCommand();
+    command.token = currentToken;
+    command.refreshToken = refreshTokenValue;
+
+    return this.customerClient.refreshToken(command).pipe(
+      map((response: RefreshTokenResponse) => {
+        this.setToken(response.token);
+        this.setRefreshToken(response.refreshToken);
+        this.refreshTokenInProgress = false;
+        this.refreshTokenSubject.next(response.token);
+        return response.token;
+      }),
+      catchError((error) => {
+        this.refreshTokenInProgress = false;
+        this.refreshTokenSubject.next(null);
+        this.logout();
+        return throwError(() => error);
+      })
+    );
   }
 }
 

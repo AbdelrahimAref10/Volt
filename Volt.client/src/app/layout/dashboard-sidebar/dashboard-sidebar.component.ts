@@ -24,6 +24,8 @@ export class DashboardSidebarComponent {
     { label: 'SubCategories', route: '/main/subcategories', icon: 'subcategories' },
     { label: 'Vehicles', route: '/main/vehicles', icon: 'vehicles' },
     { label: 'Customers', route: '/main/customers', icon: 'users' },
+    { label: 'System Users', route: '/main/users', icon: 'system-users' },
+    { label: 'Roles', route: '/main/roles', icon: 'roles' },
     { label: 'Cities', route: '/main/cities', icon: 'cities' },
     { label: 'Orders', route: '/main/orders', icon: 'orders' },
     { label: 'Reports', route: '/main/reports', icon: 'reports' },
