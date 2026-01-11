@@ -14,7 +14,6 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
     public record RegisterCustomerCommand : IRequest<Result<RegisterCustomerResponse>>
     {
         public string MobileNumber { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
@@ -22,6 +21,7 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
         public string? PersonalImage { get; set; }
         public int RegisterAs { get; set; } // 0 = Individual, 1 = Institution
         public int VerificationBy { get; set; } // 0 = Phone, 1 = Email
+        public string? Email { get; set; } // Required if VerificationBy = 1 (Email)
         public string Password { get; set; } = string.Empty;
     }
 
@@ -63,7 +63,6 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             // Create Customer
             var customer = Domain.Models.Customer.Create(
                 request.MobileNumber,
-                request.UserName,
                 request.FullName,
                 request.Gender,
                 invitationCode,
@@ -84,15 +83,23 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 return Result.Failure<RegisterCustomerResponse>($"Failed to save customer: {saveResult.ErrorMessage}");
             }
 
-            // Send invitation code via SMS (implement SMS service)
-            // For now, we'll return it in the response (remove in production)
-            await _invitationCodeService.SendInvitationCodeAsync(request.MobileNumber, invitationCode);
+            // Send invitation code via Email or SMS based on VerificationBy
+            await _invitationCodeService.SendInvitationCodeAsync(
+                request.MobileNumber,
+                request.Email,
+                request.VerificationBy,
+                invitationCode
+            );
+
+            var message = request.VerificationBy == (int)Domain.Enums.VerificationBy.Email
+                ? "Registration successful. Please check your email for the activation code."
+                : "Registration successful. Please check your phone for the activation code.";
 
             return Result.Success(new RegisterCustomerResponse
             {
                 CustomerId = customer.CustomerId,
                 InvitationCode = invitationCode, // Remove in production - only for testing
-                Message = "Registration successful. Please check your phone for the activation code."
+                Message = message
             });
         }
     }

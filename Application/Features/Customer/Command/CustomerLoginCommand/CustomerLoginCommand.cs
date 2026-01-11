@@ -94,7 +94,7 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
                 Token = token,
                 RefreshToken = refreshToken,
                 UserId = customer.CustomerId, // Return CustomerId as UserId for compatibility
-                UserName = customer.UserName,
+                UserName = customer.MobileNumber, // Use MobileNumber instead of UserName
                 Roles = new List<string> { "Customer" },
                 CustomerId = customer.CustomerId
             });
@@ -110,7 +110,7 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, customer.CustomerId.ToString()),
-                new Claim(ClaimTypes.Name, customer.UserName),
+                new Claim(ClaimTypes.Name, customer.MobileNumber), // Use MobileNumber instead of UserName
                 new Claim("MobileNumber", customer.MobileNumber),
                 new Claim(ClaimTypes.Role, "Customer"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

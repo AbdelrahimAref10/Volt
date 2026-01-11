@@ -31,11 +31,6 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
             }
 
             // Validate required fields
-            if (string.IsNullOrWhiteSpace(request.UserName))
-            {
-                return Result.Failure("User name is required");
-            }
-
             if (string.IsNullOrWhiteSpace(request.FullName))
             {
                 return Result.Failure("Full name is required");

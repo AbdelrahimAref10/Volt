@@ -1,17 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AdminCustomerClient, CustomerDto, PagedResultOfCustomerDto, UpdateCustomerCommand, CustomerState, CityDto, PagedResultOfCityDto } from '../../core/services/clientAPI';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs';
+import { AdminCustomerClient, CustomerDto, PagedResultOfCustomerDto, CustomerState, CityClient, CityDto, PagedResultOfCityDto, AdminCreateCustomerCommand } from '../../core/services/clientAPI';
 
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css'
 })
-export class CustomersComponent implements OnInit {
+export class CustomersComponent implements OnInit, OnDestroy {
   customers: CustomerDto[] = [];
   currentPage = 1;
   pageSize = 10;
@@ -21,13 +22,22 @@ export class CustomersComponent implements OnInit {
   selectedState: CustomerState | null = null;
   isLoading = false;
   errorMessage = '';
-  
+  successMessage = '';
+
+  searchFilters = {
+    state: null as CustomerState | null,
+    customerType: null as number | null,
+    cityId: null as number | null
+  };
+
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
   showModal = false;
-  isEditMode = false;
   customerForm: FormGroup;
-  selectedCustomerId: number | null = null;
   cities: CityDto[] = [];
   isLoadingCities = false;
+  isSubmitting = false;
 
   customerStates = [
     { value: null, label: 'All States' },
@@ -56,12 +66,12 @@ export class CustomersComponent implements OnInit {
 
   constructor(
     private customerClient: AdminCustomerClient,
-    private http: HttpClient,
-    private fb: FormBuilder
+    private cityClient: CityClient,
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.customerForm = this.fb.group({
       mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
-      userName: ['', [Validators.required, Validators.minLength(2)]],
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       gender: ['', [Validators.required]],
       cityId: [0, [Validators.required, Validators.min(1)]],
@@ -74,34 +84,42 @@ export class CustomersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCustomers();
     this.loadCities();
+    this.setupLiveSearch();
+    // Initial load
+    this.triggerSearch();
   }
 
-  loadCities(): void {
-    this.isLoadingCities = true;
-    const url = `/api/City?PageNumber=1&PageSize=1000&IsActive=true`;
-    this.http.get<PagedResultOfCityDto>(url).subscribe({
-      next: (result: PagedResultOfCityDto) => {
-        this.cities = result.items || [];
-        this.isLoadingCities = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading cities:', error);
-        this.isLoadingCities = false;
-      }
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.searchSubject.complete();
   }
 
-  loadCustomers(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+  setupLiveSearch(): void {
+    this.searchSubject.pipe(
+      debounceTime(300), // Wait 300ms after user stops typing
+      distinctUntilChanged(),
+      switchMap((searchTerm) => {
+        this.isLoading = true;
+        this.errorMessage = '';
+        this.successMessage = '';
 
-    this.customerClient.getAll(
-      this.currentPage,
-      this.pageSize,
-      this.searchTerm || undefined,
-      this.selectedState !== null ? this.selectedState : undefined
+        const state = this.searchFilters.state !== null ? this.searchFilters.state :
+                      (this.selectedState !== null ? this.selectedState : undefined);
+        const cityId = this.searchFilters.cityId !== null && this.searchFilters.cityId > 0 ? this.searchFilters.cityId : undefined;
+        const registerAs = this.searchFilters.customerType !== null ? this.searchFilters.customerType : undefined;
+
+        return this.customerClient.getAll(
+          this.currentPage,
+          this.pageSize,
+          searchTerm || undefined,
+          state,
+          cityId,
+          registerAs
+        );
+      }),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: (result: PagedResultOfCustomerDto) => {
         this.customers = result.items || [];
@@ -117,20 +135,75 @@ export class CustomersComponent implements OnInit {
     });
   }
 
+  triggerSearch(): void {
+    this.searchSubject.next(this.searchTerm);
+  }
+
+  loadCities(): void {
+    this.isLoadingCities = true;
+    this.cityClient.getAll(1, 1000, undefined, true).subscribe({
+      next: (result: PagedResultOfCityDto) => {
+        this.cities = result.items || [];
+        this.isLoadingCities = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading cities:', error);
+        this.isLoadingCities = false;
+      }
+    });
+  }
+
+  loadCustomers(): void {
+    this.triggerSearch();
+  }
+
   onSearch(): void {
     this.currentPage = 1;
-    this.loadCustomers();
+    this.triggerSearch();
   }
 
   onStateFilter(state: CustomerState | null): void {
     this.selectedState = state;
     this.currentPage = 1;
+    this.triggerSearch();
+  }
+
+  onAdvancedSearch(): void {
+    this.currentPage = 1;
+    this.triggerSearch();
+  }
+
+  onSearchTermChange(): void {
+    this.currentPage = 1;
+    this.triggerSearch();
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    this.triggerSearch();
+  }
+
+  onClearSearch(): void {
+    this.searchFilters = {
+      state: null,
+      customerType: null,
+      cityId: null
+    };
+    this.searchTerm = '';
+    this.selectedState = null;
+    this.currentPage = 1;
     this.loadCustomers();
   }
 
+  hasActiveFilters(): boolean {
+    return this.searchFilters.state !== null ||
+           this.searchFilters.customerType !== null ||
+           (this.searchFilters.cityId !== null && this.searchFilters.cityId > 0) ||
+           (this.searchTerm && this.searchTerm.trim().length > 0) ||
+           this.selectedState !== null;
+  }
+
   onAddNew(): void {
-    this.isEditMode = false;
-    this.selectedCustomerId = null;
     this.customerForm.reset();
     this.selectedImage = null;
     this.imagePreview = null;
@@ -143,66 +216,17 @@ export class CustomersComponent implements OnInit {
     this.showModal = true;
   }
 
-  onEdit(customer: CustomerDto): void {
-    this.isEditMode = true;
-    this.selectedCustomerId = customer.customerId;
-    this.selectedImage = null;
-    this.imagePreview = customer.personalImage || null;
-    this.customerForm.patchValue({
-      userName: customer.userName,
-      gender: customer.gender
-    });
-    this.showModal = true;
+  onView(customerId: number): void {
+    this.router.navigate(['/main/customers', customerId]);
   }
 
-  onBlock(customerId: number): void {
-    if (confirm('Are you sure you want to block this customer?')) {
-      this.customerClient.block(customerId).subscribe({
-        next: () => {
-          this.loadCustomers();
-        },
-        error: (error:any) => {
-          alert('Failed to block customer. Please try again.');
-          console.error('Error blocking customer:', error);
-        }
-      });
-    }
-  }
-
-  onUnblock(customerId: number): void {
-    if (confirm('Are you sure you want to unblock this customer?')) {
-      this.customerClient.unblock(customerId).subscribe({
-        next: () => {
-          this.loadCustomers();
-        },
-        error: (error: any) => {
-          alert('Failed to unblock customer. Please try again.');
-          console.error('Error unblocking customer:', error);
-        }
-      });
-    }
-  }
-
-  onDelete(customerId: number): void {
-    if (confirm('Are you sure you want to delete this customer? This will delete all customer data permanently.')) {
-      this.customerClient.delete(customerId).subscribe({
-        next: () => {
-          this.loadCustomers();
-        },
-        error: (error: any) => {
-          alert('Failed to delete customer. Please try again.');
-          console.error('Error deleting customer:', error);
-        }
-      });
-    }
-  }
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
       this.selectedImage = file;
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -227,82 +251,55 @@ export class CustomersComponent implements OnInit {
       return;
     }
 
+    this.isSubmitting = true;
     const formValue = this.customerForm.value;
 
-    if (this.isEditMode && this.selectedCustomerId) {
-      // Update existing customer
-      const command = new UpdateCustomerCommand();
-      command.customerId = this.selectedCustomerId;
-      command.userName = formValue.userName;
-      command.gender = formValue.gender;
-      
-      // Handle image upload
-      if (this.selectedImage) {
-        command.personalImage = await this.convertImageToBase64(this.selectedImage);
-      } else if (this.imagePreview) {
-        command.personalImage = this.imagePreview;
-      }
+    // Create new customer
+    let personalImageBase64 = null;
 
-      this.customerClient.update(this.selectedCustomerId, command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadCustomers();
-        },
-        error: (error: any) => {
-          const errorMessage = error.error?.detail || error.error?.title || 'Failed to update customer. Please try again.';
-          alert(errorMessage);
-          console.error('Error updating customer:', error);
-        }
-      });
-    } else {
-      // Create new customer
-      const url = `/api/AdminCustomer`;
-      let personalImageBase64 = null;
-      
-      if (this.selectedImage) {
-        personalImageBase64 = await this.convertImageToBase64(this.selectedImage);
-      }
-
-      const command = {
-        mobileNumber: formValue.mobileNumber,
-        userName: formValue.userName,
-        fullName: formValue.fullName,
-        gender: formValue.gender,
-        cityId: formValue.cityId,
-        fullAddress: formValue.fullAddress || null,
-        personalImage: personalImageBase64,
-        registerAs: formValue.registerAs,
-        verificationBy: formValue.verificationBy,
-        password: formValue.password
-      };
-
-      this.http.post<number>(url, command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadCustomers();
-        },
-        error: (error: any) => {
-          const errorMessage = error.error?.detail || error.error?.title || 'Failed to create customer. Please try again.';
-          alert(errorMessage);
-          console.error('Error creating customer:', error);
-        }
-      });
+    if (this.selectedImage) {
+      personalImageBase64 = await this.convertImageToBase64(this.selectedImage);
     }
+
+    const command = new AdminCreateCustomerCommand();
+    command.mobileNumber = formValue.mobileNumber;
+    command.fullName = formValue.fullName;
+    command.gender = formValue.gender;
+    command.cityId = formValue.cityId;
+    command.fullAddress = formValue.fullAddress || null;
+    command.personalImage = personalImageBase64;
+    command.registerAs = formValue.registerAs;
+    command.verificationBy = formValue.verificationBy;
+    command.password = formValue.password;
+
+    this.customerClient.create(command).subscribe({
+      next: () => {
+        this.showModal = false;
+        this.showSuccessMessage('Customer created successfully');
+        this.loadCustomers();
+        this.isSubmitting = false;
+      },
+      error: (error: any) => {
+        const errorMessage = error.error?.detail || error.error?.title || 'Failed to create customer. Please try again.';
+        this.showErrorMessage(errorMessage);
+        this.isSubmitting = false;
+        console.error('Error creating customer:', error);
+      }
+    });
   }
 
   onCloseModal(): void {
     this.showModal = false;
     this.customerForm.reset();
-    this.selectedCustomerId = null;
-    this.isEditMode = false;
     this.selectedImage = null;
     this.imagePreview = null;
+    this.isSubmitting = false;
   }
 
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
-      this.loadCustomers();
+      this.triggerSearch();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -312,7 +309,7 @@ export class CustomersComponent implements OnInit {
     const maxPages = 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalPages, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(1, endPage - maxPages + 1);
     }
@@ -348,5 +345,41 @@ export class CustomersComponent implements OnInit {
         return '';
     }
   }
-}
 
+  getCashBlockClass(cashBlock: boolean): string {
+    return cashBlock ? 'customers__cash-block--blocked' : 'customers__cash-block--allowed';
+  }
+
+  getCashBlockLabel(cashBlock: boolean): string {
+    return cashBlock ? 'Blocked' : 'Allowed';
+  }
+
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 5000);
+  }
+
+  showErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
+  }
+
+
+  get activeCustomersCount(): number {
+    return this.customers.filter(c => c.state === CustomerState.Active).length;
+  }
+
+  get inactiveCustomersCount(): number {
+    return this.customers.filter(c => c.state === CustomerState.InActive).length;
+  }
+
+  get blockedCustomersCount(): number {
+    return this.customers.filter(c => c.state === CustomerState.Blocked).length;
+  }
+}

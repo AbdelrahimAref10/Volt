@@ -1,0 +1,231 @@
+/* Roles Component - Modern Design */
+
+.roles {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+/* Header */
+.roles__header {
+  @apply mb-8 flex items-center justify-between;
+}
+
+.roles__title {
+  @apply text-3xl font-bold text-neutral-900 mb-2;
+}
+
+.roles__subtitle {
+  @apply text-neutral-600 text-sm;
+}
+
+.roles__add-btn {
+  @apply flex items-center gap-2 px-5 py-3 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-lg shadow-primary-500/20;
+}
+
+.roles__add-icon {
+  @apply w-5 h-5;
+}
+
+/* Messages */
+.roles__message {
+  @apply flex items-center gap-3 p-4 rounded-xl mb-6 shadow-sm;
+}
+
+.roles__message--success {
+  @apply bg-success-50 border border-success-200 text-success-700;
+}
+
+.roles__message--error {
+  @apply bg-error-50 border border-error-200 text-error-700;
+}
+
+.roles__message-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Stats */
+.roles__stats {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-4 mb-6;
+}
+
+.roles__stat-card {
+  @apply bg-white rounded-xl p-6 border border-neutral-200 shadow-sm;
+}
+
+.roles__stat-value {
+  @apply text-3xl font-bold text-neutral-900 mb-1;
+}
+
+.roles__stat-label {
+  @apply text-sm text-neutral-600 font-medium;
+}
+
+/* Loading */
+.roles__loading {
+  @apply flex flex-col items-center justify-center py-16;
+}
+
+.roles__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+/* Roles Grid */
+.roles__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.roles__card {
+  @apply bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.roles__card-header {
+  @apply flex items-center gap-3 p-4 border-b border-neutral-200;
+}
+
+.roles__card-icon {
+  @apply w-10 h-10 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center flex-shrink-0;
+}
+
+.roles__card-icon svg {
+  @apply w-6 h-6;
+}
+
+.roles__card-title {
+  @apply text-lg font-semibold text-neutral-900;
+}
+
+.roles__card-body {
+  @apply p-4;
+}
+
+.roles__card-info {
+  @apply flex items-center justify-between text-sm;
+}
+
+.roles__card-label {
+  @apply text-neutral-600 font-medium;
+}
+
+.roles__card-value {
+  @apply text-neutral-900 font-semibold;
+}
+
+.roles__card-actions {
+  @apply flex items-center gap-2 p-4 border-t border-neutral-200;
+}
+
+.roles__action-btn {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.roles__action-btn svg {
+  @apply w-4 h-4;
+}
+
+.roles__action-btn--edit {
+  @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+}
+
+.roles__action-btn--delete {
+  @apply bg-error-500 text-white hover:bg-error-600 focus:ring-error-500;
+}
+
+/* Empty State */
+.roles__empty {
+  @apply flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-neutral-200;
+}
+
+.roles__empty-icon {
+  @apply w-16 h-16 text-neutral-400 mb-4;
+}
+
+.roles__empty-text {
+  @apply text-lg font-semibold text-neutral-900 mb-2;
+}
+
+.roles__empty-subtext {
+  @apply text-sm text-neutral-500;
+}
+
+/* Modal */
+.roles__modal-overlay {
+  @apply fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm;
+}
+
+.roles__modal {
+  @apply bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto;
+}
+
+.roles__modal-header {
+  @apply flex items-start justify-between p-6 border-b border-neutral-200 sticky top-0 bg-white z-10;
+}
+
+.roles__modal-title {
+  @apply text-2xl font-bold text-neutral-900 mb-1;
+}
+
+.roles__modal-subtitle {
+  @apply text-sm text-neutral-600;
+}
+
+.roles__modal-close {
+  @apply p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.roles__modal-close-icon {
+  @apply w-5 h-5;
+}
+
+.roles__modal-form {
+  @apply p-6;
+}
+
+.roles__form-group {
+  @apply mb-6;
+}
+
+.roles__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-2.5;
+}
+
+.roles__form-required {
+  @apply text-error-500;
+}
+
+.roles__form-input {
+  @apply w-full px-4 py-3 border border-neutral-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+}
+
+.roles__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.roles__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.roles__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+.roles__form-hint {
+  @apply mt-2 text-xs text-neutral-500;
+}
+
+/* Modal Actions */
+.roles__modal-actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200 mt-6;
+}
+
+.roles__modal-btn {
+  @apply px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.roles__modal-btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.roles__modal-btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-500/20;
+}
+
+

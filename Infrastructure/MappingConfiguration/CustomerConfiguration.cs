@@ -25,11 +25,6 @@ namespace Infrastructure.MappingConfiguration
                 .HasMaxLength(20)
                 .IsRequired();
 
-            builder.Property(c => c.UserName)
-                .HasColumnName("UserName")
-                .HasMaxLength(256)
-                .IsRequired();
-
             builder.Property(c => c.FullName)
                 .HasColumnName("FullName")
                 .HasMaxLength(256)
@@ -61,6 +56,11 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnName("State")
                 .HasConversion<int>()
                 .HasDefaultValue(CustomerState.InActive)
+                .IsRequired();
+
+            builder.Property(c => c.CashBlock)
+                .HasColumnName("CashBlock")
+                .HasDefaultValue(false)
                 .IsRequired();
 
             builder.Property(c => c.InvitationCode)

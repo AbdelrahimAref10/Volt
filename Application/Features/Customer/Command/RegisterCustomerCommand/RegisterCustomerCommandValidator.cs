@@ -31,11 +31,6 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 return Result.Failure("Full name is required");
             }
 
-            if (string.IsNullOrWhiteSpace(request.UserName))
-            {
-                return Result.Failure("User name is required");
-            }
-
             if (string.IsNullOrWhiteSpace(request.Gender))
             {
                 return Result.Failure("Gender is required");
@@ -51,6 +46,18 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             if (!Enum.IsDefined(typeof(Domain.Enums.VerificationBy), request.VerificationBy))
             {
                 return Result.Failure("Invalid VerificationBy value");
+            }
+
+            // If verification by email, email is required
+            if (request.VerificationBy == 1 && string.IsNullOrWhiteSpace(request.Email))
+            {
+                return Result.Failure("Email is required when verification is by email");
+            }
+
+            // Validate email format if provided
+            if (!string.IsNullOrWhiteSpace(request.Email) && !IsValidEmail(request.Email))
+            {
+                return Result.Failure("Invalid email format");
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
@@ -91,6 +98,19 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             }
 
             return Result.Success();
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
