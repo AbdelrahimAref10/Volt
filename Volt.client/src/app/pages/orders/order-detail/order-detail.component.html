@@ -231,18 +231,6 @@
       <div class="order-detail__card" *ngIf="order.orderPayments && order.orderPayments.length > 0">
         <div class="order-detail__card-header">
           <h2 class="order-detail__card-title">Payment Information</h2>
-          <button
-            *ngIf="canUpdatePayment() && order.orderPayments[0].state === PaymentState.Pending"
-            type="button"
-            (click)="onUpdatePaymentState(PaymentState.Paid)"
-            class="order-detail__header-btn order-detail__header-btn--success"
-            [disabled]="isActionLoading('payment-' + PaymentState.Paid)"
-          >
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Mark as Paid
-          </button>
         </div>
         <div class="order-detail__card-body">
           <div *ngFor="let payment of order.orderPayments" class="order-detail__payment-item">
@@ -293,60 +281,6 @@
         </div>
       </div>
 
-      <!-- Refund Information Card -->
-      <div class="order-detail__card" *ngIf="order.refundablePaypalAmount">
-        <div class="order-detail__card-header">
-          <h2 class="order-detail__card-title">Refund Information</h2>
-          <div class="order-detail__refund-actions" *ngIf="canProcessRefund()">
-            <button
-              type="button"
-              (click)="onProcessRefund(RefundState.Success)"
-              class="order-detail__header-btn order-detail__header-btn--success"
-              [disabled]="isActionLoading('refund-' + RefundState.Success)"
-            >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Mark Success
-            </button>
-            <button
-              type="button"
-              (click)="onProcessRefund(RefundState.Failed)"
-              class="order-detail__header-btn order-detail__header-btn--danger"
-              [disabled]="isActionLoading('refund-' + RefundState.Failed)"
-            >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Mark Failed
-            </button>
-          </div>
-        </div>
-        <div class="order-detail__card-body">
-          <div class="order-detail__info-grid">
-            <div class="order-detail__info-item">
-              <label class="order-detail__info-label">Order Total</label>
-              <div class="order-detail__info-value">{{ order.refundablePaypalAmount.orderTotal | number : '1.2-2' }} EGP</div>
-            </div>
-            <div class="order-detail__info-item">
-              <label class="order-detail__info-label">Cancellation Fees</label>
-              <div class="order-detail__info-value">{{ order.refundablePaypalAmount.cancellationFees | number : '1.2-2' }} EGP</div>
-            </div>
-            <div class="order-detail__info-item order-detail__info-item--full">
-              <label class="order-detail__info-label">Refundable Amount</label>
-              <div class="order-detail__info-value order-detail__info-value--total">{{ order.refundablePaypalAmount.refundableAmount | number : '1.2-2' }} EGP</div>
-            </div>
-            <div class="order-detail__info-item">
-              <label class="order-detail__info-label">Status</label>
-              <div class="order-detail__info-value">
-                <span [class]="'order-detail__badge ' + (order.refundablePaypalAmount.state === RefundState.Pending ? 'order-detail__badge--warning' : order.refundablePaypalAmount.state === RefundState.Success ? 'order-detail__badge--success' : 'order-detail__badge--danger')">
-                  {{ getRefundStateLabel(order.refundablePaypalAmount.state) }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Notes Card -->
       <div class="order-detail__card" *ngIf="order.notes">

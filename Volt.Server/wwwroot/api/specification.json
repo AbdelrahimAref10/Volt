@@ -609,64 +609,6 @@
         }
       }
     },
-    "/api/AdminOrder/{orderId}/Confirm": {
-      "post": {
-        "tags": [
-          "AdminOrder"
-        ],
-        "operationId": "AdminOrder_ConfirmOrder",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "vehicleIds",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrderDetailDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/AdminOrder/{orderId}/UpdateState": {
       "post": {
         "tags": [
@@ -746,114 +688,6 @@
               "application/json": {
                 "schema": {
                   "type": "boolean"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AdminOrder/{orderId}/Payment/UpdateState": {
-      "post": {
-        "tags": [
-          "AdminOrder"
-        ],
-        "operationId": "AdminOrder_UpdatePaymentState",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePaymentStateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrderPaymentDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AdminOrder/{orderId}/Refund": {
-      "post": {
-        "tags": [
-          "AdminOrder"
-        ],
-        "operationId": "AdminOrder_ProcessRefund",
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProcessRefundCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefundablePaypalAmountDto"
                 }
               }
             }
@@ -2513,6 +2347,48 @@
         }
       }
     },
+    "/api/CustomerOrder/CompletePayPalPayment": {
+      "post": {
+        "tags": [
+          "CustomerOrder"
+        ],
+        "operationId": "CustomerOrder_CompletePayPalPayment",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompletePayPalPaymentRequestDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompletePayPalPaymentResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/CustomerSubCategory/GetAllActiveSubcategories": {
       "get": {
         "tags": [
@@ -3994,6 +3870,14 @@
           "createdDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "payPalApproveLink": {
+            "type": "string",
+            "nullable": true
+          },
+          "payPalOrderId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -4353,32 +4237,14 @@
           },
           "newState": {
             "$ref": "#/components/schemas/OrderState"
-          }
-        }
-      },
-      "UpdatePaymentStateCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "orderId": {
-            "type": "integer",
-            "format": "int32"
           },
-          "newState": {
-            "$ref": "#/components/schemas/PaymentState"
-          }
-        }
-      },
-      "ProcessRefundCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "orderId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "refundState": {
-            "$ref": "#/components/schemas/RefundState"
+          "vehicleIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },
@@ -4473,11 +4339,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "totalRevenue": {
+          "totalDebit": {
             "type": "number",
             "format": "decimal"
           },
-          "totalCancellationFees": {
+          "totalCredit": {
             "type": "number",
             "format": "decimal"
           },
@@ -5098,6 +4964,35 @@
           "mobileTotal": {
             "type": "number",
             "format": "decimal"
+          }
+        }
+      },
+      "CompletePayPalPaymentResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "transactionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "CompletePayPalPaymentRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payPalOrderId": {
+            "type": "string"
           }
         }
       },

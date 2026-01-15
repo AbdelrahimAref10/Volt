@@ -125,6 +125,9 @@ namespace Application.Features.Order.Command.CancelOrderCommand
                 // Cancel the order
                 order.Cancel(_userSession.UserName ?? "System");
 
+                // TODO: Add treasury record handling for cancellation
+                // This will be implemented soon - treasury records will be created when cancellation fees are paid
+
                 await _context.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(true);
