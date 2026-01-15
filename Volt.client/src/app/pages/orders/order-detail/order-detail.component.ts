@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AdminOrderClient, VehicleClient, OrderDetailDto, OrderState, PaymentMethod, PaymentState, UpdateOrderStateCommand, VehicleDto, PagedResultOfVehicleDto, UpdatePaymentStateCommand, ProcessRefundCommand, RefundState } from '../../../core/services/clientAPI';
+import { AdminOrderClient, VehicleClient, OrderDetailDto, OrderState, PaymentMethod, PaymentState, UpdateOrderStateCommand, VehicleDto, PagedResultOfVehicleDto } from '../../../core/services/clientAPI';
 
 @Component({
   selector: 'app-order-detail',
@@ -29,13 +29,6 @@ export class OrderDetailComponent implements OnInit {
   showStateModal = false;
   newState: OrderState | null = null;
 
-  // Payment Management
-  showPaymentModal = false;
-  newPaymentState: PaymentState | null = null;
-
-  // Refund Management
-  showRefundModal = false;
-  refundState: RefundState | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -104,11 +97,16 @@ export class OrderDetailComponent implements OnInit {
     }
 
     this.actionLoading = 'confirm';
-    this.orderClient.confirmOrder(this.orderId, this.selectedVehicleIds).subscribe({
-      next: (order: OrderDetailDto) => {
-        this.order = order;
+    const command = new UpdateOrderStateCommand();
+    command.orderId = this.orderId;
+    command.newState = OrderState.Confirmed;
+    command.vehicleIds = this.selectedVehicleIds;
+
+    this.orderClient.updateOrderState(this.orderId, command).subscribe({
+      next: () => {
         this.showVehicleModal = false;
         this.showSuccessMessage('Order confirmed successfully');
+        this.loadOrder();
         this.actionLoading = '';
       },
       error: (error: any) => {
@@ -150,6 +148,9 @@ export class OrderDetailComponent implements OnInit {
 
     let confirmMessage = '';
     switch (state) {
+      case OrderState.Confirmed:
+        confirmMessage = 'Confirm this order?';
+        break;
       case OrderState.OnWay:
         confirmMessage = 'Mark order as On Way?';
         break;
@@ -183,33 +184,6 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
-  // Payment Management
-  onUpdatePaymentState(state: PaymentState): void {
-    if (!this.order) return;
-
-    // Clear any previous error messages
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (!confirm(`Update payment state to ${this.getPaymentStateLabel(state)}?`)) return;
-
-    this.actionLoading = `payment-${state}`;
-    const command = new UpdatePaymentStateCommand();
-    command.orderId = this.orderId;
-    command.newState = state;
-
-    this.orderClient.updatePaymentState(this.orderId, command).subscribe({
-      next: () => {
-        this.showSuccessMessage('Payment state updated successfully');
-        this.loadOrder();
-        this.actionLoading = '';
-      },
-      error: (error: any) => {
-        this.showErrorMessage(error.error?.errorMessage || 'Failed to update payment state');
-        this.actionLoading = '';
-      }
-    });
-  }
 
   // Cancellation
   onCancelOrder(): void {
@@ -235,33 +209,6 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
-  // Refund Processing
-  onProcessRefund(state: RefundState): void {
-    if (!this.order) return;
-
-    // Clear any previous error messages
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    if (!confirm(`Mark refund as ${state === RefundState.Success ? 'Success' : 'Failed'}?`)) return;
-
-    this.actionLoading = `refund-${state}`;
-    const command = new ProcessRefundCommand();
-    command.orderId = this.orderId;
-    command.refundState = state;
-
-    this.orderClient.processRefund(this.orderId, command).subscribe({
-      next: () => {
-        this.showSuccessMessage('Refund processed successfully');
-        this.loadOrder();
-        this.actionLoading = '';
-      },
-      error: (error: any) => {
-        this.showErrorMessage(error.error?.errorMessage || 'Failed to process refund');
-        this.actionLoading = '';
-      }
-    });
-  }
 
   // Navigation
   onBack(): void {
@@ -344,19 +291,6 @@ export class OrderDetailComponent implements OnInit {
     }
   }
 
-  getRefundStateLabel(state: RefundState): string {
-    switch (state) {
-      case RefundState.Pending:
-        return 'Pending';
-      case RefundState.Success:
-        return 'Success';
-      case RefundState.Failed:
-        return 'Failed';
-      default:
-        return 'Unknown';
-    }
-  }
-
   canConfirm(): boolean {
     return this.order?.orderState === OrderState.Pending;
   }
@@ -377,13 +311,6 @@ export class OrderDetailComponent implements OnInit {
     return this.order?.orderState === OrderState.Pending || this.order?.orderState === OrderState.Confirmed;
   }
 
-  canUpdatePayment(): boolean {
-    return !!(this.order?.orderPayments && this.order.orderPayments.length > 0);
-  }
-
-  canProcessRefund(): boolean {
-    return this.order?.refundablePaypalAmount?.state === RefundState.Pending;
-  }
 
   showSuccessMessage(message: string): void {
     this.successMessage = message;
@@ -417,8 +344,5 @@ export class OrderDetailComponent implements OnInit {
     return PaymentState;
   }
 
-  get RefundState() {
-    return RefundState;
-  }
 }
 

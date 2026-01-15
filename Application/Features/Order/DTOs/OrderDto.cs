@@ -25,6 +25,8 @@ namespace Application.Features.Order.DTOs
         public PaymentMethod PaymentMethod { get; set; }
         public OrderState OrderState { get; set; }
         public DateTime CreatedDate { get; set; }
+        public string? PayPalApproveLink { get; set; }
+        public string? PayPalOrderId { get; set; }
     }
 }
 
