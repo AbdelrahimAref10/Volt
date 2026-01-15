@@ -5,6 +5,7 @@ using Domain.Enums;
 using Domain.Models;
 using Domain.Services;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -35,11 +36,13 @@ namespace Application.Features.Order.Command.CreateOrderCommand
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly IPayPalService _payPalService;
 
-        public CreateOrderCommandHandler(DatabaseContext context, IUserSession userSession)
+        public CreateOrderCommandHandler(DatabaseContext context, IUserSession userSession, IPayPalService payPalService)
         {
             _context = context;
             _userSession = userSession;
+            _payPalService = payPalService;
         }
 
         public async Task<Result<OrderDto>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -202,10 +205,24 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 await _context.OrderTotals.AddAsync(orderTotals);
                 await _context.OrderPayments.AddAsync(orderPayment);
 
+                string? payPalApproveLink = null;
+                string? payPalOrderId = null;
+
                 if (request.PaymentMethodId == (int)PaymentMethod.PayPal)
                 {
-                    // TODO: Integrate PayPal payment processing
-                    // For now, mark as Pending
+                    var createOrderResult = await _payPalService.CreatePayPalOrderAsync(order.OrderCode, finalTotal, "EUR");
+                    
+                    if (createOrderResult.IsSuccess)
+                    {
+                        payPalApproveLink = createOrderResult.ApproveLink;
+                        payPalOrderId = createOrderResult.PayPalOrderId;
+                    }
+                    else
+                    {
+                        orderPayment.MarkAsFailed(_userSession.UserName ?? "System");
+                        await _context.SaveChangesAsync(cancellationToken);
+                        return Result.Failure<OrderDto>($"Failed to create PayPal order: {createOrderResult.ErrorMessage ?? "Unknown error"}");
+                    }
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
@@ -232,7 +249,9 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                     IsUrgent = order.IsUrgent,
                     PaymentMethod = (PaymentMethod)order.PaymentMethodId,
                     OrderState = order.OrderState,
-                    CreatedDate = order.CreatedDate
+                    CreatedDate = order.CreatedDate,
+                    PayPalApproveLink = payPalApproveLink,
+                    PayPalOrderId = payPalOrderId
                 };
 
                 return Result.Success(orderDto);

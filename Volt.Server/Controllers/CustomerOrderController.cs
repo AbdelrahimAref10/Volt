@@ -1,6 +1,8 @@
 using Application.Common;
 using Application.Features.Order.Command.CancelOrderCommand;
 using Application.Features.Order.Command.CreateOrderCommand;
+using Application.Features.Order.Command.PayPalPaymentCommands.CompletePayPalPaymentCommand;
+using Application.Features.Order.Command.PayPalPaymentCommands.CompletePayPalPaymentCommand.DTOs;
 using Application.Features.Order.DTOs;
 using Application.Features.Order.Query.GetCityFeesQuery;
 using Application.Features.Order.Query.GetCustomerOrdersQuery;
@@ -84,6 +86,25 @@ namespace Volt.Server.Controllers
         public async Task<IActionResult> CancelOrder(int orderId)
         {
             var command = new CancelOrderCommand { OrderId = orderId };
+            var result = await _mediator.Send(command);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("CompletePayPalPayment")]
+        [ProducesResponseType(typeof(CompletePayPalPaymentResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CompletePayPalPayment([FromBody] CompletePayPalPaymentRequestDto request)
+        {
+            var command = new CompletePayPalPaymentCommand
+            {
+                OrderId = request.OrderId,
+                PayPalOrderId = request.PayPalOrderId
+            };
+
             var result = await _mediator.Send(command);
             if (result.IsFailure)
             {
