@@ -797,68 +797,6 @@ export class AdminOrderClient {
         return _observableOf(null as any);
     }
 
-    confirmOrder(orderId: number, vehicleIds: number[]): Observable<OrderDetailDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/{orderId}/Confirm";
-        if (orderId === undefined || orderId === null)
-            throw new Error("The parameter 'orderId' must be defined.");
-        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(vehicleIds);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processConfirmOrder(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processConfirmOrder(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<OrderDetailDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<OrderDetailDto>;
-        }));
-    }
-
-    protected processConfirmOrder(response: HttpResponseBase): Observable<OrderDetailDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = OrderDetailDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetail.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
     updateOrderState(orderId: number, command: UpdateOrderStateCommand): Observable<OrderDto> {
         let url_ = this.baseUrl + "/api/AdminOrder/{orderId}/UpdateState";
         if (orderId === undefined || orderId === null)
@@ -963,130 +901,6 @@ export class AdminOrderClient {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 result200 = resultData200 !== undefined ? resultData200 : <any>null;
     
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetail.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    updatePaymentState(orderId: number, command: UpdatePaymentStateCommand): Observable<OrderPaymentDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/{orderId}/Payment/UpdateState";
-        if (orderId === undefined || orderId === null)
-            throw new Error("The parameter 'orderId' must be defined.");
-        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdatePaymentState(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdatePaymentState(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<OrderPaymentDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<OrderPaymentDto>;
-        }));
-    }
-
-    protected processUpdatePaymentState(response: HttpResponseBase): Observable<OrderPaymentDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = OrderPaymentDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetail.fromJS(resultData400);
-            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    processRefund(orderId: number, command: ProcessRefundCommand): Observable<RefundablePaypalAmountDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/{orderId}/Refund";
-        if (orderId === undefined || orderId === null)
-            throw new Error("The parameter 'orderId' must be defined.");
-        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processProcessRefund(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processProcessRefund(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<RefundablePaypalAmountDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<RefundablePaypalAmountDto>;
-        }));
-    }
-
-    protected processProcessRefund(response: HttpResponseBase): Observable<RefundablePaypalAmountDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RefundablePaypalAmountDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -3556,6 +3370,65 @@ export class CustomerOrderClient {
         }
         return _observableOf(null as any);
     }
+
+    completePayPalPayment(request: CompletePayPalPaymentRequestDto): Observable<CompletePayPalPaymentResponseDto> {
+        let url_ = this.baseUrl + "/api/CustomerOrder/CompletePayPalPayment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCompletePayPalPayment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCompletePayPalPayment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CompletePayPalPaymentResponseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CompletePayPalPaymentResponseDto>;
+        }));
+    }
+
+    protected processCompletePayPalPayment(response: HttpResponseBase): Observable<CompletePayPalPaymentResponseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CompletePayPalPaymentResponseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable({
@@ -5537,6 +5410,8 @@ export class OrderDto {
     paymentMethod!: PaymentMethod;
     orderState!: OrderState;
     createdDate!: Date;
+    payPalApproveLink!: string | null;
+    payPalOrderId!: string | null;
 
     init(_data?: any) {
         if (_data) {
@@ -5561,6 +5436,8 @@ export class OrderDto {
             this.paymentMethod = _data["paymentMethod"] !== undefined ? _data["paymentMethod"] : <any>null;
             this.orderState = _data["orderState"] !== undefined ? _data["orderState"] : <any>null;
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
+            this.payPalApproveLink = _data["payPalApproveLink"] !== undefined ? _data["payPalApproveLink"] : <any>null;
+            this.payPalOrderId = _data["payPalOrderId"] !== undefined ? _data["payPalOrderId"] : <any>null;
         }
     }
 
@@ -5594,6 +5471,8 @@ export class OrderDto {
         data["paymentMethod"] = this.paymentMethod !== undefined ? this.paymentMethod : <any>null;
         data["orderState"] = this.orderState !== undefined ? this.orderState : <any>null;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
+        data["payPalApproveLink"] = this.payPalApproveLink !== undefined ? this.payPalApproveLink : <any>null;
+        data["payPalOrderId"] = this.payPalOrderId !== undefined ? this.payPalOrderId : <any>null;
         return data;
     }
 }
@@ -5954,11 +5833,20 @@ export class OrderTotalsDto {
 export class UpdateOrderStateCommand {
     orderId!: number;
     newState!: OrderState;
+    vehicleIds!: number[] | null;
 
     init(_data?: any) {
         if (_data) {
             this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
             this.newState = _data["newState"] !== undefined ? _data["newState"] : <any>null;
+            if (Array.isArray(_data["vehicleIds"])) {
+                this.vehicleIds = [] as any;
+                for (let item of _data["vehicleIds"])
+                    this.vehicleIds!.push(item);
+            }
+            else {
+                this.vehicleIds = <any>null;
+            }
         }
     }
 
@@ -5973,58 +5861,11 @@ export class UpdateOrderStateCommand {
         data = typeof data === 'object' ? data : {};
         data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
         data["newState"] = this.newState !== undefined ? this.newState : <any>null;
-        return data;
-    }
-}
-
-export class UpdatePaymentStateCommand {
-    orderId!: number;
-    newState!: PaymentState;
-
-    init(_data?: any) {
-        if (_data) {
-            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
-            this.newState = _data["newState"] !== undefined ? _data["newState"] : <any>null;
+        if (Array.isArray(this.vehicleIds)) {
+            data["vehicleIds"] = [];
+            for (let item of this.vehicleIds)
+                data["vehicleIds"].push(item);
         }
-    }
-
-    static fromJS(data: any): UpdatePaymentStateCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePaymentStateCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
-        data["newState"] = this.newState !== undefined ? this.newState : <any>null;
-        return data;
-    }
-}
-
-export class ProcessRefundCommand {
-    orderId!: number;
-    refundState!: RefundState;
-
-    init(_data?: any) {
-        if (_data) {
-            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
-            this.refundState = _data["refundState"] !== undefined ? _data["refundState"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): ProcessRefundCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProcessRefundCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
-        data["refundState"] = this.refundState !== undefined ? this.refundState : <any>null;
         return data;
     }
 }
@@ -6161,15 +6002,15 @@ export class VehicleUtilizationReportDto {
 }
 
 export class TreasuryReportDto {
-    totalRevenue!: number;
-    totalCancellationFees!: number;
+    totalDebit!: number;
+    totalCredit!: number;
     balance!: number;
     lastUpdated!: Date;
 
     init(_data?: any) {
         if (_data) {
-            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
-            this.totalCancellationFees = _data["totalCancellationFees"] !== undefined ? _data["totalCancellationFees"] : <any>null;
+            this.totalDebit = _data["totalDebit"] !== undefined ? _data["totalDebit"] : <any>null;
+            this.totalCredit = _data["totalCredit"] !== undefined ? _data["totalCredit"] : <any>null;
             this.balance = _data["balance"] !== undefined ? _data["balance"] : <any>null;
             this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>null;
         }
@@ -6184,8 +6025,8 @@ export class TreasuryReportDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
-        data["totalCancellationFees"] = this.totalCancellationFees !== undefined ? this.totalCancellationFees : <any>null;
+        data["totalDebit"] = this.totalDebit !== undefined ? this.totalDebit : <any>null;
+        data["totalCredit"] = this.totalCredit !== undefined ? this.totalCredit : <any>null;
         data["balance"] = this.balance !== undefined ? this.balance : <any>null;
         data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>null;
         return data;
@@ -7098,6 +6939,61 @@ export class CreateOrderCommand {
         data["isUrgent"] = this.isUrgent !== undefined ? this.isUrgent : <any>null;
         data["paymentMethodId"] = this.paymentMethodId !== undefined ? this.paymentMethodId : <any>null;
         data["mobileTotal"] = this.mobileTotal !== undefined ? this.mobileTotal : <any>null;
+        return data;
+    }
+}
+
+export class CompletePayPalPaymentResponseDto {
+    isSuccess!: boolean;
+    transactionId!: string | null;
+    message!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.isSuccess = _data["isSuccess"] !== undefined ? _data["isSuccess"] : <any>null;
+            this.transactionId = _data["transactionId"] !== undefined ? _data["transactionId"] : <any>null;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CompletePayPalPaymentResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompletePayPalPaymentResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isSuccess"] = this.isSuccess !== undefined ? this.isSuccess : <any>null;
+        data["transactionId"] = this.transactionId !== undefined ? this.transactionId : <any>null;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        return data;
+    }
+}
+
+export class CompletePayPalPaymentRequestDto {
+    orderId!: number;
+    payPalOrderId!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
+            this.payPalOrderId = _data["payPalOrderId"] !== undefined ? _data["payPalOrderId"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CompletePayPalPaymentRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompletePayPalPaymentRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
+        data["payPalOrderId"] = this.payPalOrderId !== undefined ? this.payPalOrderId : <any>null;
         return data;
     }
 }

@@ -1,4 +1,4 @@
-﻿using Domain.Models;
+using Domain.Models;
 using Infrastructure.Configuration;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
@@ -72,6 +72,12 @@ namespace Infrastructure
 
             // Register Image Service
             services.AddScoped<Infrastructure.Services.IImageService, Infrastructure.Services.ImageService>();
+
+            // Register HttpClientFactory for PayPal service
+            services.AddHttpClient();
+
+            // Register PayPal Service
+            services.AddScoped<Infrastructure.Services.IPayPalService, Infrastructure.Services.PayPalService>();
 
             return services;
         }
