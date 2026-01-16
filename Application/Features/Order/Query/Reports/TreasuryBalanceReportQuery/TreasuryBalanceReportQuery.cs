@@ -5,6 +5,7 @@ using Domain.Services;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,24 +26,19 @@ namespace Application.Features.Order.Query.Reports.TreasuryBalanceReportQuery
 
         public async Task<Result<TreasuryReportDto>> Handle(TreasuryBalanceReportQuery request, CancellationToken cancellationToken)
         {
-            var treasury = await _context.CompanyTreasuries.FirstOrDefaultAsync(cancellationToken);
+            var treasuryRecords = await _context.CompanyTreasuries.ToListAsync(cancellationToken);
 
-            if (treasury == null)
-            {
-                // Create initial treasury if it doesn't exist
-                treasury = CompanyTreasury.Create("System");
-                _context.CompanyTreasuries.Add(treasury);
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-
-            var balance = TreasuryService.GetTreasuryBalance(treasury);
+            // Calculate totals from all treasury records
+            var totalDebit = treasuryRecords.Sum(t => t.DebitAmount);
+            var totalCredit = treasuryRecords.Sum(t => t.CreditAmount);
+            var balance = totalCredit - totalDebit; // Credit (money in) - Debit (money out)
 
             var report = new TreasuryReportDto
             {
-                TotalRevenue = treasury.TotalRevenue,
-                TotalCancellationFees = treasury.TotalCancellationFees,
+                TotalDebit = totalDebit,
+                TotalCredit = totalCredit,
                 Balance = balance,
-                LastUpdated = treasury.LastUpdated
+                LastUpdated = treasuryRecords.Any() ? treasuryRecords.Max(t => t.CreatedDate) : DateTime.UtcNow
             };
 
             return Result.Success(report);

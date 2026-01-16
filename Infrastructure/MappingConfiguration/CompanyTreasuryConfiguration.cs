@@ -19,20 +19,26 @@ namespace Infrastructure.MappingConfiguration
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(ct => ct.TotalRevenue)
-                .HasColumnName("TotalRevenue")
+            builder.Property(ct => ct.DebitAmount)
+                .HasColumnName("DebitAmount")
                 .HasColumnType("decimal(18,2)")
                 .HasDefaultValue(0)
                 .IsRequired();
 
-            builder.Property(ct => ct.TotalCancellationFees)
-                .HasColumnName("TotalCancellationFees")
+            builder.Property(ct => ct.CreditAmount)
+                .HasColumnName("CreditAmount")
                 .HasColumnType("decimal(18,2)")
                 .HasDefaultValue(0)
                 .IsRequired();
 
-            builder.Property(ct => ct.LastUpdated)
-                .HasColumnName("LastUpdated")
+            builder.Property(ct => ct.DescriptionAr)
+                .HasColumnName("DescriptionAr")
+                .HasMaxLength(500)
+                .IsRequired();
+
+            builder.Property(ct => ct.DescriptionEng)
+                .HasColumnName("DescriptionEng")
+                .HasMaxLength(500)
                 .IsRequired();
 
             // Configure audit properties
@@ -42,14 +48,6 @@ namespace Infrastructure.MappingConfiguration
 
             builder.Property(ct => ct.CreatedDate)
                 .HasColumnName("CreatedDate")
-                .IsRequired();
-
-            builder.Property(ct => ct.LastModifiedBy)
-                .HasColumnName("LastModifiedBy")
-                .HasMaxLength(256);
-
-            builder.Property(ct => ct.LastModifiedDate)
-                .HasColumnName("LastModifiedDate")
                 .IsRequired();
         }
     }
