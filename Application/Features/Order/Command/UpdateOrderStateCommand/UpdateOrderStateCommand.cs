@@ -34,6 +34,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
 
         public async Task<Result<OrderDto>> Handle(UpdateOrderStateCommand request, CancellationToken cancellationToken)
         {
+            OrderPayment orderPayment; 
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.SubCategory)
@@ -175,7 +176,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                         // If payment method is Cash, automatically mark payment as Paid and create treasury record
                         if (order.PaymentMethodId == (int)PaymentMethod.Cash)
                         {
-                            var orderPayment = order.OrderPayments.FirstOrDefault();
+                            orderPayment = order.OrderPayments.FirstOrDefault();
                             if (orderPayment != null && orderPayment.State == PaymentState.Pending)
                             {
                                 orderPayment.MarkAsPaid(_userSession.UserName ?? "System");
@@ -195,13 +196,11 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                         {
                             return Result.Failure<OrderDto>($"Cannot complete order. Current state: {order.OrderState}");
                         }
-
                         // Update vehicle status to Available
                         foreach (var orderVehicle in order.OrderVehicles)
                         {
                             orderVehicle.Vehicle.UpdateStatus("Available", _userSession.UserName ?? "System");
                         }
-
                         order.Complete(_userSession.UserName ?? "System");
                         break;
 
