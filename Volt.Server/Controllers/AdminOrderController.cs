@@ -1,9 +1,6 @@
 using Application.Common;
 using Application.Features.Order.Command.CancelOrderCommand;
-using Application.Features.Order.Command.ConfirmOrderCommand;
-using Application.Features.Order.Command.ProcessRefundCommand;
 using Application.Features.Order.Command.UpdateOrderStateCommand;
-using Application.Features.Order.Command.UpdatePaymentStateCommand;
 using Application.Features.Order.DTOs;
 using Application.Features.Order.Query.GetAllOrdersQuery;
 using Application.Features.Order.Query.GetOrderByIdQuery;
@@ -64,24 +61,6 @@ namespace Volt.Server.Controllers
             return Ok(result.Value);
         }
 
-        [HttpPost("{orderId}/Confirm")]
-        [ProducesResponseType(typeof(OrderDetailDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ConfirmOrder(int orderId, [FromBody] List<int> vehicleIds)
-        {
-            var command = new ConfirmOrderCommand
-            {
-                OrderId = orderId,
-                VehicleIds = vehicleIds
-            };
-            var result = await _mediator.Send(command);
-            if (result.IsFailure)
-            {
-                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
-            }
-            return Ok(result.Value);
-        }
-
         [HttpPost("{orderId}/UpdateState")]
         [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
@@ -102,34 +81,6 @@ namespace Volt.Server.Controllers
         public async Task<IActionResult> CancelOrder(int orderId)
         {
             var command = new CancelOrderCommand { OrderId = orderId };
-            var result = await _mediator.Send(command);
-            if (result.IsFailure)
-            {
-                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
-            }
-            return Ok(result.Value);
-        }
-
-        [HttpPost("{orderId}/Payment/UpdateState")]
-        [ProducesResponseType(typeof(OrderPaymentDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdatePaymentState(int orderId, [FromBody] UpdatePaymentStateCommand command)
-        {
-            command.OrderId = orderId;
-            var result = await _mediator.Send(command);
-            if (result.IsFailure)
-            {
-                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
-            }
-            return Ok(result.Value);
-        }
-
-        [HttpPost("{orderId}/Refund")]
-        [ProducesResponseType(typeof(RefundablePaypalAmountDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ProcessRefund(int orderId, [FromBody] ProcessRefundCommand command)
-        {
-            command.OrderId = orderId;
             var result = await _mediator.Send(command);
             if (result.IsFailure)
             {

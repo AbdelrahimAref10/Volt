@@ -5,36 +5,51 @@ namespace Domain.Services
     public class TreasuryService
     {
         /// <summary>
-        /// Adds order revenue to treasury (called when order is completed)
+        /// Creates a treasury record for cash payment when customer receives vehicle
         /// </summary>
-        public static void AddOrderRevenue(CompanyTreasury treasury, decimal amount, string? modifiedBy = null)
+        public static CompanyTreasury CreateCashPaymentRecord(
+            decimal amount,
+            string orderCode,
+            string? createdBy = null)
         {
-            if (treasury == null)
-                throw new ArgumentNullException(nameof(treasury));
-
-            treasury.AddRevenue(amount, modifiedBy);
+            return CompanyTreasury.Create(
+                debitAmount: amount,
+                creditAmount: 0,
+                descriptionAr: $"دفع نقدي للطلب {orderCode}",
+                descriptionEng: $"Cash payment for order {orderCode}",
+                createdBy: createdBy);
         }
 
         /// <summary>
-        /// Adds cancellation fee to treasury (called when cancellation fee is paid)
+        /// Creates a treasury record for PayPal payment when payment is successful
         /// </summary>
-        public static void AddCancellationFee(CompanyTreasury treasury, decimal amount, string? modifiedBy = null)
+        public static CompanyTreasury CreatePayPalPaymentRecord(
+            decimal amount,
+            string orderCode,
+            string? createdBy = null)
         {
-            if (treasury == null)
-                throw new ArgumentNullException(nameof(treasury));
-
-            treasury.AddCancellationFee(amount, modifiedBy);
+            return CompanyTreasury.Create(
+                debitAmount: 0,
+                creditAmount: amount,
+                descriptionAr: $"دفع PayPal للطلب {orderCode}",
+                descriptionEng: $"PayPal payment for order {orderCode}",
+                createdBy: createdBy);
         }
 
         /// <summary>
-        /// Gets current treasury balance
+        /// Creates a treasury record for cancellation fee
         /// </summary>
-        public static decimal GetTreasuryBalance(CompanyTreasury treasury)
+        public static CompanyTreasury CreateCancellationFeeRecord(
+            decimal amount,
+            string orderCode,
+            string? createdBy = null)
         {
-            if (treasury == null)
-                throw new ArgumentNullException(nameof(treasury));
-
-            return treasury.GetBalance();
+            return CompanyTreasury.Create(
+                debitAmount: 0,
+                creditAmount: amount,
+                descriptionAr: $"رسوم إلغاء للطلب {orderCode}",
+                descriptionEng: $"Cancellation fee for order {orderCode}",
+                createdBy: createdBy);
         }
     }
 }
