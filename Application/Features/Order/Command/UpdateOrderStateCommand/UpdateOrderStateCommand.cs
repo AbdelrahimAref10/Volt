@@ -32,6 +32,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
 
         public async Task<Result<OrderDto>> Handle(UpdateOrderStateCommand request, CancellationToken cancellationToken)
         {
+            OrderPayment orderPayment; 
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.SubCategory)
@@ -69,7 +70,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                         // If payment method is Cash, automatically mark payment as Paid
                         if (order.PaymentMethodId == (int)PaymentMethod.Cash)
                         {
-                            var orderPayment = order.OrderPayments.FirstOrDefault();
+                            orderPayment = order.OrderPayments.FirstOrDefault();
                             if (orderPayment != null && orderPayment.State == PaymentState.Pending)
                             {
                                 orderPayment.MarkAsPaid(_userSession.UserName ?? "System");
@@ -90,7 +91,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                         }
 
                         // Update treasury with order payment
-                        var orderPayment = order.OrderPayments.FirstOrDefault(op => op.State == PaymentState.Paid);
+                        orderPayment = order.OrderPayments.FirstOrDefault(op => op.State == PaymentState.Paid);
                         if (orderPayment != null)
                         {
                             var treasury = await _context.CompanyTreasuries.FirstOrDefaultAsync(cancellationToken);
