@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,9 +8,6 @@
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
 	  <Configuration>Debug</Configuration>
     <SpaProxyServerUrl>https://localhost:4200</SpaProxyServerUrl>
-    <!-- Framework-dependent deployment for somee.com hosting -->
-    <SelfContained>false</SelfContained>
-    <RuntimeIdentifier></RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -58,35 +55,31 @@
 	<!-- Clean wwwroot (except api folder) and copy Angular build output during publish -->
 	<Target Name="CopyAngularBuildOutput" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
 		<ItemGroup>
-			<AngularBuildFiles Include="$(SpaRoot)\dist\Volt.client\browser\**\*.*" />
+			<AngularBuildFiles Include="$(SpaRoot)\dist\Volt.client\**\*.*" />
 			<FilesToDelete Include="$(PublishDir)wwwroot\*.js" />
 			<FilesToDelete Include="$(PublishDir)wwwroot\*.css" />
 			<FilesToDelete Include="$(PublishDir)wwwroot\*.html" />
 			<FilesToDelete Include="$(PublishDir)wwwroot\*.ico" />
-			<FilesToDelete Include="$(PublishDir)wwwroot\browser\**\*.*" />
 		</ItemGroup>
 		<Message Text="Cleaning old Angular files from $(PublishDir)wwwroot (keeping api folder)" Importance="high" />
 		<Delete Files="@(FilesToDelete)" ContinueOnError="true" />
-		<RemoveDir Directories="$(PublishDir)wwwroot\browser" ContinueOnError="true" />
-		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client\browser to $(PublishDir)wwwroot" Importance="high" />
-		<Copy SourceFiles="@(AngularBuildFiles)" DestinationFiles="@(AngularBuildFiles->Replace('$(SpaRoot)\dist\Volt.client\browser\', '$(PublishDir)wwwroot\'))" SkipUnchangedFiles="true" />
+		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client to $(PublishDir)wwwroot" Importance="high" />
+		<Copy SourceFiles="@(AngularBuildFiles)" DestinationFiles="@(AngularBuildFiles->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 	</Target>
 	
 	<!-- Also copy during build for local testing -->
 	<Target Name="CopyAngularBuildOutputToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' AND '$(PublishDir)' == ''">
 		<ItemGroup>
-			<AngularBuildFilesLocal Include="$(SpaRoot)\dist\Volt.client\browser\**\*.*" />
+			<AngularBuildFilesLocal Include="$(SpaRoot)\dist\Volt.client\**\*.*" />
 			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.js" />
 			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.css" />
 			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.html" />
 			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.ico" />
-			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\browser\**\*.*" />
 		</ItemGroup>
 		<Message Text="Cleaning old Angular files from $(ProjectDir)wwwroot (keeping api folder)" Importance="high" />
 		<Delete Files="@(FilesToDeleteLocal)" ContinueOnError="true" />
-		<RemoveDir Directories="$(ProjectDir)wwwroot\browser" ContinueOnError="true" />
-		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client\browser to $(ProjectDir)wwwroot" Importance="high" />
-		<Copy SourceFiles="@(AngularBuildFilesLocal)" DestinationFiles="@(AngularBuildFilesLocal->Replace('$(SpaRoot)\dist\Volt.client\browser\', '$(ProjectDir)wwwroot\'))" SkipUnchangedFiles="true" />
+		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client to $(ProjectDir)wwwroot" Importance="high" />
+		<Copy SourceFiles="@(AngularBuildFilesLocal)" DestinationFiles="@(AngularBuildFilesLocal->'$(ProjectDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 	</Target>
 	
 </Project>
