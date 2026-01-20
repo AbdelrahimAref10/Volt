@@ -1,0 +1,456 @@
+<div class="dashboard">
+  <!-- Header -->
+  <div class="dashboard__header">
+    <div>
+      <h1 class="dashboard__title">Admin Dashboard</h1>
+      <p class="dashboard__subtitle">Comprehensive business analytics and insights</p>
+    </div>
+    <button (click)="refresh()" class="dashboard__refresh-btn" [disabled]="isLoading">
+      <svg class="dashboard__refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="dashboard__message dashboard__message--error">
+    <svg class="dashboard__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="dashboard__loading">
+    <div class="dashboard__spinner"></div>
+    <p class="dashboard__loading-text">Loading dashboard analytics...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && analytics" class="dashboard__content">
+    
+    <!-- Overall Statistics Cards -->
+    <div class="dashboard__section" *ngIf="analytics.overallStatistics">
+      <h2 class="dashboard__section-title">Overall Statistics</h2>
+      <div class="dashboard__stats-grid">
+        <div class="dashboard__stat-card dashboard__stat-card--primary">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatNumber(analytics.overallStatistics.totalOrders) }}</div>
+            <div class="dashboard__stat-label">Total Orders</div>
+            <div class="dashboard__stat-sublabel">{{ formatNumber(analytics.overallStatistics.pendingOrders) }} Pending</div>
+          </div>
+        </div>
+
+        <div class="dashboard__stat-card dashboard__stat-card--success">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatNumber(analytics.overallStatistics.totalCustomers) }}</div>
+            <div class="dashboard__stat-label">Total Customers</div>
+            <div class="dashboard__stat-sublabel">{{ formatNumber(analytics.overallStatistics.activeCustomers) }} Active</div>
+          </div>
+        </div>
+
+        <div class="dashboard__stat-card dashboard__stat-card--info">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatNumber(analytics.overallStatistics.totalVehicles) }}</div>
+            <div class="dashboard__stat-label">Total Vehicles</div>
+            <div class="dashboard__stat-sublabel">{{ formatNumber(analytics.overallStatistics.availableVehicles) }} Available</div>
+          </div>
+        </div>
+
+        <div class="dashboard__stat-card dashboard__stat-card--warning">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatCurrency(analytics.overallStatistics.totalRevenue) }}</div>
+            <div class="dashboard__stat-label">Total Revenue</div>
+            <div class="dashboard__stat-sublabel">All Time</div>
+          </div>
+        </div>
+
+        <div class="dashboard__stat-card">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatNumber(analytics.overallStatistics.totalCategories) }}</div>
+            <div class="dashboard__stat-label">Categories</div>
+            <div class="dashboard__stat-sublabel">{{ formatNumber(analytics.overallStatistics.totalSubCategories) }} Subcategories</div>
+          </div>
+        </div>
+
+        <div class="dashboard__stat-card">
+          <div class="dashboard__stat-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div class="dashboard__stat-content">
+            <div class="dashboard__stat-value">{{ formatNumber(analytics.overallStatistics.totalCities) }}</div>
+            <div class="dashboard__stat-label">Cities</div>
+            <div class="dashboard__stat-sublabel">Active Locations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Analytics -->
+    <div class="dashboard__section" *ngIf="analytics.revenueAnalytics">
+      <h2 class="dashboard__section-title">Revenue Analytics</h2>
+      <div class="dashboard__revenue-grid">
+        <div class="dashboard__revenue-card">
+          <div class="dashboard__revenue-label">Today</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.todayRevenue) }}</div>
+        </div>
+        <div class="dashboard__revenue-card">
+          <div class="dashboard__revenue-label">This Week</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.thisWeekRevenue) }}</div>
+        </div>
+        <div class="dashboard__revenue-card">
+          <div class="dashboard__revenue-label">This Month</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.thisMonthRevenue) }}</div>
+        </div>
+        <div class="dashboard__revenue-card">
+          <div class="dashboard__revenue-label">This Quarter</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.thisQuarterRevenue) }}</div>
+        </div>
+        <div class="dashboard__revenue-card">
+          <div class="dashboard__revenue-label">This Year</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.thisYearRevenue) }}</div>
+        </div>
+        <div class="dashboard__revenue-card dashboard__revenue-card--total">
+          <div class="dashboard__revenue-label">Total Revenue</div>
+          <div class="dashboard__revenue-value">{{ formatCurrency(analytics.revenueAnalytics.totalRevenue) }}</div>
+        </div>
+      </div>
+
+      <!-- Revenue by Period Chart -->
+      <div class="dashboard__chart-card" *ngIf="analytics.revenueAnalytics.revenueByPeriod && analytics.revenueAnalytics.revenueByPeriod.length > 0">
+        <h3 class="dashboard__chart-title">Revenue Trend (Last 6 Months)</h3>
+        <div class="dashboard__chart-container">
+          <div class="dashboard__chart-bars">
+            <div *ngFor="let period of analytics.revenueAnalytics.revenueByPeriod" class="dashboard__chart-bar-wrapper">
+              <div class="dashboard__chart-bar" 
+                   [style.height.%]="getRevenueBarHeight(period.totalRevenue)"
+                   [title]="formatCurrency(period.totalRevenue)">
+              </div>
+              <div class="dashboard__chart-label">{{ period.period }}</div>
+              <div class="dashboard__chart-value">{{ formatCurrency(period.totalRevenue) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Statistics -->
+    <div class="dashboard__section" *ngIf="analytics.orderStatistics">
+      <h2 class="dashboard__section-title">Order Statistics</h2>
+      <div class="dashboard__order-stats">
+        <div class="dashboard__order-stat-card">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.totalOrders) }}</div>
+          <div class="dashboard__order-stat-label">Total Orders</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--pending">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.pendingOrders) }}</div>
+          <div class="dashboard__order-stat-label">Pending</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--confirmed">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.confirmedOrders) }}</div>
+          <div class="dashboard__order-stat-label">Confirmed</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--onway">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.onWayOrders) }}</div>
+          <div class="dashboard__order-stat-label">On Way</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--received">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.customerReceivedOrders) }}</div>
+          <div class="dashboard__order-stat-label">Received</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--completed">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.completedOrders) }}</div>
+          <div class="dashboard__order-stat-label">Completed</div>
+        </div>
+        <div class="dashboard__order-stat-card dashboard__order-stat-card--cancelled">
+          <div class="dashboard__order-stat-value">{{ formatNumber(analytics.orderStatistics.cancelledOrders) }}</div>
+          <div class="dashboard__order-stat-label">Cancelled</div>
+        </div>
+        <div class="dashboard__order-stat-card">
+          <div class="dashboard__order-stat-value">{{ formatCurrency(analytics.orderStatistics.averageOrderValue) }}</div>
+          <div class="dashboard__order-stat-label">Avg Order Value</div>
+        </div>
+      </div>
+
+      <!-- Orders by Time Period -->
+      <div class="dashboard__time-stats">
+        <div class="dashboard__time-stat">
+          <div class="dashboard__time-stat-value">{{ formatNumber(analytics.orderStatistics.ordersToday) }}</div>
+          <div class="dashboard__time-stat-label">Today</div>
+        </div>
+        <div class="dashboard__time-stat">
+          <div class="dashboard__time-stat-value">{{ formatNumber(analytics.orderStatistics.ordersThisWeek) }}</div>
+          <div class="dashboard__time-stat-label">This Week</div>
+        </div>
+        <div class="dashboard__time-stat">
+          <div class="dashboard__time-stat-value">{{ formatNumber(analytics.orderStatistics.ordersThisMonth) }}</div>
+          <div class="dashboard__time-stat-label">This Month</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="dashboard__two-column">
+      <!-- Left Column -->
+      <div class="dashboard__column">
+        <!-- Customer Statistics -->
+        <div class="dashboard__card" *ngIf="analytics.customerStatistics">
+          <h3 class="dashboard__card-title">Customer Statistics</h3>
+          <div class="dashboard__customer-stats">
+            <div class="dashboard__customer-stat">
+              <div class="dashboard__customer-stat-value">{{ formatNumber(analytics.customerStatistics.totalCustomers) }}</div>
+              <div class="dashboard__customer-stat-label">Total Customers</div>
+            </div>
+            <div class="dashboard__customer-stat">
+              <div class="dashboard__customer-stat-value">{{ formatNumber(analytics.customerStatistics.activeCustomers) }}</div>
+              <div class="dashboard__customer-stat-label">Active</div>
+            </div>
+            <div class="dashboard__customer-stat">
+              <div class="dashboard__customer-stat-value">{{ formatNumber(analytics.customerStatistics.inactiveCustomers) }}</div>
+              <div class="dashboard__customer-stat-label">Inactive</div>
+            </div>
+            <div class="dashboard__customer-stat">
+              <div class="dashboard__customer-stat-value">{{ formatNumber(analytics.customerStatistics.blockedCustomers) }}</div>
+              <div class="dashboard__customer-stat-label">Blocked</div>
+            </div>
+          </div>
+          <div class="dashboard__customer-breakdown">
+            <div class="dashboard__breakdown-item">
+              <span class="dashboard__breakdown-label">Individual:</span>
+              <span class="dashboard__breakdown-value">{{ formatNumber(analytics.customerStatistics.individualCustomers) }}</span>
+            </div>
+            <div class="dashboard__breakdown-item">
+              <span class="dashboard__breakdown-label">Institution:</span>
+              <span class="dashboard__breakdown-value">{{ formatNumber(analytics.customerStatistics.institutionCustomers) }}</span>
+            </div>
+          </div>
+          <div class="dashboard__new-customers">
+            <div class="dashboard__new-customer-item">
+              <span>New Today:</span>
+              <strong>{{ formatNumber(analytics.customerStatistics.newCustomersToday) }}</strong>
+            </div>
+            <div class="dashboard__new-customer-item">
+              <span>New This Week:</span>
+              <strong>{{ formatNumber(analytics.customerStatistics.newCustomersThisWeek) }}</strong>
+            </div>
+            <div class="dashboard__new-customer-item">
+              <span>New This Month:</span>
+              <strong>{{ formatNumber(analytics.customerStatistics.newCustomersThisMonth) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Statistics -->
+        <div class="dashboard__card" *ngIf="analytics.vehicleStatistics">
+          <h3 class="dashboard__card-title">Vehicle Statistics</h3>
+          <div class="dashboard__vehicle-stats">
+            <div class="dashboard__vehicle-stat">
+              <div class="dashboard__vehicle-stat-value">{{ formatNumber(analytics.vehicleStatistics.totalVehicles) }}</div>
+              <div class="dashboard__vehicle-stat-label">Total Vehicles</div>
+            </div>
+            <div class="dashboard__vehicle-stat">
+              <div class="dashboard__vehicle-stat-value">{{ formatNumber(analytics.vehicleStatistics.availableNow) }}</div>
+              <div class="dashboard__vehicle-stat-label">Available Now</div>
+            </div>
+            <div class="dashboard__vehicle-stat">
+              <div class="dashboard__vehicle-stat-value">{{ formatNumber(analytics.vehicleStatistics.underMaintenance) }}</div>
+              <div class="dashboard__vehicle-stat-label">Under Maintenance</div>
+            </div>
+            <div class="dashboard__vehicle-stat">
+              <div class="dashboard__vehicle-stat-value">{{ formatNumber(analytics.vehicleStatistics.newThisMonth) }}</div>
+              <div class="dashboard__vehicle-stat-label">New This Month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treasury Balance -->
+        <div class="dashboard__card dashboard__card--treasury" *ngIf="analytics.treasuryBalance">
+          <h3 class="dashboard__card-title">Treasury Balance</h3>
+          <div class="dashboard__treasury-content">
+            <div class="dashboard__treasury-main">
+              <div class="dashboard__treasury-label">Current Balance</div>
+              <div class="dashboard__treasury-value">{{ formatCurrency(analytics.treasuryBalance.balance) }}</div>
+            </div>
+            <div class="dashboard__treasury-breakdown">
+              <div class="dashboard__treasury-item">
+                <span class="dashboard__treasury-item-label">Total Debit:</span>
+                <span class="dashboard__treasury-item-value dashboard__treasury-item-value--debit">{{ formatCurrency(analytics.treasuryBalance.totalDebit) }}</span>
+              </div>
+              <div class="dashboard__treasury-item">
+                <span class="dashboard__treasury-item-label">Total Credit:</span>
+                <span class="dashboard__treasury-item-value dashboard__treasury-item-value--credit">{{ formatCurrency(analytics.treasuryBalance.totalCredit) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="dashboard__column">
+        <!-- Payment Method Breakdown -->
+        <div class="dashboard__card" *ngIf="analytics.paymentMethodBreakdown && analytics.paymentMethodBreakdown.length > 0">
+          <h3 class="dashboard__card-title">Payment Method Breakdown</h3>
+          <div class="dashboard__payment-breakdown">
+            <div *ngFor="let payment of analytics.paymentMethodBreakdown" class="dashboard__payment-item">
+              <div class="dashboard__payment-header">
+                <span class="dashboard__payment-method">{{ payment.paymentMethod }}</span>
+                <span class="dashboard__payment-percentage">{{ formatPercentage(payment.percentage) }}</span>
+              </div>
+              <div class="dashboard__payment-bar">
+                <div class="dashboard__payment-bar-fill" 
+                     [style.width.%]="payment.percentage || 0"
+                     [class.dashboard__payment-bar-fill--cash]="payment.paymentMethod === 'Cash'"
+                     [class.dashboard__payment-bar-fill--paypal]="payment.paymentMethod === 'PayPal'">
+                </div>
+              </div>
+              <div class="dashboard__payment-details">
+                <span>{{ formatNumber(payment.orderCount) }} Orders</span>
+                <span class="dashboard__payment-amount">{{ formatCurrency(payment.totalAmount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancellation Statistics -->
+        <div class="dashboard__card" *ngIf="analytics.cancellationStatistics">
+          <h3 class="dashboard__card-title">Cancellation Statistics</h3>
+          <div class="dashboard__cancellation-stats">
+            <div class="dashboard__cancellation-item">
+              <div class="dashboard__cancellation-value">{{ formatNumber(analytics.cancellationStatistics.totalCancelledOrders) }}</div>
+              <div class="dashboard__cancellation-label">Cancelled Orders</div>
+            </div>
+            <div class="dashboard__cancellation-item">
+              <div class="dashboard__cancellation-value">{{ formatCurrency(analytics.cancellationStatistics.totalCancellationFees) }}</div>
+              <div class="dashboard__cancellation-label">Total Fees</div>
+            </div>
+            <div class="dashboard__cancellation-breakdown">
+              <div class="dashboard__cancellation-breakdown-item">
+                <span>Paid:</span>
+                <strong class="dashboard__cancellation-paid">{{ formatCurrency(analytics.cancellationStatistics.paidCancellationFees) }}</strong>
+              </div>
+              <div class="dashboard__cancellation-breakdown-item">
+                <span>Unpaid:</span>
+                <strong class="dashboard__cancellation-unpaid">{{ formatCurrency(analytics.cancellationStatistics.unpaidCancellationFees) }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders by State Chart -->
+        <div class="dashboard__card" *ngIf="analytics.ordersByState && analytics.ordersByState.length > 0">
+          <h3 class="dashboard__card-title">Orders by State</h3>
+          <div class="dashboard__state-chart">
+            <div *ngFor="let state of analytics.ordersByState" class="dashboard__state-item">
+              <div class="dashboard__state-header">
+                <span class="dashboard__state-name">{{ state.orderStateName }}</span>
+                <span class="dashboard__state-count">{{ formatNumber(state.count) }}</span>
+              </div>
+              <div class="dashboard__state-bar">
+                <div class="dashboard__state-bar-fill" 
+                     [style.width.%]="getStatePercentage(state.count)"
+                     [class]="'dashboard__state-bar-fill--' + state.orderStateName.toLowerCase()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="dashboard__section" *ngIf="analytics.topCategories && analytics.topCategories.length > 0">
+      <h2 class="dashboard__section-title">Top Performing Categories</h2>
+      <div class="dashboard__top-categories">
+        <div *ngFor="let category of analytics.topCategories; let i = index" class="dashboard__category-card">
+          <div class="dashboard__category-rank">#{{ i + 1 }}</div>
+          <div class="dashboard__category-content">
+            <h4 class="dashboard__category-name">{{ category.categoryName }}</h4>
+            <div class="dashboard__category-stats">
+              <div class="dashboard__category-stat">
+                <span class="dashboard__category-stat-label">Revenue:</span>
+                <span class="dashboard__category-stat-value">{{ formatCurrency(category.totalRevenue) }}</span>
+              </div>
+              <div class="dashboard__category-stat">
+                <span class="dashboard__category-stat-label">Orders:</span>
+                <span class="dashboard__category-stat-value">{{ formatNumber(category.orderCount) }}</span>
+              </div>
+              <div class="dashboard__category-stat">
+                <span class="dashboard__category-stat-label">Vehicles:</span>
+                <span class="dashboard__category-stat-value">{{ formatNumber(category.vehicleCount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="dashboard__section">
+      <h2 class="dashboard__section-title">Recent Orders</h2>
+      <div class="dashboard__table-card">
+        <div class="dashboard__table-container">
+          <table class="dashboard__table">
+            <thead>
+              <tr>
+                <th>Order Code</th>
+                <th>Customer</th>
+                <th>Sub Category</th>
+                <th>Amount</th>
+                <th>State</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of analytics.recentOrders" class="dashboard__table-row">
+                <td>
+                  <a [routerLink]="['/orders', order.orderId]" class="dashboard__order-link">{{ order.orderCode }}</a>
+                </td>
+                <td>{{ order.customerName }}</td>
+                <td>{{ order.subCategoryName }}</td>
+                <td class="dashboard__table-amount">{{ formatCurrency(order.orderTotal) }}</td>
+                <td>
+                  <span class="dashboard__badge" [ngClass]="getOrderStateClass(order.orderState)">
+                    {{ getOrderStateLabel(order.orderState) }}
+                  </span>
+                </td>
+                <td class="dashboard__table-date">{{ formatDate(order.createdDate) }}</td>
+              </tr>
+              <tr *ngIf="!analytics.recentOrders || analytics.recentOrders.length === 0">
+                <td colspan="6" class="dashboard__table-empty">No recent orders found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

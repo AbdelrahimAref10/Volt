@@ -485,6 +485,68 @@
         }
       }
     },
+    "/api/AdminDashboard/Analytics": {
+      "get": {
+        "tags": [
+          "AdminDashboard"
+        ],
+        "operationId": "AdminDashboard_GetDashboardAnalytics",
+        "parameters": [
+          {
+            "name": "recentOrdersCount",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "x-position": 1
+          },
+          {
+            "name": "topCategoriesCount",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "revenuePeriodsCount",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 6
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardAnalyticsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/AdminOrder": {
       "get": {
         "tags": [
@@ -3758,6 +3820,428 @@
           }
         }
       },
+      "AdminDashboardAnalyticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "overallStatistics": {
+            "$ref": "#/components/schemas/OverallStatisticsDto"
+          },
+          "orderStatistics": {
+            "$ref": "#/components/schemas/OrderStatisticsDto"
+          },
+          "revenueAnalytics": {
+            "$ref": "#/components/schemas/RevenueAnalyticsDto"
+          },
+          "vehicleStatistics": {
+            "$ref": "#/components/schemas/VehicleStatisticsDto"
+          },
+          "customerStatistics": {
+            "$ref": "#/components/schemas/CustomerStatisticsDto"
+          },
+          "treasuryBalance": {
+            "$ref": "#/components/schemas/TreasuryReportDto"
+          },
+          "cancellationStatistics": {
+            "$ref": "#/components/schemas/CancellationReportDto"
+          },
+          "paymentMethodBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMethodBreakdownDto"
+            }
+          },
+          "topCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopCategoryDto"
+            }
+          },
+          "recentOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecentOrderDto"
+            }
+          },
+          "ordersByState": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrdersByStateReportDto"
+            }
+          }
+        }
+      },
+      "OverallStatisticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalVehicles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCategories": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalSubCategories": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCities": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "pendingOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "availableVehicles": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrderStatisticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "confirmedOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "onWayOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerReceivedOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completedOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cancelledOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ordersToday": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ordersThisWeek": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ordersThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageOrderValue": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "RevenueAnalyticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "todayRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "thisWeekRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "thisMonthRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "thisQuarterRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "thisYearRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "revenueByPeriod": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevenueReportDto"
+            }
+          }
+        }
+      },
+      "RevenueReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageOrderValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "period": {
+            "type": "string"
+          }
+        }
+      },
+      "VehicleStatisticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalVehicles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "availableNow": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "underMaintenance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CustomerStatisticsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inactiveCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "blockedCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newCustomersToday": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newCustomersThisWeek": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newCustomersThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "individualCustomers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "institutionCustomers": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TreasuryReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalDebit": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalCredit": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CancellationReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCancelledOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "paidCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unpaidCancellationFees": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "PaymentMethodBreakdownDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "paymentMethod": {
+            "type": "string"
+          },
+          "orderCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "TopCategoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "orderCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "vehicleCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RecentOrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderCode": {
+            "type": "string"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "subCategoryName": {
+            "type": "string"
+          },
+          "orderTotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "orderState": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrdersByStateReportDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderState": {
+            "$ref": "#/components/schemas/OrderState"
+          },
+          "orderStateName": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrderState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Confirmed",
+          "OnWay",
+          "CustomerReceived",
+          "Completed"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
       "PagedResultOfOrderDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3891,24 +4375,6 @@
         "enum": [
           0,
           1
-        ]
-      },
-      "OrderState": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Pending",
-          "Confirmed",
-          "OnWay",
-          "CustomerReceived",
-          "Completed"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
         ]
       },
       "OrderDetailDto": {
@@ -4248,65 +4714,6 @@
           }
         }
       },
-      "OrdersByStateReportDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "orderState": {
-            "$ref": "#/components/schemas/OrderState"
-          },
-          "orderStateName": {
-            "type": "string"
-          },
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "RevenueReportDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalRevenue": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "totalOrders": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "averageOrderValue": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "period": {
-            "type": "string"
-          }
-        }
-      },
-      "CancellationReportDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalCancelledOrders": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCancellationFees": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "paidCancellationFees": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "unpaidCancellationFees": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
-      },
       "VehicleUtilizationReportDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4332,28 +4739,6 @@
           "utilizationPercentage": {
             "type": "number",
             "format": "decimal"
-          }
-        }
-      },
-      "TreasuryReportDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalDebit": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "totalCredit": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "balance": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "lastUpdated": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -5313,28 +5698,6 @@
           },
           "isNewThisMonth": {
             "type": "boolean"
-          }
-        }
-      },
-      "VehicleStatisticsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalVehicles": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "availableNow": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "underMaintenance": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "newThisMonth": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },

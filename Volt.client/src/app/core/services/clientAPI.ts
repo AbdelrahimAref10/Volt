@@ -655,6 +655,87 @@ export class AdminCustomerClient {
 @Injectable({
     providedIn: 'root'
 })
+export class AdminDashboardClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getDashboardAnalytics(recentOrdersCount?: number | undefined, topCategoriesCount?: number | undefined, revenuePeriodsCount?: number | undefined): Observable<AdminDashboardAnalyticsDto> {
+        let url_ = this.baseUrl + "/api/AdminDashboard/Analytics?";
+        if (recentOrdersCount === null)
+            throw new Error("The parameter 'recentOrdersCount' cannot be null.");
+        else if (recentOrdersCount !== undefined)
+            url_ += "recentOrdersCount=" + encodeURIComponent("" + recentOrdersCount) + "&";
+        if (topCategoriesCount === null)
+            throw new Error("The parameter 'topCategoriesCount' cannot be null.");
+        else if (topCategoriesCount !== undefined)
+            url_ += "topCategoriesCount=" + encodeURIComponent("" + topCategoriesCount) + "&";
+        if (revenuePeriodsCount === null)
+            throw new Error("The parameter 'revenuePeriodsCount' cannot be null.");
+        else if (revenuePeriodsCount !== undefined)
+            url_ += "revenuePeriodsCount=" + encodeURIComponent("" + revenuePeriodsCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDashboardAnalytics(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDashboardAnalytics(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AdminDashboardAnalyticsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AdminDashboardAnalyticsDto>;
+        }));
+    }
+
+    protected processGetDashboardAnalytics(response: HttpResponseBase): Observable<AdminDashboardAnalyticsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminDashboardAnalyticsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class AdminOrderClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -5336,6 +5417,578 @@ export class AdminCreateCustomerCommand {
     }
 }
 
+export class AdminDashboardAnalyticsDto {
+    overallStatistics!: OverallStatisticsDto;
+    orderStatistics!: OrderStatisticsDto;
+    revenueAnalytics!: RevenueAnalyticsDto;
+    vehicleStatistics!: VehicleStatisticsDto;
+    customerStatistics!: CustomerStatisticsDto;
+    treasuryBalance!: TreasuryReportDto;
+    cancellationStatistics!: CancellationReportDto;
+    paymentMethodBreakdown!: PaymentMethodBreakdownDto[];
+    topCategories!: TopCategoryDto[];
+    recentOrders!: RecentOrderDto[];
+    ordersByState!: OrdersByStateReportDto[];
+
+    init(_data?: any) {
+        if (_data) {
+            this.overallStatistics = _data["overallStatistics"] ? OverallStatisticsDto.fromJS(_data["overallStatistics"]) : <any>null;
+            this.orderStatistics = _data["orderStatistics"] ? OrderStatisticsDto.fromJS(_data["orderStatistics"]) : <any>null;
+            this.revenueAnalytics = _data["revenueAnalytics"] ? RevenueAnalyticsDto.fromJS(_data["revenueAnalytics"]) : <any>null;
+            this.vehicleStatistics = _data["vehicleStatistics"] ? VehicleStatisticsDto.fromJS(_data["vehicleStatistics"]) : <any>null;
+            this.customerStatistics = _data["customerStatistics"] ? CustomerStatisticsDto.fromJS(_data["customerStatistics"]) : <any>null;
+            this.treasuryBalance = _data["treasuryBalance"] ? TreasuryReportDto.fromJS(_data["treasuryBalance"]) : <any>null;
+            this.cancellationStatistics = _data["cancellationStatistics"] ? CancellationReportDto.fromJS(_data["cancellationStatistics"]) : <any>null;
+            if (Array.isArray(_data["paymentMethodBreakdown"])) {
+                this.paymentMethodBreakdown = [] as any;
+                for (let item of _data["paymentMethodBreakdown"])
+                    this.paymentMethodBreakdown!.push(PaymentMethodBreakdownDto.fromJS(item));
+            }
+            else {
+                this.paymentMethodBreakdown = <any>null;
+            }
+            if (Array.isArray(_data["topCategories"])) {
+                this.topCategories = [] as any;
+                for (let item of _data["topCategories"])
+                    this.topCategories!.push(TopCategoryDto.fromJS(item));
+            }
+            else {
+                this.topCategories = <any>null;
+            }
+            if (Array.isArray(_data["recentOrders"])) {
+                this.recentOrders = [] as any;
+                for (let item of _data["recentOrders"])
+                    this.recentOrders!.push(RecentOrderDto.fromJS(item));
+            }
+            else {
+                this.recentOrders = <any>null;
+            }
+            if (Array.isArray(_data["ordersByState"])) {
+                this.ordersByState = [] as any;
+                for (let item of _data["ordersByState"])
+                    this.ordersByState!.push(OrdersByStateReportDto.fromJS(item));
+            }
+            else {
+                this.ordersByState = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): AdminDashboardAnalyticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminDashboardAnalyticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["overallStatistics"] = this.overallStatistics ? this.overallStatistics.toJSON() : <any>null;
+        data["orderStatistics"] = this.orderStatistics ? this.orderStatistics.toJSON() : <any>null;
+        data["revenueAnalytics"] = this.revenueAnalytics ? this.revenueAnalytics.toJSON() : <any>null;
+        data["vehicleStatistics"] = this.vehicleStatistics ? this.vehicleStatistics.toJSON() : <any>null;
+        data["customerStatistics"] = this.customerStatistics ? this.customerStatistics.toJSON() : <any>null;
+        data["treasuryBalance"] = this.treasuryBalance ? this.treasuryBalance.toJSON() : <any>null;
+        data["cancellationStatistics"] = this.cancellationStatistics ? this.cancellationStatistics.toJSON() : <any>null;
+        if (Array.isArray(this.paymentMethodBreakdown)) {
+            data["paymentMethodBreakdown"] = [];
+            for (let item of this.paymentMethodBreakdown)
+                data["paymentMethodBreakdown"].push(item.toJSON());
+        }
+        if (Array.isArray(this.topCategories)) {
+            data["topCategories"] = [];
+            for (let item of this.topCategories)
+                data["topCategories"].push(item.toJSON());
+        }
+        if (Array.isArray(this.recentOrders)) {
+            data["recentOrders"] = [];
+            for (let item of this.recentOrders)
+                data["recentOrders"].push(item.toJSON());
+        }
+        if (Array.isArray(this.ordersByState)) {
+            data["ordersByState"] = [];
+            for (let item of this.ordersByState)
+                data["ordersByState"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export class OverallStatisticsDto {
+    totalOrders!: number;
+    totalCustomers!: number;
+    totalVehicles!: number;
+    totalCategories!: number;
+    totalSubCategories!: number;
+    totalCities!: number;
+    totalRevenue!: number;
+    pendingOrders!: number;
+    activeCustomers!: number;
+    availableVehicles!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalOrders = _data["totalOrders"] !== undefined ? _data["totalOrders"] : <any>null;
+            this.totalCustomers = _data["totalCustomers"] !== undefined ? _data["totalCustomers"] : <any>null;
+            this.totalVehicles = _data["totalVehicles"] !== undefined ? _data["totalVehicles"] : <any>null;
+            this.totalCategories = _data["totalCategories"] !== undefined ? _data["totalCategories"] : <any>null;
+            this.totalSubCategories = _data["totalSubCategories"] !== undefined ? _data["totalSubCategories"] : <any>null;
+            this.totalCities = _data["totalCities"] !== undefined ? _data["totalCities"] : <any>null;
+            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
+            this.pendingOrders = _data["pendingOrders"] !== undefined ? _data["pendingOrders"] : <any>null;
+            this.activeCustomers = _data["activeCustomers"] !== undefined ? _data["activeCustomers"] : <any>null;
+            this.availableVehicles = _data["availableVehicles"] !== undefined ? _data["availableVehicles"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): OverallStatisticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OverallStatisticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
+        data["totalCustomers"] = this.totalCustomers !== undefined ? this.totalCustomers : <any>null;
+        data["totalVehicles"] = this.totalVehicles !== undefined ? this.totalVehicles : <any>null;
+        data["totalCategories"] = this.totalCategories !== undefined ? this.totalCategories : <any>null;
+        data["totalSubCategories"] = this.totalSubCategories !== undefined ? this.totalSubCategories : <any>null;
+        data["totalCities"] = this.totalCities !== undefined ? this.totalCities : <any>null;
+        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
+        data["pendingOrders"] = this.pendingOrders !== undefined ? this.pendingOrders : <any>null;
+        data["activeCustomers"] = this.activeCustomers !== undefined ? this.activeCustomers : <any>null;
+        data["availableVehicles"] = this.availableVehicles !== undefined ? this.availableVehicles : <any>null;
+        return data;
+    }
+}
+
+export class OrderStatisticsDto {
+    totalOrders!: number;
+    pendingOrders!: number;
+    confirmedOrders!: number;
+    onWayOrders!: number;
+    customerReceivedOrders!: number;
+    completedOrders!: number;
+    cancelledOrders!: number;
+    ordersToday!: number;
+    ordersThisWeek!: number;
+    ordersThisMonth!: number;
+    averageOrderValue!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalOrders = _data["totalOrders"] !== undefined ? _data["totalOrders"] : <any>null;
+            this.pendingOrders = _data["pendingOrders"] !== undefined ? _data["pendingOrders"] : <any>null;
+            this.confirmedOrders = _data["confirmedOrders"] !== undefined ? _data["confirmedOrders"] : <any>null;
+            this.onWayOrders = _data["onWayOrders"] !== undefined ? _data["onWayOrders"] : <any>null;
+            this.customerReceivedOrders = _data["customerReceivedOrders"] !== undefined ? _data["customerReceivedOrders"] : <any>null;
+            this.completedOrders = _data["completedOrders"] !== undefined ? _data["completedOrders"] : <any>null;
+            this.cancelledOrders = _data["cancelledOrders"] !== undefined ? _data["cancelledOrders"] : <any>null;
+            this.ordersToday = _data["ordersToday"] !== undefined ? _data["ordersToday"] : <any>null;
+            this.ordersThisWeek = _data["ordersThisWeek"] !== undefined ? _data["ordersThisWeek"] : <any>null;
+            this.ordersThisMonth = _data["ordersThisMonth"] !== undefined ? _data["ordersThisMonth"] : <any>null;
+            this.averageOrderValue = _data["averageOrderValue"] !== undefined ? _data["averageOrderValue"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): OrderStatisticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderStatisticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
+        data["pendingOrders"] = this.pendingOrders !== undefined ? this.pendingOrders : <any>null;
+        data["confirmedOrders"] = this.confirmedOrders !== undefined ? this.confirmedOrders : <any>null;
+        data["onWayOrders"] = this.onWayOrders !== undefined ? this.onWayOrders : <any>null;
+        data["customerReceivedOrders"] = this.customerReceivedOrders !== undefined ? this.customerReceivedOrders : <any>null;
+        data["completedOrders"] = this.completedOrders !== undefined ? this.completedOrders : <any>null;
+        data["cancelledOrders"] = this.cancelledOrders !== undefined ? this.cancelledOrders : <any>null;
+        data["ordersToday"] = this.ordersToday !== undefined ? this.ordersToday : <any>null;
+        data["ordersThisWeek"] = this.ordersThisWeek !== undefined ? this.ordersThisWeek : <any>null;
+        data["ordersThisMonth"] = this.ordersThisMonth !== undefined ? this.ordersThisMonth : <any>null;
+        data["averageOrderValue"] = this.averageOrderValue !== undefined ? this.averageOrderValue : <any>null;
+        return data;
+    }
+}
+
+export class RevenueAnalyticsDto {
+    todayRevenue!: number;
+    thisWeekRevenue!: number;
+    thisMonthRevenue!: number;
+    thisQuarterRevenue!: number;
+    thisYearRevenue!: number;
+    totalRevenue!: number;
+    revenueByPeriod!: RevenueReportDto[];
+
+    init(_data?: any) {
+        if (_data) {
+            this.todayRevenue = _data["todayRevenue"] !== undefined ? _data["todayRevenue"] : <any>null;
+            this.thisWeekRevenue = _data["thisWeekRevenue"] !== undefined ? _data["thisWeekRevenue"] : <any>null;
+            this.thisMonthRevenue = _data["thisMonthRevenue"] !== undefined ? _data["thisMonthRevenue"] : <any>null;
+            this.thisQuarterRevenue = _data["thisQuarterRevenue"] !== undefined ? _data["thisQuarterRevenue"] : <any>null;
+            this.thisYearRevenue = _data["thisYearRevenue"] !== undefined ? _data["thisYearRevenue"] : <any>null;
+            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
+            if (Array.isArray(_data["revenueByPeriod"])) {
+                this.revenueByPeriod = [] as any;
+                for (let item of _data["revenueByPeriod"])
+                    this.revenueByPeriod!.push(RevenueReportDto.fromJS(item));
+            }
+            else {
+                this.revenueByPeriod = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): RevenueAnalyticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueAnalyticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["todayRevenue"] = this.todayRevenue !== undefined ? this.todayRevenue : <any>null;
+        data["thisWeekRevenue"] = this.thisWeekRevenue !== undefined ? this.thisWeekRevenue : <any>null;
+        data["thisMonthRevenue"] = this.thisMonthRevenue !== undefined ? this.thisMonthRevenue : <any>null;
+        data["thisQuarterRevenue"] = this.thisQuarterRevenue !== undefined ? this.thisQuarterRevenue : <any>null;
+        data["thisYearRevenue"] = this.thisYearRevenue !== undefined ? this.thisYearRevenue : <any>null;
+        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
+        if (Array.isArray(this.revenueByPeriod)) {
+            data["revenueByPeriod"] = [];
+            for (let item of this.revenueByPeriod)
+                data["revenueByPeriod"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export class RevenueReportDto {
+    totalRevenue!: number;
+    totalOrders!: number;
+    averageOrderValue!: number;
+    period!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
+            this.totalOrders = _data["totalOrders"] !== undefined ? _data["totalOrders"] : <any>null;
+            this.averageOrderValue = _data["averageOrderValue"] !== undefined ? _data["averageOrderValue"] : <any>null;
+            this.period = _data["period"] !== undefined ? _data["period"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): RevenueReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
+        data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
+        data["averageOrderValue"] = this.averageOrderValue !== undefined ? this.averageOrderValue : <any>null;
+        data["period"] = this.period !== undefined ? this.period : <any>null;
+        return data;
+    }
+}
+
+export class VehicleStatisticsDto {
+    totalVehicles!: number;
+    availableNow!: number;
+    underMaintenance!: number;
+    newThisMonth!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalVehicles = _data["totalVehicles"] !== undefined ? _data["totalVehicles"] : <any>null;
+            this.availableNow = _data["availableNow"] !== undefined ? _data["availableNow"] : <any>null;
+            this.underMaintenance = _data["underMaintenance"] !== undefined ? _data["underMaintenance"] : <any>null;
+            this.newThisMonth = _data["newThisMonth"] !== undefined ? _data["newThisMonth"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): VehicleStatisticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new VehicleStatisticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalVehicles"] = this.totalVehicles !== undefined ? this.totalVehicles : <any>null;
+        data["availableNow"] = this.availableNow !== undefined ? this.availableNow : <any>null;
+        data["underMaintenance"] = this.underMaintenance !== undefined ? this.underMaintenance : <any>null;
+        data["newThisMonth"] = this.newThisMonth !== undefined ? this.newThisMonth : <any>null;
+        return data;
+    }
+}
+
+export class CustomerStatisticsDto {
+    totalCustomers!: number;
+    activeCustomers!: number;
+    inactiveCustomers!: number;
+    blockedCustomers!: number;
+    newCustomersToday!: number;
+    newCustomersThisWeek!: number;
+    newCustomersThisMonth!: number;
+    individualCustomers!: number;
+    institutionCustomers!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCustomers = _data["totalCustomers"] !== undefined ? _data["totalCustomers"] : <any>null;
+            this.activeCustomers = _data["activeCustomers"] !== undefined ? _data["activeCustomers"] : <any>null;
+            this.inactiveCustomers = _data["inactiveCustomers"] !== undefined ? _data["inactiveCustomers"] : <any>null;
+            this.blockedCustomers = _data["blockedCustomers"] !== undefined ? _data["blockedCustomers"] : <any>null;
+            this.newCustomersToday = _data["newCustomersToday"] !== undefined ? _data["newCustomersToday"] : <any>null;
+            this.newCustomersThisWeek = _data["newCustomersThisWeek"] !== undefined ? _data["newCustomersThisWeek"] : <any>null;
+            this.newCustomersThisMonth = _data["newCustomersThisMonth"] !== undefined ? _data["newCustomersThisMonth"] : <any>null;
+            this.individualCustomers = _data["individualCustomers"] !== undefined ? _data["individualCustomers"] : <any>null;
+            this.institutionCustomers = _data["institutionCustomers"] !== undefined ? _data["institutionCustomers"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CustomerStatisticsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerStatisticsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCustomers"] = this.totalCustomers !== undefined ? this.totalCustomers : <any>null;
+        data["activeCustomers"] = this.activeCustomers !== undefined ? this.activeCustomers : <any>null;
+        data["inactiveCustomers"] = this.inactiveCustomers !== undefined ? this.inactiveCustomers : <any>null;
+        data["blockedCustomers"] = this.blockedCustomers !== undefined ? this.blockedCustomers : <any>null;
+        data["newCustomersToday"] = this.newCustomersToday !== undefined ? this.newCustomersToday : <any>null;
+        data["newCustomersThisWeek"] = this.newCustomersThisWeek !== undefined ? this.newCustomersThisWeek : <any>null;
+        data["newCustomersThisMonth"] = this.newCustomersThisMonth !== undefined ? this.newCustomersThisMonth : <any>null;
+        data["individualCustomers"] = this.individualCustomers !== undefined ? this.individualCustomers : <any>null;
+        data["institutionCustomers"] = this.institutionCustomers !== undefined ? this.institutionCustomers : <any>null;
+        return data;
+    }
+}
+
+export class TreasuryReportDto {
+    totalDebit!: number;
+    totalCredit!: number;
+    balance!: number;
+    lastUpdated!: Date;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalDebit = _data["totalDebit"] !== undefined ? _data["totalDebit"] : <any>null;
+            this.totalCredit = _data["totalCredit"] !== undefined ? _data["totalCredit"] : <any>null;
+            this.balance = _data["balance"] !== undefined ? _data["balance"] : <any>null;
+            this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): TreasuryReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TreasuryReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalDebit"] = this.totalDebit !== undefined ? this.totalDebit : <any>null;
+        data["totalCredit"] = this.totalCredit !== undefined ? this.totalCredit : <any>null;
+        data["balance"] = this.balance !== undefined ? this.balance : <any>null;
+        data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>null;
+        return data;
+    }
+}
+
+export class CancellationReportDto {
+    totalCancelledOrders!: number;
+    totalCancellationFees!: number;
+    paidCancellationFees!: number;
+    unpaidCancellationFees!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCancelledOrders = _data["totalCancelledOrders"] !== undefined ? _data["totalCancelledOrders"] : <any>null;
+            this.totalCancellationFees = _data["totalCancellationFees"] !== undefined ? _data["totalCancellationFees"] : <any>null;
+            this.paidCancellationFees = _data["paidCancellationFees"] !== undefined ? _data["paidCancellationFees"] : <any>null;
+            this.unpaidCancellationFees = _data["unpaidCancellationFees"] !== undefined ? _data["unpaidCancellationFees"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CancellationReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancellationReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCancelledOrders"] = this.totalCancelledOrders !== undefined ? this.totalCancelledOrders : <any>null;
+        data["totalCancellationFees"] = this.totalCancellationFees !== undefined ? this.totalCancellationFees : <any>null;
+        data["paidCancellationFees"] = this.paidCancellationFees !== undefined ? this.paidCancellationFees : <any>null;
+        data["unpaidCancellationFees"] = this.unpaidCancellationFees !== undefined ? this.unpaidCancellationFees : <any>null;
+        return data;
+    }
+}
+
+export class PaymentMethodBreakdownDto {
+    paymentMethod!: string;
+    orderCount!: number;
+    totalAmount!: number;
+    percentage!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.paymentMethod = _data["paymentMethod"] !== undefined ? _data["paymentMethod"] : <any>null;
+            this.orderCount = _data["orderCount"] !== undefined ? _data["orderCount"] : <any>null;
+            this.totalAmount = _data["totalAmount"] !== undefined ? _data["totalAmount"] : <any>null;
+            this.percentage = _data["percentage"] !== undefined ? _data["percentage"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): PaymentMethodBreakdownDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaymentMethodBreakdownDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["paymentMethod"] = this.paymentMethod !== undefined ? this.paymentMethod : <any>null;
+        data["orderCount"] = this.orderCount !== undefined ? this.orderCount : <any>null;
+        data["totalAmount"] = this.totalAmount !== undefined ? this.totalAmount : <any>null;
+        data["percentage"] = this.percentage !== undefined ? this.percentage : <any>null;
+        return data;
+    }
+}
+
+export class TopCategoryDto {
+    categoryId!: number;
+    categoryName!: string;
+    orderCount!: number;
+    totalRevenue!: number;
+    vehicleCount!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.categoryId = _data["categoryId"] !== undefined ? _data["categoryId"] : <any>null;
+            this.categoryName = _data["categoryName"] !== undefined ? _data["categoryName"] : <any>null;
+            this.orderCount = _data["orderCount"] !== undefined ? _data["orderCount"] : <any>null;
+            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
+            this.vehicleCount = _data["vehicleCount"] !== undefined ? _data["vehicleCount"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): TopCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TopCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["categoryId"] = this.categoryId !== undefined ? this.categoryId : <any>null;
+        data["categoryName"] = this.categoryName !== undefined ? this.categoryName : <any>null;
+        data["orderCount"] = this.orderCount !== undefined ? this.orderCount : <any>null;
+        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
+        data["vehicleCount"] = this.vehicleCount !== undefined ? this.vehicleCount : <any>null;
+        return data;
+    }
+}
+
+export class RecentOrderDto {
+    orderId!: number;
+    orderCode!: string;
+    customerName!: string;
+    subCategoryName!: string;
+    orderTotal!: number;
+    orderState!: string;
+    createdDate!: Date;
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
+            this.orderCode = _data["orderCode"] !== undefined ? _data["orderCode"] : <any>null;
+            this.customerName = _data["customerName"] !== undefined ? _data["customerName"] : <any>null;
+            this.subCategoryName = _data["subCategoryName"] !== undefined ? _data["subCategoryName"] : <any>null;
+            this.orderTotal = _data["orderTotal"] !== undefined ? _data["orderTotal"] : <any>null;
+            this.orderState = _data["orderState"] !== undefined ? _data["orderState"] : <any>null;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): RecentOrderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RecentOrderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
+        data["orderCode"] = this.orderCode !== undefined ? this.orderCode : <any>null;
+        data["customerName"] = this.customerName !== undefined ? this.customerName : <any>null;
+        data["subCategoryName"] = this.subCategoryName !== undefined ? this.subCategoryName : <any>null;
+        data["orderTotal"] = this.orderTotal !== undefined ? this.orderTotal : <any>null;
+        data["orderState"] = this.orderState !== undefined ? this.orderState : <any>null;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
+        return data;
+    }
+}
+
+export class OrdersByStateReportDto {
+    orderState!: OrderState;
+    orderStateName!: string;
+    count!: number;
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderState = _data["orderState"] !== undefined ? _data["orderState"] : <any>null;
+            this.orderStateName = _data["orderStateName"] !== undefined ? _data["orderStateName"] : <any>null;
+            this.count = _data["count"] !== undefined ? _data["count"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): OrdersByStateReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrdersByStateReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderState"] = this.orderState !== undefined ? this.orderState : <any>null;
+        data["orderStateName"] = this.orderStateName !== undefined ? this.orderStateName : <any>null;
+        data["count"] = this.count !== undefined ? this.count : <any>null;
+        return data;
+    }
+}
+
+export enum OrderState {
+    Pending = 0,
+    Confirmed = 1,
+    OnWay = 2,
+    CustomerReceived = 3,
+    Completed = 4,
+}
+
 export class PagedResultOfOrderDto {
     items!: OrderDto[];
     totalCount!: number;
@@ -5480,14 +6133,6 @@ export class OrderDto {
 export enum PaymentMethod {
     Cash = 0,
     PayPal = 1,
-}
-
-export enum OrderState {
-    Pending = 0,
-    Confirmed = 1,
-    OnWay = 2,
-    CustomerReceived = 3,
-    Completed = 4,
 }
 
 export class OrderDetailDto {
@@ -5870,99 +6515,6 @@ export class UpdateOrderStateCommand {
     }
 }
 
-export class OrdersByStateReportDto {
-    orderState!: OrderState;
-    orderStateName!: string;
-    count!: number;
-
-    init(_data?: any) {
-        if (_data) {
-            this.orderState = _data["orderState"] !== undefined ? _data["orderState"] : <any>null;
-            this.orderStateName = _data["orderStateName"] !== undefined ? _data["orderStateName"] : <any>null;
-            this.count = _data["count"] !== undefined ? _data["count"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): OrdersByStateReportDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new OrdersByStateReportDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["orderState"] = this.orderState !== undefined ? this.orderState : <any>null;
-        data["orderStateName"] = this.orderStateName !== undefined ? this.orderStateName : <any>null;
-        data["count"] = this.count !== undefined ? this.count : <any>null;
-        return data;
-    }
-}
-
-export class RevenueReportDto {
-    totalRevenue!: number;
-    totalOrders!: number;
-    averageOrderValue!: number;
-    period!: string;
-
-    init(_data?: any) {
-        if (_data) {
-            this.totalRevenue = _data["totalRevenue"] !== undefined ? _data["totalRevenue"] : <any>null;
-            this.totalOrders = _data["totalOrders"] !== undefined ? _data["totalOrders"] : <any>null;
-            this.averageOrderValue = _data["averageOrderValue"] !== undefined ? _data["averageOrderValue"] : <any>null;
-            this.period = _data["period"] !== undefined ? _data["period"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): RevenueReportDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RevenueReportDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["totalRevenue"] = this.totalRevenue !== undefined ? this.totalRevenue : <any>null;
-        data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
-        data["averageOrderValue"] = this.averageOrderValue !== undefined ? this.averageOrderValue : <any>null;
-        data["period"] = this.period !== undefined ? this.period : <any>null;
-        return data;
-    }
-}
-
-export class CancellationReportDto {
-    totalCancelledOrders!: number;
-    totalCancellationFees!: number;
-    paidCancellationFees!: number;
-    unpaidCancellationFees!: number;
-
-    init(_data?: any) {
-        if (_data) {
-            this.totalCancelledOrders = _data["totalCancelledOrders"] !== undefined ? _data["totalCancelledOrders"] : <any>null;
-            this.totalCancellationFees = _data["totalCancellationFees"] !== undefined ? _data["totalCancellationFees"] : <any>null;
-            this.paidCancellationFees = _data["paidCancellationFees"] !== undefined ? _data["paidCancellationFees"] : <any>null;
-            this.unpaidCancellationFees = _data["unpaidCancellationFees"] !== undefined ? _data["unpaidCancellationFees"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): CancellationReportDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CancellationReportDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["totalCancelledOrders"] = this.totalCancelledOrders !== undefined ? this.totalCancelledOrders : <any>null;
-        data["totalCancellationFees"] = this.totalCancellationFees !== undefined ? this.totalCancellationFees : <any>null;
-        data["paidCancellationFees"] = this.paidCancellationFees !== undefined ? this.paidCancellationFees : <any>null;
-        data["unpaidCancellationFees"] = this.unpaidCancellationFees !== undefined ? this.unpaidCancellationFees : <any>null;
-        return data;
-    }
-}
-
 export class VehicleUtilizationReportDto {
     vehicleId!: number;
     vehicleName!: string;
@@ -5997,38 +6549,6 @@ export class VehicleUtilizationReportDto {
         data["totalDaysBooked"] = this.totalDaysBooked !== undefined ? this.totalDaysBooked : <any>null;
         data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
         data["utilizationPercentage"] = this.utilizationPercentage !== undefined ? this.utilizationPercentage : <any>null;
-        return data;
-    }
-}
-
-export class TreasuryReportDto {
-    totalDebit!: number;
-    totalCredit!: number;
-    balance!: number;
-    lastUpdated!: Date;
-
-    init(_data?: any) {
-        if (_data) {
-            this.totalDebit = _data["totalDebit"] !== undefined ? _data["totalDebit"] : <any>null;
-            this.totalCredit = _data["totalCredit"] !== undefined ? _data["totalCredit"] : <any>null;
-            this.balance = _data["balance"] !== undefined ? _data["balance"] : <any>null;
-            this.lastUpdated = _data["lastUpdated"] ? new Date(_data["lastUpdated"].toString()) : <any>null;
-        }
-    }
-
-    static fromJS(data: any): TreasuryReportDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TreasuryReportDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["totalDebit"] = this.totalDebit !== undefined ? this.totalDebit : <any>null;
-        data["totalCredit"] = this.totalCredit !== undefined ? this.totalCredit : <any>null;
-        data["balance"] = this.balance !== undefined ? this.balance : <any>null;
-        data["lastUpdated"] = this.lastUpdated ? this.lastUpdated.toISOString() : <any>null;
         return data;
     }
 }
@@ -7460,38 +7980,6 @@ export class VehicleDto {
         data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
         data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
         data["isNewThisMonth"] = this.isNewThisMonth !== undefined ? this.isNewThisMonth : <any>null;
-        return data;
-    }
-}
-
-export class VehicleStatisticsDto {
-    totalVehicles!: number;
-    availableNow!: number;
-    underMaintenance!: number;
-    newThisMonth!: number;
-
-    init(_data?: any) {
-        if (_data) {
-            this.totalVehicles = _data["totalVehicles"] !== undefined ? _data["totalVehicles"] : <any>null;
-            this.availableNow = _data["availableNow"] !== undefined ? _data["availableNow"] : <any>null;
-            this.underMaintenance = _data["underMaintenance"] !== undefined ? _data["underMaintenance"] : <any>null;
-            this.newThisMonth = _data["newThisMonth"] !== undefined ? _data["newThisMonth"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): VehicleStatisticsDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new VehicleStatisticsDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["totalVehicles"] = this.totalVehicles !== undefined ? this.totalVehicles : <any>null;
-        data["availableNow"] = this.availableNow !== undefined ? this.availableNow : <any>null;
-        data["underMaintenance"] = this.underMaintenance !== undefined ? this.underMaintenance : <any>null;
-        data["newThisMonth"] = this.newThisMonth !== undefined ? this.newThisMonth : <any>null;
         return data;
     }
 }

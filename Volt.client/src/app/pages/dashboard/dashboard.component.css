@@ -1,0 +1,650 @@
+/* Dashboard Component - Modern Analytics Design */
+
+.dashboard {
+  @apply p-6 bg-neutral-50 min-h-screen;
+}
+
+/* Header */
+.dashboard__header {
+  @apply mb-8 flex items-center justify-between;
+}
+
+.dashboard__title {
+  @apply text-4xl font-bold text-neutral-900 mb-2;
+}
+
+.dashboard__subtitle {
+  @apply text-neutral-600 text-base;
+}
+
+.dashboard__refresh-btn {
+  @apply flex items-center gap-2 px-5 py-3 bg-white text-neutral-700 rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-sm;
+}
+
+.dashboard__refresh-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.dashboard__refresh-icon {
+  @apply w-5 h-5;
+}
+
+/* Messages */
+.dashboard__message {
+  @apply flex items-center gap-3 p-4 rounded-xl mb-6 shadow-sm;
+}
+
+.dashboard__message--error {
+  @apply bg-error-50 border border-error-200 text-error-700;
+}
+
+.dashboard__message-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Loading */
+.dashboard__loading {
+  @apply flex flex-col items-center justify-center py-20;
+}
+
+.dashboard__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin mb-4;
+}
+
+.dashboard__loading-text {
+  @apply text-neutral-600 text-lg;
+}
+
+/* Content */
+.dashboard__content {
+  @apply space-y-8;
+}
+
+.dashboard__section {
+  @apply mb-8;
+}
+
+.dashboard__section-title {
+  @apply text-2xl font-bold text-neutral-900 mb-6;
+}
+
+/* Overall Statistics Grid */
+.dashboard__stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.dashboard__stat-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow;
+  @apply flex items-start gap-4;
+}
+
+.dashboard__stat-card--primary {
+  @apply border-l-4 border-l-primary-500;
+}
+
+.dashboard__stat-card--success {
+  @apply border-l-4 border-l-success-500;
+}
+
+.dashboard__stat-card--info {
+  @apply border-l-4 border-l-info-500;
+}
+
+.dashboard__stat-card--warning {
+  @apply border-l-4 border-l-warning-500;
+}
+
+.dashboard__stat-icon {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0;
+}
+
+.dashboard__stat-card--primary .dashboard__stat-icon {
+  @apply bg-primary-100 text-primary-600;
+}
+
+.dashboard__stat-card--success .dashboard__stat-icon {
+  @apply bg-success-100 text-success-600;
+}
+
+.dashboard__stat-card--info .dashboard__stat-icon {
+  @apply bg-info-100 text-info-600;
+}
+
+.dashboard__stat-card--warning .dashboard__stat-icon {
+  @apply bg-warning-100 text-warning-600;
+}
+
+.dashboard__stat-card:not(.dashboard__stat-card--primary):not(.dashboard__stat-card--success):not(.dashboard__stat-card--info):not(.dashboard__stat-card--warning) .dashboard__stat-icon {
+  @apply bg-neutral-100 text-neutral-600;
+}
+
+.dashboard__stat-icon svg {
+  @apply w-6 h-6;
+}
+
+.dashboard__stat-content {
+  @apply flex-1;
+}
+
+.dashboard__stat-value {
+  @apply text-3xl font-bold text-neutral-900 mb-1;
+}
+
+.dashboard__stat-label {
+  @apply text-sm font-medium text-neutral-700 mb-1;
+}
+
+.dashboard__stat-sublabel {
+  @apply text-xs text-neutral-500;
+}
+
+/* Revenue Analytics */
+.dashboard__revenue-grid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6;
+}
+
+.dashboard__revenue-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-4 shadow-sm text-center;
+}
+
+.dashboard__revenue-card--total {
+  @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white border-primary-600;
+}
+
+.dashboard__revenue-label {
+  @apply text-xs font-medium text-neutral-600 mb-2;
+}
+
+.dashboard__revenue-card--total .dashboard__revenue-label {
+  @apply text-primary-100;
+}
+
+.dashboard__revenue-value {
+  @apply text-xl font-bold text-neutral-900;
+}
+
+.dashboard__revenue-card--total .dashboard__revenue-value {
+  @apply text-white;
+}
+
+/* Revenue Chart */
+.dashboard__chart-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-6 shadow-sm;
+}
+
+.dashboard__chart-title {
+  @apply text-lg font-semibold text-neutral-900 mb-4;
+}
+
+.dashboard__chart-container {
+  @apply mt-4;
+}
+
+.dashboard__chart-bars {
+  @apply flex items-end justify-between gap-4 h-64;
+}
+
+.dashboard__chart-bar-wrapper {
+  @apply flex-1 flex flex-col items-center gap-2;
+}
+
+.dashboard__chart-bar {
+  @apply w-full bg-gradient-to-t from-primary-500 to-primary-400 rounded-t-lg min-h-[20px] transition-all duration-300 hover:opacity-80 cursor-pointer;
+}
+
+.dashboard__chart-label {
+  @apply text-xs text-neutral-600 text-center mt-2;
+}
+
+.dashboard__chart-value {
+  @apply text-xs font-medium text-neutral-700 text-center;
+}
+
+/* Order Statistics */
+.dashboard__order-stats {
+  @apply grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6;
+}
+
+.dashboard__order-stat-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-4 text-center shadow-sm;
+}
+
+.dashboard__order-stat-card--pending {
+  @apply border-l-4 border-l-warning-500;
+}
+
+.dashboard__order-stat-card--confirmed {
+  @apply border-l-4 border-l-primary-500;
+}
+
+.dashboard__order-stat-card--onway {
+  @apply border-l-4 border-l-info-500;
+}
+
+.dashboard__order-stat-card--received {
+  @apply border-l-4 border-l-purple-500;
+}
+
+.dashboard__order-stat-card--completed {
+  @apply border-l-4 border-l-success-500;
+}
+
+.dashboard__order-stat-card--cancelled {
+  @apply border-l-4 border-l-error-500;
+}
+
+.dashboard__order-stat-value {
+  @apply text-2xl font-bold text-neutral-900 mb-1;
+}
+
+.dashboard__order-stat-label {
+  @apply text-xs text-neutral-600;
+}
+
+/* Time Statistics */
+.dashboard__time-stats {
+  @apply grid grid-cols-3 gap-4;
+}
+
+.dashboard__time-stat {
+  @apply bg-white rounded-xl border border-neutral-200 p-4 text-center shadow-sm;
+}
+
+.dashboard__time-stat-value {
+  @apply text-2xl font-bold text-primary-600 mb-1;
+}
+
+.dashboard__time-stat-label {
+  @apply text-sm text-neutral-600;
+}
+
+/* Two Column Layout */
+.dashboard__two-column {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+.dashboard__column {
+  @apply space-y-6;
+}
+
+/* Card */
+.dashboard__card {
+  @apply bg-white rounded-xl border border-neutral-200 p-6 shadow-sm;
+}
+
+.dashboard__card--treasury {
+  @apply bg-gradient-to-br from-success-50 to-success-100 border-success-200;
+}
+
+.dashboard__card-title {
+  @apply text-lg font-semibold text-neutral-900 mb-4 pb-3 border-b border-neutral-200;
+}
+
+/* Customer Statistics */
+.dashboard__customer-stats {
+  @apply grid grid-cols-2 gap-4 mb-4;
+}
+
+.dashboard__customer-stat {
+  @apply text-center p-3 bg-neutral-50 rounded-lg;
+}
+
+.dashboard__customer-stat-value {
+  @apply text-2xl font-bold text-neutral-900 mb-1;
+}
+
+.dashboard__customer-stat-label {
+  @apply text-sm text-neutral-600;
+}
+
+.dashboard__customer-breakdown {
+  @apply flex gap-4 mb-4 p-3 bg-neutral-50 rounded-lg;
+}
+
+.dashboard__breakdown-item {
+  @apply flex-1 flex justify-between items-center;
+}
+
+.dashboard__breakdown-label {
+  @apply text-sm text-neutral-600;
+}
+
+.dashboard__breakdown-value {
+  @apply text-sm font-semibold text-neutral-900;
+}
+
+.dashboard__new-customers {
+  @apply grid grid-cols-3 gap-2;
+}
+
+.dashboard__new-customer-item {
+  @apply flex justify-between items-center p-2 bg-primary-50 rounded-lg text-sm;
+}
+
+.dashboard__new-customer-item strong {
+  @apply text-primary-700 font-semibold;
+}
+
+/* Vehicle Statistics */
+.dashboard__vehicle-stats {
+  @apply grid grid-cols-2 gap-4;
+}
+
+.dashboard__vehicle-stat {
+  @apply text-center p-4 bg-neutral-50 rounded-lg;
+}
+
+.dashboard__vehicle-stat-value {
+  @apply text-2xl font-bold text-neutral-900 mb-1;
+}
+
+.dashboard__vehicle-stat-label {
+  @apply text-sm text-neutral-600;
+}
+
+/* Treasury */
+.dashboard__treasury-content {
+  @apply space-y-4;
+}
+
+.dashboard__treasury-main {
+  @apply text-center;
+}
+
+.dashboard__treasury-label {
+  @apply text-sm text-neutral-600 mb-2;
+}
+
+.dashboard__treasury-value {
+  @apply text-4xl font-bold text-success-700;
+}
+
+.dashboard__treasury-breakdown {
+  @apply space-y-2 pt-4 border-t border-success-200;
+}
+
+.dashboard__treasury-item {
+  @apply flex justify-between items-center;
+}
+
+.dashboard__treasury-item-label {
+  @apply text-sm text-neutral-700;
+}
+
+.dashboard__treasury-item-value {
+  @apply text-sm font-semibold;
+}
+
+.dashboard__treasury-item-value--debit {
+  @apply text-error-600;
+}
+
+.dashboard__treasury-item-value--credit {
+  @apply text-success-600;
+}
+
+/* Payment Breakdown */
+.dashboard__payment-breakdown {
+  @apply space-y-4;
+}
+
+.dashboard__payment-item {
+  @apply space-y-2;
+}
+
+.dashboard__payment-header {
+  @apply flex justify-between items-center;
+}
+
+.dashboard__payment-method {
+  @apply text-sm font-medium text-neutral-700;
+}
+
+.dashboard__payment-percentage {
+  @apply text-sm font-semibold text-primary-600;
+}
+
+.dashboard__payment-bar {
+  @apply h-3 bg-neutral-200 rounded-full overflow-hidden;
+}
+
+.dashboard__payment-bar-fill {
+  @apply h-full rounded-full transition-all duration-300;
+}
+
+.dashboard__payment-bar-fill--cash {
+  @apply bg-gradient-to-r from-success-400 to-success-500;
+}
+
+.dashboard__payment-bar-fill--paypal {
+  @apply bg-gradient-to-r from-primary-400 to-primary-500;
+}
+
+.dashboard__payment-details {
+  @apply flex justify-between items-center text-xs text-neutral-600;
+}
+
+.dashboard__payment-amount {
+  @apply font-semibold text-neutral-900;
+}
+
+/* Cancellation Statistics */
+.dashboard__cancellation-stats {
+  @apply space-y-4;
+}
+
+.dashboard__cancellation-item {
+  @apply text-center p-3 bg-neutral-50 rounded-lg;
+}
+
+.dashboard__cancellation-value {
+  @apply text-2xl font-bold text-neutral-900 mb-1;
+}
+
+.dashboard__cancellation-label {
+  @apply text-sm text-neutral-600;
+}
+
+.dashboard__cancellation-breakdown {
+  @apply grid grid-cols-2 gap-2 pt-4 border-t border-neutral-200;
+}
+
+.dashboard__cancellation-breakdown-item {
+  @apply flex justify-between items-center p-2 bg-neutral-50 rounded-lg text-sm;
+}
+
+.dashboard__cancellation-paid {
+  @apply text-success-600 font-semibold;
+}
+
+.dashboard__cancellation-unpaid {
+  @apply text-warning-600 font-semibold;
+}
+
+/* Orders by State Chart */
+.dashboard__state-chart {
+  @apply space-y-3;
+}
+
+.dashboard__state-item {
+  @apply space-y-2;
+}
+
+.dashboard__state-header {
+  @apply flex justify-between items-center text-sm;
+}
+
+.dashboard__state-name {
+  @apply font-medium text-neutral-700 capitalize;
+}
+
+.dashboard__state-count {
+  @apply font-semibold text-neutral-900;
+}
+
+.dashboard__state-bar {
+  @apply h-2 bg-neutral-200 rounded-full overflow-hidden;
+}
+
+.dashboard__state-bar-fill {
+  @apply h-full rounded-full transition-all duration-300;
+}
+
+.dashboard__state-bar-fill--pending {
+  @apply bg-warning-500;
+}
+
+.dashboard__state-bar-fill--confirmed {
+  @apply bg-primary-500;
+}
+
+.dashboard__state-bar-fill--onway {
+  @apply bg-info-500;
+}
+
+.dashboard__state-bar-fill--customerreceived {
+  @apply bg-purple-500;
+}
+
+.dashboard__state-bar-fill--completed {
+  @apply bg-success-500;
+}
+
+/* Top Categories */
+.dashboard__top-categories {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.dashboard__category-card {
+  @apply bg-white rounded-xl border border-neutral-200 p-4 shadow-sm hover:shadow-md transition-shadow;
+  @apply flex items-start gap-4;
+}
+
+.dashboard__category-rank {
+  @apply w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg flex-shrink-0;
+}
+
+.dashboard__category-content {
+  @apply flex-1;
+}
+
+.dashboard__category-name {
+  @apply text-lg font-semibold text-neutral-900 mb-3;
+}
+
+.dashboard__category-stats {
+  @apply space-y-2;
+}
+
+.dashboard__category-stat {
+  @apply flex justify-between items-center text-sm;
+}
+
+.dashboard__category-stat-label {
+  @apply text-neutral-600;
+}
+
+.dashboard__category-stat-value {
+  @apply font-semibold text-neutral-900;
+}
+
+/* Recent Orders Table */
+.dashboard__table-card {
+  @apply bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden;
+}
+
+.dashboard__table-container {
+  @apply overflow-x-auto;
+}
+
+.dashboard__table {
+  @apply w-full;
+}
+
+.dashboard__table thead {
+  @apply bg-neutral-50 border-b border-neutral-200;
+}
+
+.dashboard__table th {
+  @apply px-6 py-3 text-left text-xs font-semibold text-neutral-700 uppercase tracking-wider;
+}
+
+.dashboard__table tbody {
+  @apply bg-white divide-y divide-neutral-200;
+}
+
+.dashboard__table-row {
+  @apply hover:bg-neutral-50 transition-colors;
+}
+
+.dashboard__table-row td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-neutral-900;
+}
+
+.dashboard__order-link {
+  @apply text-primary-600 hover:text-primary-700 font-medium;
+}
+
+.dashboard__table-amount {
+  @apply font-semibold;
+}
+
+.dashboard__table-date {
+  @apply text-neutral-600;
+}
+
+.dashboard__table-empty {
+  @apply px-6 py-8 text-center text-neutral-500;
+}
+
+/* Badges */
+.dashboard__badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.dashboard__badge--pending {
+  @apply bg-warning-100 text-warning-700;
+}
+
+.dashboard__badge--confirmed {
+  @apply bg-primary-100 text-primary-600;
+}
+
+.dashboard__badge--onway {
+  @apply bg-info-100 text-info-700;
+}
+
+.dashboard__badge--received {
+  @apply bg-purple-100 text-purple-600;
+}
+
+.dashboard__badge--completed {
+  @apply bg-success-100 text-success-600;
+}
+
+.dashboard__badge--cancelled {
+  @apply bg-error-100 text-error-600;
+}
+
+.dashboard__badge--default {
+  @apply bg-neutral-100 text-neutral-600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard__stats-grid {
+    @apply grid-cols-1;
+  }
+
+  .dashboard__revenue-grid {
+    @apply grid-cols-2;
+  }
+
+  .dashboard__order-stats {
+    @apply grid-cols-2;
+  }
+
+  .dashboard__two-column {
+    @apply grid-cols-1;
+  }
+}
