@@ -1,11 +1,11 @@
-﻿{
+{
   "runtime": "Net80",
   "defaultVariables": null,
   "documentGenerator": {
     "aspNetCoreToOpenApi": {
       "project": "Volt.Server.csproj",
       "msBuildProjectExtensionsPath": null,
-      "configuration": null,
+      "configuration": "$(Configuration)",
       "runtime": null,
       "targetFramework": null,
       "noBuild": true,

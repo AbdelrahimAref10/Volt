@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,8 @@
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
 	  <Configuration>Debug</Configuration>
     <SpaProxyServerUrl>https://localhost:4200</SpaProxyServerUrl>
+    <!-- Disable SPA proxy build during backend build -->
+    <SpaProxyBuildCommand Condition="'$(PublishDir)' == ''"></SpaProxyBuildCommand>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,11 +38,15 @@
 
     <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Presentation\Presentation.csproj" />
+  </ItemGroup>
+  
+  <!-- Only include Volt.client during Publish, not during Build -->
+  <ItemGroup Condition="'$(PublishDir)' != ''">
     <ProjectReference Include="..\Volt.client\Volt.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\Presentation\Presentation.csproj" />
   </ItemGroup>
 	    
   <ItemGroup>
@@ -48,38 +54,20 @@
   </ItemGroup>
   
 
-	<Target Name="NSwag" AfterTargets="PostBuildEvent" Condition=" '$(Configuration)' == 'Debug' ">
-		<Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)" ContinueOnError="true" IgnoreExitCode="true" />
+		<!-- Generate API client using NSwag after build completes -->
+	<Target Name="NSwag" AfterTargets="Build">
+		<Message Text="Generating API client with NSwag..." Importance="high" />
+		<Message Text="Configuration: $(Configuration)" Importance="high" />
+		<Message Text="Assembly path: bin/$(Configuration)/net8.0/Volt.Server.dll" Importance="high" />
+
+		<Exec
+			WorkingDirectory="$(ProjectDir)"
+			EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development"
+			Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)"
+			ContinueOnError="false" />
+
+		<Message Text="API client generation completed." Importance="high" />
 	</Target>
 	
-	<!-- Clean wwwroot (except api folder) and copy Angular build output during publish -->
-	<Target Name="CopyAngularBuildOutput" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
-		<ItemGroup>
-			<AngularBuildFiles Include="$(SpaRoot)\dist\Volt.client\**\*.*" />
-			<FilesToDelete Include="$(PublishDir)wwwroot\*.js" />
-			<FilesToDelete Include="$(PublishDir)wwwroot\*.css" />
-			<FilesToDelete Include="$(PublishDir)wwwroot\*.html" />
-			<FilesToDelete Include="$(PublishDir)wwwroot\*.ico" />
-		</ItemGroup>
-		<Message Text="Cleaning old Angular files from $(PublishDir)wwwroot (keeping api folder)" Importance="high" />
-		<Delete Files="@(FilesToDelete)" ContinueOnError="true" />
-		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client to $(PublishDir)wwwroot" Importance="high" />
-		<Copy SourceFiles="@(AngularBuildFiles)" DestinationFiles="@(AngularBuildFiles->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-	</Target>
-	
-	<!-- Also copy during build for local testing -->
-	<Target Name="CopyAngularBuildOutputToWwwroot" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' AND '$(PublishDir)' == ''">
-		<ItemGroup>
-			<AngularBuildFilesLocal Include="$(SpaRoot)\dist\Volt.client\**\*.*" />
-			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.js" />
-			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.css" />
-			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.html" />
-			<FilesToDeleteLocal Include="$(ProjectDir)wwwroot\*.ico" />
-		</ItemGroup>
-		<Message Text="Cleaning old Angular files from $(ProjectDir)wwwroot (keeping api folder)" Importance="high" />
-		<Delete Files="@(FilesToDeleteLocal)" ContinueOnError="true" />
-		<Message Text="Copying Angular build output from $(SpaRoot)\dist\Volt.client to $(ProjectDir)wwwroot" Importance="high" />
-		<Copy SourceFiles="@(AngularBuildFilesLocal)" DestinationFiles="@(AngularBuildFilesLocal->'$(ProjectDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-	</Target>
 	
 </Project>
