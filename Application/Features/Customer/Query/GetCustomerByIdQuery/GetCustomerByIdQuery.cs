@@ -40,14 +40,14 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
                 FullName = customer.FullName,
                 Gender = customer.Gender,
                 PersonalImage = customer.PersonalImage,
-                FullAddress = customer.FullAddress,
+                Email = customer.Email,
+                CommercialRegisterImage = customer.CommercialRegisterImage,
                 RegisterAs = customer.RegisterAs,
                 VerificationBy = customer.VerificationBy,
                 CityId = customer.CityId,
                 CityName = customer.City != null ? customer.City.Name : string.Empty,
                 State = customer.State,
                 CashBlock = customer.CashBlock,
-                Email = null, // Customers don't have email anymore
                 CreatedDate = customer.CreatedDate
             };
 

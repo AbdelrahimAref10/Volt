@@ -399,6 +399,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("CityId");
 
+                    b.Property<string>("CommercialRegisterImage")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("CommercialRegisterImage");
+
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
@@ -408,10 +412,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedDate");
 
-                    b.Property<string>("FullAddress")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("FullAddress");
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("Email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -483,8 +487,8 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("MobileNumber", "State")
-                        .HasDatabaseName("IX_Customer_MobileNumber_State");
+                    b.HasIndex("MobileNumber")
+                        .HasDatabaseName("IX_Customer_MobileNumber");
 
                     b.ToTable("VO_Customer", (string)null);
                 });

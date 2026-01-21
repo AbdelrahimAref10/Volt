@@ -63,6 +63,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
 
   selectedImage: File | null = null;
   imagePreview: string | null = null;
+  selectedCommercialImage: File | null = null;
+  commercialImagePreview: string | null = null;
+  showCommercialImageError = false;
 
   constructor(
     private customerClient: AdminCustomerClient,
@@ -75,8 +78,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       gender: ['', [Validators.required]],
       cityId: [0, [Validators.required, Validators.min(1)]],
-      fullAddress: [''],
+      email: [''],
       personalImage: [''],
+      commercialRegisterImage: [''],
       registerAs: [0, [Validators.required]],
       verificationBy: [0, [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -88,6 +92,28 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.setupLiveSearch();
     // Initial load
     this.triggerSearch();
+
+    // Watch verificationBy changes to validate email
+    this.customerForm.get('verificationBy')?.valueChanges.subscribe(verificationBy => {
+      const emailControl = this.customerForm.get('email');
+      if (verificationBy === 1) {
+        emailControl?.setValidators([Validators.required, Validators.email]);
+      } else {
+        emailControl?.setValidators([Validators.email]);
+      }
+      emailControl?.updateValueAndValidity();
+    });
+
+    // Watch registerAs changes to handle commercialRegisterImage
+    this.customerForm.get('registerAs')?.valueChanges.subscribe(registerAs => {
+      if (registerAs === 0) {
+        // Individual - clear commercial image if set
+        if (this.selectedCommercialImage) {
+          this.selectedCommercialImage = null;
+          this.commercialImagePreview = null;
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -207,6 +233,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.customerForm.reset();
     this.selectedImage = null;
     this.imagePreview = null;
+    this.selectedCommercialImage = null;
+    this.commercialImagePreview = null;
+    this.showCommercialImageError = false;
     this.customerForm.patchValue({
       cityId: 0,
       gender: '',
@@ -236,6 +265,22 @@ export class CustomersComponent implements OnInit, OnDestroy {
     }
   }
 
+  onCommercialImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.selectedCommercialImage = file;
+      this.showCommercialImageError = false; // Clear error when image is selected
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.commercialImagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   convertImageToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -254,11 +299,35 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     const formValue = this.customerForm.value;
 
+    // Validate email if verification by email
+    if (formValue.verificationBy === 1 && !formValue.email) {
+      this.showErrorMessage('Email is required when verification is by email');
+      this.isSubmitting = false;
+      return;
+    }
+
+    // Validate commercial register image if institution
+    if (formValue.registerAs === 1 && !this.selectedCommercialImage) {
+      this.showCommercialImageError = true;
+      this.showErrorMessage('Commercial Register Image is required when registering as an Institution');
+      this.isSubmitting = false;
+      return;
+    }
+    this.showCommercialImageError = false;
+
     // Create new customer
     let personalImageBase64 = null;
+    let commercialRegisterImageBase64 = null;
 
     if (this.selectedImage) {
       personalImageBase64 = await this.convertImageToBase64(this.selectedImage);
+    }
+
+    // Only set commercial register image if RegisterAs is Institution (1)
+    if (formValue.registerAs === 1 && this.selectedCommercialImage) {
+      commercialRegisterImageBase64 = await this.convertImageToBase64(this.selectedCommercialImage);
+    } else {
+      commercialRegisterImageBase64 = null;
     }
 
     const command = new AdminCreateCustomerCommand();
@@ -266,8 +335,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
     command.fullName = formValue.fullName;
     command.gender = formValue.gender;
     command.cityId = formValue.cityId;
-    command.fullAddress = formValue.fullAddress || null;
+    command.email = formValue.email || null;
     command.personalImage = personalImageBase64;
+    command.commercialRegisterImage = commercialRegisterImageBase64;
     command.registerAs = formValue.registerAs;
     command.verificationBy = formValue.verificationBy;
     command.password = formValue.password;
@@ -293,6 +363,9 @@ export class CustomersComponent implements OnInit, OnDestroy {
     this.customerForm.reset();
     this.selectedImage = null;
     this.imagePreview = null;
+    this.selectedCommercialImage = null;
+    this.commercialImagePreview = null;
+    this.showCommercialImageError = false;
     this.isSubmitting = false;
   }
 

@@ -10,7 +10,8 @@ namespace Domain.Models
         public string FullName { get; private set; } = string.Empty;
         public string Gender { get; private set; } = string.Empty; // "Male", "Female", etc.
         public string? PersonalImage { get; private set; }
-        public string? FullAddress { get; private set; }
+        public string? Email { get; private set; }
+        public string? CommercialRegisterImage { get; private set; }
         public int RegisterAs { get; private set; } // 0 = Individual, 1 = Institution
         public int VerificationBy { get; private set; } // 0 = Phone, 1 = Email
         public CustomerState State { get; private set; } = CustomerState.InActive;
@@ -40,8 +41,9 @@ namespace Domain.Models
             int cityId,
             int registerAs,
             int verificationBy,
-            string? fullAddress = null,
+            string? email = null,
             string? personalImage = null,
+            string? commercialRegisterImage = null,
             string? createdBy = null)
         {
             if (string.IsNullOrWhiteSpace(mobileNumber))
@@ -68,7 +70,8 @@ namespace Domain.Models
                 FullName = fullName,
                 Gender = gender,
                 PersonalImage = personalImage,
-                FullAddress = fullAddress,
+                Email = email,
+                CommercialRegisterImage = commercialRegisterImage,
                 RegisterAs = registerAs,
                 VerificationBy = verificationBy,
                 State = CustomerState.InActive,
@@ -153,7 +156,7 @@ namespace Domain.Models
             return InvitationCode == code;
         }
 
-        public void UpdateProfile(string fullName, string gender, int cityId, string? fullAddress = null, string? personalImage = null, string? modifiedBy = null)
+        public void UpdateProfile(string fullName, string gender, int cityId, string? email = null, string? personalImage = null, string? commercialRegisterImage = null, string? modifiedBy = null)
         {
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new ArgumentException("Full name cannot be empty", nameof(fullName));
@@ -164,8 +167,9 @@ namespace Domain.Models
             FullName = fullName;
             Gender = gender;
             CityId = cityId;
-            FullAddress = fullAddress;
+            Email = email;
             PersonalImage = personalImage;
+            CommercialRegisterImage = commercialRegisterImage;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }
