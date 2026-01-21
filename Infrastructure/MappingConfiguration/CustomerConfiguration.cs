@@ -38,6 +38,13 @@ namespace Infrastructure.MappingConfiguration
             builder.Property(c => c.PersonalImage)
                 .HasColumnName("PersonalImage");
 
+            builder.Property(c => c.Email)
+                .HasColumnName("Email")
+                .HasMaxLength(256);
+
+            builder.Property(c => c.CommercialRegisterImage)
+                .HasColumnName("CommercialRegisterImage");
+
             builder.Property(c => c.RegisterAs)
                 .HasColumnName("RegisterAs")
                 .HasConversion<int>()
@@ -47,10 +54,6 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnName("VerificationBy")
                 .HasConversion<int>()
                 .IsRequired();
-
-            builder.Property(c => c.FullAddress)
-                .HasColumnName("FullAddress")
-                .HasMaxLength(500);
 
             builder.Property(c => c.State)
                 .HasColumnName("State")
@@ -108,8 +111,8 @@ namespace Infrastructure.MappingConfiguration
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            builder.HasIndex(c => new { c.MobileNumber, c.State })
-                .HasDatabaseName("IX_Customer_MobileNumber_State");
+            builder.HasIndex(c =>  c.MobileNumber)
+                .HasDatabaseName("IX_Customer_MobileNumber");
         }
     }
 }

@@ -3704,7 +3704,11 @@
             "type": "string",
             "nullable": true
           },
-          "fullAddress": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "commercialRegisterImage": {
             "type": "string",
             "nullable": true
           },
@@ -3728,10 +3732,6 @@
           },
           "cashBlock": {
             "type": "boolean"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
           },
           "createdDate": {
             "type": "string",
@@ -3799,11 +3799,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "fullAddress": {
+          "personalImage": {
             "type": "string",
             "nullable": true
           },
-          "personalImage": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "commercialRegisterImage": {
             "type": "string",
             "nullable": true
           },
@@ -5143,11 +5147,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "fullAddress": {
+          "personalImage": {
             "type": "string",
             "nullable": true
           },
-          "personalImage": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "commercialRegisterImage": {
             "type": "string",
             "nullable": true
           },
@@ -5158,10 +5166,6 @@
           "verificationBy": {
             "type": "integer",
             "format": "int32"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
           },
           "password": {
             "type": "string"

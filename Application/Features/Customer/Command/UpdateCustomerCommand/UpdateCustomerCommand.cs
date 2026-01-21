@@ -15,8 +15,9 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
         public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
-        public string? FullAddress { get; set; }
+        public string? Email { get; set; }
         public string? PersonalImage { get; set; }
+        public string? CommercialRegisterImage { get; set; }
     }
 
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<bool>>
@@ -51,8 +52,9 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
                 request.FullName,
                 request.Gender,
                 request.CityId,
-                request.FullAddress,
+                request.Email,
                 request.PersonalImage,
+                request.CommercialRegisterImage,
                 _userSession.UserId.ToString()
             );
 
