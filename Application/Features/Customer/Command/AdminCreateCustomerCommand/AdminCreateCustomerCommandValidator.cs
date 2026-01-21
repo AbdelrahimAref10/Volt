@@ -48,6 +48,18 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
                 return Result.Failure("Invalid VerificationBy value");
             }
 
+            // If verification by email, email is required
+            if (request.VerificationBy == (int)VerificationBy.Email && string.IsNullOrWhiteSpace(request.Email))
+            {
+                return Result.Failure("Email is required when verification is by email");
+            }
+
+            // Validate email format if provided
+            if (!string.IsNullOrWhiteSpace(request.Email) && !IsValidEmail(request.Email))
+            {
+                return Result.Failure("Invalid email format");
+            }
+
             if (string.IsNullOrWhiteSpace(request.Password))
             {
                 return Result.Failure("Password is required");
@@ -79,7 +91,33 @@ namespace Application.Features.Customer.Command.AdminCreateCustomerCommand
                 return Result.Failure("Customer with this mobile number already exists");
             }
 
+            // If RegisterAs is Institution (1), CommercialRegisterImage is required
+            if (request.RegisterAs == (int)RegisterAs.Institution && string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            {
+                return Result.Failure("Commercial Register Image is required when registering as an Institution");
+            }
+
+            // If RegisterAs is Individual (0), CommercialRegisterImage should be null
+            if (request.RegisterAs == (int)RegisterAs.Individual && !string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            {
+                // Set to null for Individual customers
+                request.CommercialRegisterImage = null;
+            }
+
             return Result.Success();
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                 var searchTerm = request.SearchTerm.ToLower();
                 query = query.Where(c => c.FullName.ToLower().Contains(searchTerm) ||
                                        c.MobileNumber.Contains(searchTerm) ||
-                                       (c.FullAddress != null && c.FullAddress.ToLower().Contains(searchTerm)) ||
+                                       (c.Email != null && c.Email.ToLower().Contains(searchTerm)) ||
                                        (c.City != null && c.City.Name.ToLower().Contains(searchTerm)));
             }
 
@@ -74,14 +74,14 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
                     FullName = c.FullName,
                     Gender = c.Gender,
                     PersonalImage = c.PersonalImage,
-                    FullAddress = c.FullAddress,
+                    Email = c.Email,
+                    CommercialRegisterImage = c.CommercialRegisterImage,
                     RegisterAs = c.RegisterAs,
                     VerificationBy = c.VerificationBy,
                     CityId = c.CityId,
                     CityName = c.City != null ? c.City.Name : string.Empty,
                     State = c.State,
                     CashBlock = c.CashBlock,
-                    Email = null, // Customers don't have email anymore
                     CreatedDate = c.CreatedDate
                 })
                 .ToListAsync(cancellationToken);

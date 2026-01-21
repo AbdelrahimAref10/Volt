@@ -97,6 +97,19 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 return Result.Failure("Gender must be either 'Male' or 'Female'");
             }
 
+            // If RegisterAs is Institution (1), CommercialRegisterImage is required
+            if (request.RegisterAs == (int)RegisterAs.Institution && string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            {
+                return Result.Failure("Commercial Register Image is required when registering as an Institution");
+            }
+
+            // If RegisterAs is Individual (0), CommercialRegisterImage should be null
+            if (request.RegisterAs == (int)RegisterAs.Individual && !string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            {
+                // Set to null for Individual customers
+                request.CommercialRegisterImage = null;
+            }
+
             return Result.Success();
         }
 
