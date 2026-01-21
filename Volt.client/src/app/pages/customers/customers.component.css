@@ -471,6 +471,14 @@
   @apply w-4 h-4 flex-shrink-0;
 }
 
+.customers__form-hint {
+  @apply mt-2 flex items-center gap-2 text-sm text-info-600;
+}
+
+.customers__hint-icon {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
 /* Image Upload */
 .customers__image-upload {
   @apply flex items-center gap-4;

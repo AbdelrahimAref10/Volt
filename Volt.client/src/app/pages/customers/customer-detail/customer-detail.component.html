@@ -110,9 +110,15 @@
                 </span>
               </div>
             </div>
-            <div class="customer-detail__info-item customer-detail__info-item--full">
-              <label class="customer-detail__info-label">Full Address</label>
-              <div class="customer-detail__info-value">{{ customer.fullAddress || 'Not provided' }}</div>
+            <div class="customer-detail__info-item">
+              <label class="customer-detail__info-label">Email</label>
+              <div class="customer-detail__info-value">{{ customer.email || 'Not provided' }}</div>
+            </div>
+            <div class="customer-detail__info-item customer-detail__info-item--full" *ngIf="customer.commercialRegisterImage">
+              <label class="customer-detail__info-label">Commercial Register Image</label>
+              <div class="customer-detail__info-value">
+                <img [src]="customer.commercialRegisterImage" alt="Commercial Register" class="customer-detail__commercial-image" />
+              </div>
             </div>
           </div>
         </div>

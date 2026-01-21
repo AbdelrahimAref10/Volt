@@ -5263,14 +5263,14 @@ export class CustomerDto {
     fullName!: string;
     gender!: string;
     personalImage!: string | null;
-    fullAddress!: string | null;
+    email!: string | null;
+    commercialRegisterImage!: string | null;
     registerAs!: number;
     verificationBy!: number;
     cityId!: number;
     cityName!: string;
     state!: CustomerState;
     cashBlock!: boolean;
-    email!: string | null;
     createdDate!: Date;
 
     init(_data?: any) {
@@ -5280,14 +5280,14 @@ export class CustomerDto {
             this.fullName = _data["fullName"] !== undefined ? _data["fullName"] : <any>null;
             this.gender = _data["gender"] !== undefined ? _data["gender"] : <any>null;
             this.personalImage = _data["personalImage"] !== undefined ? _data["personalImage"] : <any>null;
-            this.fullAddress = _data["fullAddress"] !== undefined ? _data["fullAddress"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+            this.commercialRegisterImage = _data["commercialRegisterImage"] !== undefined ? _data["commercialRegisterImage"] : <any>null;
             this.registerAs = _data["registerAs"] !== undefined ? _data["registerAs"] : <any>null;
             this.verificationBy = _data["verificationBy"] !== undefined ? _data["verificationBy"] : <any>null;
             this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
             this.cityName = _data["cityName"] !== undefined ? _data["cityName"] : <any>null;
             this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
             this.cashBlock = _data["cashBlock"] !== undefined ? _data["cashBlock"] : <any>null;
-            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
         }
     }
@@ -5306,14 +5306,14 @@ export class CustomerDto {
         data["fullName"] = this.fullName !== undefined ? this.fullName : <any>null;
         data["gender"] = this.gender !== undefined ? this.gender : <any>null;
         data["personalImage"] = this.personalImage !== undefined ? this.personalImage : <any>null;
-        data["fullAddress"] = this.fullAddress !== undefined ? this.fullAddress : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        data["commercialRegisterImage"] = this.commercialRegisterImage !== undefined ? this.commercialRegisterImage : <any>null;
         data["registerAs"] = this.registerAs !== undefined ? this.registerAs : <any>null;
         data["verificationBy"] = this.verificationBy !== undefined ? this.verificationBy : <any>null;
         data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
         data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
         data["state"] = this.state !== undefined ? this.state : <any>null;
         data["cashBlock"] = this.cashBlock !== undefined ? this.cashBlock : <any>null;
-        data["email"] = this.email !== undefined ? this.email : <any>null;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
         return data;
     }
@@ -5375,8 +5375,9 @@ export class AdminCreateCustomerCommand {
     fullName!: string;
     gender!: string;
     cityId!: number;
-    fullAddress!: string | null;
     personalImage!: string | null;
+    email!: string | null;
+    commercialRegisterImage!: string | null;
     registerAs!: number;
     verificationBy!: number;
     password!: string;
@@ -5387,8 +5388,9 @@ export class AdminCreateCustomerCommand {
             this.fullName = _data["fullName"] !== undefined ? _data["fullName"] : <any>null;
             this.gender = _data["gender"] !== undefined ? _data["gender"] : <any>null;
             this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
-            this.fullAddress = _data["fullAddress"] !== undefined ? _data["fullAddress"] : <any>null;
             this.personalImage = _data["personalImage"] !== undefined ? _data["personalImage"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+            this.commercialRegisterImage = _data["commercialRegisterImage"] !== undefined ? _data["commercialRegisterImage"] : <any>null;
             this.registerAs = _data["registerAs"] !== undefined ? _data["registerAs"] : <any>null;
             this.verificationBy = _data["verificationBy"] !== undefined ? _data["verificationBy"] : <any>null;
             this.password = _data["password"] !== undefined ? _data["password"] : <any>null;
@@ -5408,8 +5410,9 @@ export class AdminCreateCustomerCommand {
         data["fullName"] = this.fullName !== undefined ? this.fullName : <any>null;
         data["gender"] = this.gender !== undefined ? this.gender : <any>null;
         data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
-        data["fullAddress"] = this.fullAddress !== undefined ? this.fullAddress : <any>null;
         data["personalImage"] = this.personalImage !== undefined ? this.personalImage : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        data["commercialRegisterImage"] = this.commercialRegisterImage !== undefined ? this.commercialRegisterImage : <any>null;
         data["registerAs"] = this.registerAs !== undefined ? this.registerAs : <any>null;
         data["verificationBy"] = this.verificationBy !== undefined ? this.verificationBy : <any>null;
         data["password"] = this.password !== undefined ? this.password : <any>null;
@@ -7122,11 +7125,11 @@ export class RegisterCustomerCommand {
     fullName!: string;
     gender!: string;
     cityId!: number;
-    fullAddress!: string | null;
     personalImage!: string | null;
+    email!: string | null;
+    commercialRegisterImage!: string | null;
     registerAs!: number;
     verificationBy!: number;
-    email!: string | null;
     password!: string;
 
     init(_data?: any) {
@@ -7135,11 +7138,11 @@ export class RegisterCustomerCommand {
             this.fullName = _data["fullName"] !== undefined ? _data["fullName"] : <any>null;
             this.gender = _data["gender"] !== undefined ? _data["gender"] : <any>null;
             this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
-            this.fullAddress = _data["fullAddress"] !== undefined ? _data["fullAddress"] : <any>null;
             this.personalImage = _data["personalImage"] !== undefined ? _data["personalImage"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+            this.commercialRegisterImage = _data["commercialRegisterImage"] !== undefined ? _data["commercialRegisterImage"] : <any>null;
             this.registerAs = _data["registerAs"] !== undefined ? _data["registerAs"] : <any>null;
             this.verificationBy = _data["verificationBy"] !== undefined ? _data["verificationBy"] : <any>null;
-            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
             this.password = _data["password"] !== undefined ? _data["password"] : <any>null;
         }
     }
@@ -7157,11 +7160,11 @@ export class RegisterCustomerCommand {
         data["fullName"] = this.fullName !== undefined ? this.fullName : <any>null;
         data["gender"] = this.gender !== undefined ? this.gender : <any>null;
         data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
-        data["fullAddress"] = this.fullAddress !== undefined ? this.fullAddress : <any>null;
         data["personalImage"] = this.personalImage !== undefined ? this.personalImage : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        data["commercialRegisterImage"] = this.commercialRegisterImage !== undefined ? this.commercialRegisterImage : <any>null;
         data["registerAs"] = this.registerAs !== undefined ? this.registerAs : <any>null;
         data["verificationBy"] = this.verificationBy !== undefined ? this.verificationBy : <any>null;
-        data["email"] = this.email !== undefined ? this.email : <any>null;
         data["password"] = this.password !== undefined ? this.password : <any>null;
         return data;
     }

@@ -17,11 +17,11 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
         public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int CityId { get; set; }
-        public string? FullAddress { get; set; }
         public string? PersonalImage { get; set; }
+        public string? Email { get; set; } // Required if VerificationBy = 1 (Email)
+        public string? CommercialRegisterImage { get; set; }
         public int RegisterAs { get; set; } // 0 = Individual, 1 = Institution
         public int VerificationBy { get; set; } // 0 = Phone, 1 = Email
-        public string? Email { get; set; } // Required if VerificationBy = 1 (Email)
         public string Password { get; set; } = string.Empty;
     }
 
@@ -60,6 +60,11 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             // Generate invitation code
             var invitationCode = _invitationCodeService.GenerateInvitationCode();
 
+            // Ensure CommercialRegisterImage is null for Individual customers
+            var commercialRegisterImage = request.RegisterAs == (int)Domain.Enums.RegisterAs.Institution 
+                ? request.CommercialRegisterImage 
+                : null;
+
             // Create Customer
             var customer = Domain.Models.Customer.Create(
                 request.MobileNumber,
@@ -70,8 +75,9 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 request.CityId,
                 request.RegisterAs,
                 request.VerificationBy,
-                request.FullAddress,
+                request.Email,
                 request.PersonalImage,
+                commercialRegisterImage,
                 "System"
             );
 
