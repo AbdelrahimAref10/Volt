@@ -2,6 +2,8 @@ using Application.Features.Customer.Command.ActivateCustomerCommand;
 using Application.Features.Customer.Command.CustomerLoginCommand;
 using Application.Features.Customer.Command.RefreshTokenCommand;
 using Application.Features.Customer.Command.RegisterCustomerCommand;
+using Application.Features.Customer.DTOs;
+using Application.Features.Customer.Query.GetCustomerInfoQuery;
 using Application.Features.City.DTOs;
 using Application.Features.City.Query.GetCitiesLookupQuery;
 using MediatR;
@@ -92,6 +94,22 @@ namespace Volt.Server.Controllers
         public async Task<IActionResult> GetActiveCities()
         {
             var query = new GetCitiesLookupQuery();
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        [Route("GetCustomerInfo")]
+        [Authorize]
+        public async Task<IActionResult> GetCustomerInfo()
+        {
+            var query = new GetCustomerInfoQuery();
             var result = await _mediator.Send(query);
             if (result.IsFailure)
             {
