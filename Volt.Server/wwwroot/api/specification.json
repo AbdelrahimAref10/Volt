@@ -767,12 +767,47 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/OrdersByState": {
-      "get": {
+    "/api/AdminOrder/{orderId}/CancellationFee/MarkPaid": {
+      "post": {
         "tags": [
           "AdminOrder"
         ],
-        "operationId": "AdminOrder_GetOrdersByStateReport",
+        "operationId": "AdminOrder_MarkOrderCancellationFeePaid",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminReports/OrdersByState": {
+      "get": {
+        "tags": [
+          "AdminReports"
+        ],
+        "operationId": "AdminReports_GetOrdersByStateReport",
         "responses": {
           "200": {
             "description": "",
@@ -800,12 +835,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/OrdersByDateRange": {
+    "/api/AdminReports/OrdersByDateRange": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetOrdersByDateRangeReport",
+        "operationId": "AdminReports_GetOrdersByDateRangeReport",
         "parameters": [
           {
             "name": "FromDate",
@@ -853,12 +888,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/Revenue": {
+    "/api/AdminReports/Revenue": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetRevenueReport",
+        "operationId": "AdminReports_GetRevenueReport",
         "parameters": [
           {
             "name": "Period",
@@ -893,12 +928,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/Cancellations": {
+    "/api/AdminReports/Cancellations": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetCancellationReport",
+        "operationId": "AdminReports_GetCancellationReport",
         "responses": {
           "200": {
             "description": "",
@@ -923,12 +958,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/VehicleUtilization": {
+    "/api/AdminReports/VehicleUtilization": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetVehicleUtilizationReport",
+        "operationId": "AdminReports_GetVehicleUtilizationReport",
         "responses": {
           "200": {
             "description": "",
@@ -956,12 +991,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/CustomerOrderHistory": {
+    "/api/AdminReports/CustomerOrderHistory": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetCustomerOrderHistoryReport",
+        "operationId": "AdminReports_GetCustomerOrderHistoryReport",
         "parameters": [
           {
             "name": "customerId",
@@ -1000,12 +1035,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/TreasuryBalance": {
+    "/api/AdminReports/TreasuryBalance": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetTreasuryBalanceReport",
+        "operationId": "AdminReports_GetTreasuryBalanceReport",
         "responses": {
           "200": {
             "description": "",
@@ -1030,12 +1065,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/RevenueByPeriod": {
+    "/api/AdminReports/RevenueByPeriod": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetRevenueByPeriodReport",
+        "operationId": "AdminReports_GetRevenueByPeriodReport",
         "parameters": [
           {
             "name": "Period",
@@ -1082,12 +1117,12 @@
         }
       }
     },
-    "/api/AdminOrder/Reports/CancellationFees": {
+    "/api/AdminReports/CancellationFees": {
       "get": {
         "tags": [
-          "AdminOrder"
+          "AdminReports"
         ],
-        "operationId": "AdminOrder_GetCancellationFeesReport",
+        "operationId": "AdminReports_GetCancellationFeesReport",
         "responses": {
           "200": {
             "description": "",
@@ -1096,7 +1131,74 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/OrderCancellationFeeDto"
+                    "$ref": "#/components/schemas/CustomerWalletDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AdminReports/Wallet": {
+      "get": {
+        "tags": [
+          "AdminReports"
+        ],
+        "operationId": "AdminReports_GetWalletReport",
+        "parameters": [
+          {
+            "name": "CustomerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "CustomerSearch",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "State",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/CustomerWalletState"
+                }
+              ]
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WalletReportEntryDto"
                   }
                 }
               }
@@ -2084,6 +2186,132 @@
         }
       }
     },
+    "/api/Customer/ResendActivationCode": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "Customer_ResendActivationCode",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendActivationCodeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendActivationCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Customer/ForgetPassword": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "Customer_ForgetPassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgetPasswordCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Customer/ResetPassword": {
+      "post": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "Customer_ResetPassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customer/Login": {
       "post": {
         "tags": [
@@ -2184,6 +2412,36 @@
                   "items": {
                     "$ref": "#/components/schemas/CityLookupDto"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Customer/GetCustomerInfo": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "Customer_GetCustomerInfo",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDto"
                 }
               }
             }
@@ -4482,14 +4740,6 @@
               "$ref": "#/components/schemas/OrderPaymentDto"
             }
           },
-          "orderCancellationFee": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/OrderCancellationFeeDto"
-              }
-            ]
-          },
           "refundablePaypalAmount": {
             "nullable": true,
             "oneOf": [
@@ -4503,6 +4753,14 @@
             "oneOf": [
               {
                 "$ref": "#/components/schemas/OrderTotalsDto"
+              }
+            ]
+          },
+          "orderCancellationFee": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderCancellationFeeInfoDto"
               }
             ]
           }
@@ -4569,47 +4827,6 @@
           1,
           2,
           3
-        ]
-      },
-      "OrderCancellationFeeDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "customerId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "orderId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "amount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "state": {
-            "$ref": "#/components/schemas/CancellationFeeState"
-          },
-          "createdDate": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "CancellationFeeState": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "NotYet",
-          "Paid"
-        ],
-        "enum": [
-          0,
-          1
         ]
       },
       "RefundablePaypalAmountDto": {
@@ -4697,6 +4914,35 @@
           }
         }
       },
+      "OrderCancellationFeeInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "walletEntryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CustomerWalletState"
+          }
+        }
+      },
+      "CustomerWalletState": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Pending",
+          "Paid"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
       "UpdateOrderStateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -4743,6 +4989,106 @@
           "utilizationPercentage": {
             "type": "number",
             "format": "decimal"
+          }
+        }
+      },
+      "CustomerWalletDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "withdraw": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "deposit": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/WalletType"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CustomerWalletState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WalletType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Penalty",
+          "Bonus",
+          "OrderCancellationFees"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "WalletReportEntryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "customerMobileNumber": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "withdraw": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "deposit": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/WalletType"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CustomerWalletState"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -5081,6 +5427,26 @@
           "createdDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "deliveryFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "urgentDelivery": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "serviceFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "cancellationFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
           }
         }
       },
@@ -5093,6 +5459,26 @@
           },
           "description": {
             "type": "string",
+            "nullable": true
+          },
+          "deliveryFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "urgentDelivery": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "serviceFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "cancellationFees": {
+            "type": "number",
+            "format": "decimal",
             "nullable": true
           }
         }
@@ -5110,6 +5496,26 @@
           },
           "description": {
             "type": "string",
+            "nullable": true
+          },
+          "deliveryFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "urgentDelivery": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "serviceFees": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "cancellationFees": {
+            "type": "number",
+            "format": "decimal",
             "nullable": true
           }
         }
@@ -5184,6 +5590,81 @@
           }
         }
       },
+      "ResendActivationCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResendActivationCodeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mobileNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ForgetPasswordResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ForgetPasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mobileNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResetPasswordResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResetPasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mobileNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "resetCode": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
       "LoginResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -5210,6 +5691,17 @@
           "customerId": {
             "type": "integer",
             "format": "int32"
+          },
+          "personalImage": {
+            "type": "string",
+            "nullable": true
+          },
+          "cityId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cityName": {
+            "type": "string"
           }
         }
       },

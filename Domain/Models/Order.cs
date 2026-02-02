@@ -32,7 +32,6 @@ namespace Domain.Models
         public ICollection<OrderVehicle> OrderVehicles { get; private set; } = new List<OrderVehicle>();
         public ICollection<OrderPayment> OrderPayments { get; private set; } = new List<OrderPayment>();
         public ICollection<ReservedVehiclesPerDays> ReservedVehiclesPerDays { get; private set; } = new List<ReservedVehiclesPerDays>();
-        public OrderCancellationFee? OrderCancellationFee { get; private set; }
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -171,7 +170,7 @@ namespace Domain.Models
                 throw new InvalidOperationException("Cannot cancel a completed order.");
 
             // Note: We don't change OrderState to a "Cancelled" state
-            // Instead, we track cancellation through OrderCancellationFee and ReservedVehiclesPerDays.State
+            // Instead, we track cancellation through CustomerWallet (withdraw/penalty) and ReservedVehiclesPerDays.State
             // The order remains in its current state but is effectively cancelled
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;

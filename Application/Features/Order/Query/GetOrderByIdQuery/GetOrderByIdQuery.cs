@@ -33,7 +33,6 @@ namespace Application.Features.Order.Query.GetOrderByIdQuery
                 .Include(o => o.OrderVehicles)
                     .ThenInclude(ov => ov.Vehicle)
                 .Include(o => o.OrderPayments)
-                .Include(o => o.OrderCancellationFee)
                 .Include(o => o.ReservedVehiclesPerDays)
                 .FirstOrDefaultAsync(o => o.OrderId == request.OrderId, cancellationToken);
 
@@ -49,6 +48,11 @@ namespace Application.Features.Order.Query.GetOrderByIdQuery
             // Get OrderTotals if exists
             var orderTotals = await _context.OrderTotals
                 .FirstOrDefaultAsync(ot => ot.OrderId == request.OrderId, cancellationToken);
+
+            // Get cancellation fee wallet entry if order was cancelled with fee
+            var cancellationFeeEntry = await _context.CustomerWallets
+                .Where(cw => cw.OrderId == request.OrderId && cw.Type == WalletType.OrderCancellationFees)
+                .FirstOrDefaultAsync(cancellationToken);
 
             var orderDetailDto = new OrderDetailDto
             {
@@ -92,15 +96,6 @@ namespace Application.Features.Order.Query.GetOrderByIdQuery
                     State = op.State,
                     CreatedDate = op.CreatedDate
                 }).ToList(),
-                OrderCancellationFee = order.OrderCancellationFee != null ? new OrderCancellationFeeDto
-                {
-                    Id = order.OrderCancellationFee.Id,
-                    CustomerId = order.OrderCancellationFee.CustomerId,
-                    OrderId = order.OrderCancellationFee.OrderId,
-                    Amount = order.OrderCancellationFee.Amount,
-                    State = order.OrderCancellationFee.State,
-                    CreatedDate = order.OrderCancellationFee.CreatedDate
-                } : null,
                 RefundablePaypalAmount = refundablePaypal != null ? new RefundablePaypalAmountDto
                 {
                     Id = refundablePaypal.Id,
@@ -121,6 +116,12 @@ namespace Application.Features.Order.Query.GetOrderByIdQuery
                     DeliveryFees = orderTotals.DeliveryFees,
                     UrgentFees = orderTotals.UrgentFees,
                     TotalAfterAllFees = orderTotals.TotalAfterAllFees
+                } : null,
+                OrderCancellationFee = cancellationFeeEntry != null ? new OrderCancellationFeeInfoDto
+                {
+                    WalletEntryId = cancellationFeeEntry.Id,
+                    Amount = cancellationFeeEntry.Withdraw,
+                    State = cancellationFeeEntry.State
                 } : null
             };
 

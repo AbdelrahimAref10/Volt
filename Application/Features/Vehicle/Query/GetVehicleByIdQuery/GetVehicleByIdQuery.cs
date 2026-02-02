@@ -1,6 +1,7 @@
 using Application.Features.Vehicle.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -16,10 +17,12 @@ namespace Application.Features.Vehicle.Query.GetVehicleByIdQuery
     public class GetVehicleByIdQueryHandler : IRequestHandler<GetVehicleByIdQuery, Result<VehicleDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetVehicleByIdQueryHandler(DatabaseContext context)
+        public GetVehicleByIdQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<VehicleDto>> Handle(GetVehicleByIdQuery request, CancellationToken cancellationToken)
@@ -39,7 +42,7 @@ namespace Application.Features.Vehicle.Query.GetVehicleByIdQuery
             {
                 VehicleId = vehicle.VehicleId,
                 Name = vehicle.Name,
-                ImageUrl = vehicle.ImageUrl,
+                ImageUrl = _imageService.GetImageUrl(vehicle.ImageUrl),
                 Status = vehicle.Status,
                 SubCategoryId = vehicle.SubCategoryId,
                 SubCategoryName = vehicle.SubCategory.Name,

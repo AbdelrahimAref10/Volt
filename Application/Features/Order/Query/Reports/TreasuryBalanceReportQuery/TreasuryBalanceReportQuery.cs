@@ -31,7 +31,7 @@ namespace Application.Features.Order.Query.Reports.TreasuryBalanceReportQuery
             // Calculate totals from all treasury records
             var totalDebit = treasuryRecords.Sum(t => t.DebitAmount);
             var totalCredit = treasuryRecords.Sum(t => t.CreditAmount);
-            var balance = totalCredit - totalDebit; // Credit (money in) - Debit (money out)
+            var balance = totalDebit - totalCredit; // Credit (money in) - Debit (money out)
 
             var report = new TreasuryReportDto
             {

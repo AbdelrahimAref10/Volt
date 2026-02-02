@@ -19,6 +19,8 @@ namespace Domain.Models
         public string? InvitationCode { get; private set; }
         public DateTime? InvitationCodeExpiry { get; private set; }
         public bool IsInvitationCodeUsed { get; private set; } = false;
+        public string? PasswordResetCode { get; private set; }
+        public DateTime? PasswordResetCodeExpiry { get; private set; }
         public string PasswordHash { get; private set; } = string.Empty;
 
         // Navigation property to City
@@ -154,6 +156,45 @@ namespace Domain.Models
                 return false;
 
             return InvitationCode == code;
+        }
+
+        public void RegenerateInvitationCode(string newCode)
+        {
+            if (string.IsNullOrWhiteSpace(newCode))
+                throw new ArgumentException("Invitation code cannot be empty", nameof(newCode));
+            InvitationCode = newCode;
+            InvitationCodeExpiry = DateTime.UtcNow.AddHours(24);
+        }
+
+        public void SetPasswordResetCode(string code, int expiryMinutes = 15)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                throw new ArgumentException("Password reset code cannot be empty", nameof(code));
+            PasswordResetCode = code;
+            PasswordResetCodeExpiry = DateTime.UtcNow.AddMinutes(expiryMinutes);
+        }
+
+        public void ClearPasswordResetCode()
+        {
+            PasswordResetCode = null;
+            PasswordResetCodeExpiry = null;
+        }
+
+        public bool ValidatePasswordResetCode(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(PasswordResetCode))
+                return false;
+            if (!PasswordResetCodeExpiry.HasValue || PasswordResetCodeExpiry.Value < DateTime.UtcNow)
+                return false;
+            return PasswordResetCode == code;
+        }
+
+        public void ResetPassword(string newPasswordHash)
+        {
+            if (string.IsNullOrWhiteSpace(newPasswordHash))
+                throw new ArgumentException("Password hash cannot be empty", nameof(newPasswordHash));
+            PasswordHash = newPasswordHash;
+            ClearPasswordResetCode();
         }
 
         public void UpdateProfile(string fullName, string gender, int cityId, string? email = null, string? personalImage = null, string? commercialRegisterImage = null, string? modifiedBy = null)

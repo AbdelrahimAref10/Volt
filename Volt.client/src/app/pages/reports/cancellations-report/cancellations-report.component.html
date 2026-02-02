@@ -1,0 +1,46 @@
+<div class="report">
+  <header class="report__header">
+    <button type="button" (click)="onBack()" class="report__back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Reports
+    </button>
+    <h1 class="report__title">Cancellations</h1>
+  </header>
+
+  <div *ngIf="errorMessage" class="report__error">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="report__loading">
+    <div class="report__spinner"></div>
+    <p>Loading report...</p>
+  </div>
+
+  <div *ngIf="!isLoading && data" class="report__body">
+    <div class="report__section">
+      <div class="report__cards">
+        <div class="report__stat-card">
+          <div class="report__stat-value">{{ formatNumber(data.totalCancelledOrders) }}</div>
+          <div class="report__stat-label">Cancelled Orders</div>
+        </div>
+        <div class="report__stat-card">
+          <div class="report__stat-value">{{ formatCurrency(data.totalCancellationFees) }}</div>
+          <div class="report__stat-label">Total Fees</div>
+        </div>
+        <div class="report__stat-card report__stat-card--success">
+          <div class="report__stat-value">{{ formatCurrency(data.paidCancellationFees) }}</div>
+          <div class="report__stat-label">Paid</div>
+        </div>
+        <div class="report__stat-card report__stat-card--warning">
+          <div class="report__stat-value">{{ formatCurrency(data.unpaidCancellationFees) }}</div>
+          <div class="report__stat-label">Unpaid</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+/* Shared report page layout - used by all report components */
+
+.report {
+  @apply p-6 bg-neutral-50 min-h-screen;
+}
+
+.report__header {
+  @apply mb-8;
+}
+
+.report__back {
+  @apply flex items-center gap-2 px-0 py-2 text-neutral-600 hover:text-neutral-900 mb-4 transition-colors;
+}
+
+.report__back svg {
+  @apply w-5 h-5;
+}
+
+.report__title {
+  @apply text-3xl font-bold text-neutral-900;
+}
+
+.report__error {
+  @apply flex items-center gap-3 p-4 rounded-xl mb-6 bg-rose-50 border border-rose-200 text-rose-700;
+}
+
+.report__error svg {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.report__filters {
+  @apply mb-6 p-4 bg-white rounded-xl border border-neutral-200 shadow-sm;
+}
+
+.report__filter-row {
+  @apply flex flex-wrap items-center gap-3 mb-3;
+}
+
+.report__filter-row label {
+  @apply text-sm font-medium text-neutral-700;
+}
+
+.report__filter-row input,
+.report__filter-row select {
+  @apply px-3 py-2 border border-neutral-300 rounded-lg text-sm;
+}
+
+.report__apply-btn {
+  @apply mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors;
+}
+
+.report__loading {
+  @apply flex flex-col items-center justify-center py-20;
+}
+
+.report__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+.report__body {
+  @apply space-y-6;
+}
+
+.report__section {
+  @apply bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden;
+}
+
+.report__cards {
+  @apply p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.report__stat-card {
+  @apply p-4 rounded-xl border border-neutral-200 bg-neutral-50;
+}
+
+.report__stat-card--primary {
+  @apply bg-primary-50 border-primary-200;
+}
+
+.report__stat-card--success {
+  @apply bg-emerald-50 border-emerald-200;
+}
+
+.report__stat-card--warning {
+  @apply bg-amber-50 border-amber-200;
+}
+
+.report__stat-value {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.report__stat-card--primary .report__stat-value {
+  @apply text-primary-700;
+}
+
+.report__stat-label {
+  @apply text-sm text-neutral-600 mt-1;
+}
+
+.report__table-wrap {
+  @apply overflow-x-auto;
+}
+
+.report__table {
+  @apply w-full border-collapse;
+}
+
+.report__table th,
+.report__table td {
+  @apply px-4 py-3 text-left border-b border-neutral-200;
+}
+
+.report__table th {
+  @apply bg-neutral-50 text-xs font-semibold text-neutral-600 uppercase tracking-wider;
+}
+
+.report__table tbody tr:hover {
+  @apply bg-neutral-50;
+}
+
+.report__cell-desc {
+  @apply max-w-xs truncate;
+}
+
+.report__empty {
+  @apply p-8 text-center text-neutral-500;
+}
