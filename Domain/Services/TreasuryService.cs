@@ -29,8 +29,8 @@ namespace Domain.Services
             string? createdBy = null)
         {
             return CompanyTreasury.Create(
-                debitAmount: 0,
-                creditAmount: amount,
+                debitAmount: amount,
+                creditAmount: 0,
                 descriptionAr: $"دفع PayPal للطلب {orderCode}",
                 descriptionEng: $"PayPal payment for order {orderCode}",
                 createdBy: createdBy);
@@ -45,9 +45,22 @@ namespace Domain.Services
             string? createdBy = null)
         {
             return CompanyTreasury.Create(
-                debitAmount: 0,
-                creditAmount: amount,
+                debitAmount: amount,
+                creditAmount: 0,
                 descriptionAr: $"رسوم إلغاء للطلب {orderCode}",
+                descriptionEng: $"Cancellation fee for order {orderCode}",
+                createdBy: createdBy);
+        }
+
+        public static CompanyTreasury CreateCancellationOrderRecord(
+            decimal amount,
+            string orderCode,
+            string? createdBy = null)
+        {
+            return CompanyTreasury.Create(
+                debitAmount: amount,
+                creditAmount: 0,
+                descriptionAr: $" إلغاء طلب {orderCode}",
                 descriptionEng: $"Cancellation fee for order {orderCode}",
                 createdBy: createdBy);
         }

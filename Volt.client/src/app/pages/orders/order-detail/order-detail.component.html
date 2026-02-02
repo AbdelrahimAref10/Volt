@@ -258,7 +258,7 @@
         </div>
       </div>
 
-      <!-- Cancellation Fee Card -->
+      <!-- Cancellation Fee Card (when order was cancelled with fee) -->
       <div class="order-detail__card" *ngIf="order.orderCancellationFee">
         <div class="order-detail__card-header">
           <h2 class="order-detail__card-title">Cancellation Fee</h2>
@@ -267,20 +267,32 @@
           <div class="order-detail__info-grid">
             <div class="order-detail__info-item">
               <label class="order-detail__info-label">Amount</label>
-              <div class="order-detail__info-value">{{ order.orderCancellationFee.amount | number : '1.2-2' }} EGP</div>
+              <div class="order-detail__info-value order-detail__info-value--total">{{ order.orderCancellationFee.amount | number : '1.2-2' }} EGP</div>
             </div>
             <div class="order-detail__info-item">
               <label class="order-detail__info-label">Status</label>
               <div class="order-detail__info-value">
                 <span [class]="'order-detail__badge ' + (order.orderCancellationFee.state === 0 ? 'order-detail__badge--warning' : 'order-detail__badge--success')">
-                  {{ order.orderCancellationFee.state === 0 ? 'Not Yet' : 'Paid' }}
+                  {{ order.orderCancellationFee.state === 0 ? 'Pending' : 'Paid' }}
                 </span>
               </div>
             </div>
           </div>
+          <div class="order-detail__cancellation-fee-actions" *ngIf="order.orderCancellationFee.state === 0">
+            <button
+              type="button"
+              (click)="onMarkCancellationFeePaid()"
+              [disabled]="isActionLoading('markFeePaid')"
+              class="order-detail__action-btn order-detail__action-btn--success"
+            >
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{{ isActionLoading('markFeePaid') ? 'Updating...' : 'Mark as Paid' }}</span>
+            </button>
+          </div>
         </div>
       </div>
-
 
       <!-- Notes Card -->
       <div class="order-detail__card" *ngIf="order.notes">

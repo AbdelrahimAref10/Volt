@@ -2,6 +2,7 @@ using Application.Common;
 using Application.Features.Vehicle.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -20,10 +21,12 @@ namespace Application.Features.Vehicle.Query.GetVehiclesBySubCategoryQuery
     public class GetVehiclesBySubCategoryQueryHandler : IRequestHandler<GetVehiclesBySubCategoryQuery, Result<PagedResult<VehicleDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetVehiclesBySubCategoryQueryHandler(DatabaseContext context)
+        public GetVehiclesBySubCategoryQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<PagedResult<VehicleDto>>> Handle(GetVehiclesBySubCategoryQuery request, CancellationToken cancellationToken)
@@ -65,6 +68,11 @@ namespace Application.Features.Vehicle.Query.GetVehiclesBySubCategoryQuery
                     IsNewThisMonth = v.IsNewThisMonth
                 })
                 .ToListAsync(cancellationToken);
+
+            foreach (var dto in items)
+            {
+                dto.ImageUrl = _imageService.GetImageUrl(dto.ImageUrl);
+            }
 
             var result = new PagedResult<VehicleDto>
             {

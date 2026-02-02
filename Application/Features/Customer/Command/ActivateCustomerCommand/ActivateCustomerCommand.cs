@@ -37,7 +37,7 @@ namespace Application.Features.Customer.Command.ActivateCustomerCommand
                 return Result.Failure<bool>(validationResult.Error);
             }
 
-            var customer = await _context.Customers
+            var customer = await _context.Customers.AsTracking()
                 .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
 
             // Customer should exist (validator already checked), but add null check for safety

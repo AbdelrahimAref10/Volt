@@ -465,6 +465,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("PasswordHash");
 
+                    b.Property<string>("PasswordResetCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("PasswordResetCode");
+
+                    b.Property<DateTime?>("PasswordResetCodeExpiry")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("PasswordResetCodeExpiry");
+
                     b.Property<string>("PersonalImage")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("PersonalImage");
@@ -491,6 +500,66 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("IX_Customer_MobileNumber");
 
                     b.ToTable("VO_Customer", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.CustomerWallet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    b.Property<decimal>("Deposit")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Deposit");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("Description");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int")
+                        .HasColumnName("State");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int")
+                        .HasColumnName("Type");
+
+                    b.Property<decimal>("Withdraw")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Withdraw");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_VO_CustomerWallet_CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("IX_VO_CustomerWallet_OrderId");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("IX_VO_CustomerWallet_State");
+
+                    b.HasIndex("Type")
+                        .HasDatabaseName("IX_VO_CustomerWallet_Type");
+
+                    b.ToTable("VO_CustomerWallet", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Order", b =>
@@ -621,66 +690,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SubCategoryId");
 
                     b.ToTable("VO_Order", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Models.OrderCancellationFee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("Amount");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
-                        .HasColumnName("CustomerId");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)")
-                        .HasColumnName("LastModifiedBy");
-
-                    b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModifiedDate");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int")
-                        .HasColumnName("OrderId");
-
-                    b.Property<int>("State")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("State");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .HasDatabaseName("IX_VO_OrderCancellationFee_CustomerId");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_VO_OrderCancellationFee_OrderId");
-
-                    b.HasIndex("State")
-                        .HasDatabaseName("IX_VO_OrderCancellationFee_State");
-
-                    b.ToTable("VO_OrderCancellationFee", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.OrderPayment", b =>
@@ -1447,6 +1456,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Domain.Models.CustomerWallet", b =>
+                {
+                    b.HasOne("Domain.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Domain.Models.Order", b =>
                 {
                     b.HasOne("Domain.Models.City", "City")
@@ -1472,25 +1492,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("SubCategory");
-                });
-
-            modelBuilder.Entity("Domain.Models.OrderCancellationFee", b =>
-                {
-                    b.HasOne("Domain.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.Order", "Order")
-                        .WithOne("OrderCancellationFee")
-                        .HasForeignKey("Domain.Models.OrderCancellationFee", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Domain.Models.OrderPayment", b =>
@@ -1695,8 +1696,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Order", b =>
                 {
-                    b.Navigation("OrderCancellationFee");
-
                     b.Navigation("OrderPayments");
 
                     b.Navigation("OrderVehicles");

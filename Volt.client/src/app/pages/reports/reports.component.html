@@ -1,0 +1,26 @@
+<div class="reports">
+  <div class="reports__header">
+    <div>
+      <h1 class="reports__title">Reports</h1>
+      <p class="reports__subtitle">Analytics and insights for orders, revenue, cancellations, treasury, and more</p>
+    </div>
+  </div>
+
+  <div class="reports__grid">
+    <a *ngFor="let report of reportItems" [routerLink]="['/main/reports', report.route]" class="reports__card">
+      <div class="reports__card-icon" [attr.data-icon]="report.icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <h3 class="reports__card-title">{{ report.title }}</h3>
+      <p class="reports__card-desc">{{ report.description }}</p>
+      <span class="reports__card-link">
+        View report
+        <svg class="reports__card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    </a>
+  </div>
+</div>

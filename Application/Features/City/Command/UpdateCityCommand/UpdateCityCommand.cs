@@ -13,6 +13,10 @@ namespace Application.Features.City.Command.UpdateCityCommand
         public int CityId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public decimal? DeliveryFees { get; set; }
+        public decimal? UrgentDelivery { get; set; }
+        public decimal? ServiceFees { get; set; } // Percentage value (e.g., 5.0 means 5%)
+        public decimal? CancellationFees { get; set; }
     }
 
     public class UpdateCityCommandHandler : IRequestHandler<UpdateCityCommand, Result<int>>
@@ -46,6 +50,14 @@ namespace Application.Features.City.Command.UpdateCityCommand
             city.Update(
                 request.Name,
                 request.Description,
+                _userSession.UserName ?? "System"
+            );
+
+            city.UpdateFees(
+                request.DeliveryFees ?? 0,
+                request.UrgentDelivery ?? 0,
+                request.ServiceFees ?? 0,
+                request.CancellationFees ?? 0,
                 _userSession.UserName ?? "System"
             );
 
