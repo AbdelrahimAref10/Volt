@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Order.Query.Reports.CancellationFeesReportQuery
 {
-    public record CancellationFeesReportQuery : IRequest<Result<List<OrderCancellationFeeDto>>>
+    public record CancellationFeesReportQuery : IRequest<Result<List<CustomerWalletDto>>>
     {
     }
 
-    public class CancellationFeesReportQueryHandler : IRequestHandler<CancellationFeesReportQuery, Result<List<OrderCancellationFeeDto>>>
+    public class CancellationFeesReportQueryHandler : IRequestHandler<CancellationFeesReportQuery, Result<List<CustomerWalletDto>>>
     {
         private readonly DatabaseContext _context;
 
@@ -24,18 +24,22 @@ namespace Application.Features.Order.Query.Reports.CancellationFeesReportQuery
             _context = context;
         }
 
-        public async Task<Result<List<OrderCancellationFeeDto>>> Handle(CancellationFeesReportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<CustomerWalletDto>>> Handle(CancellationFeesReportQuery request, CancellationToken cancellationToken)
         {
-            var cancellationFees = await _context.OrderCancellationFees
-                .OrderByDescending(cf => cf.CreatedDate)
-                .Select(cf => new OrderCancellationFeeDto
+            var cancellationFees = await _context.CustomerWallets
+                .Where(cw => cw.Type == WalletType.OrderCancellationFees)
+                .OrderByDescending(cw => cw.CreatedDate)
+                .Select(cw => new CustomerWalletDto
                 {
-                    Id = cf.Id,
-                    CustomerId = cf.CustomerId,
-                    OrderId = cf.OrderId,
-                    Amount = cf.Amount,
-                    State = cf.State,
-                    CreatedDate = cf.CreatedDate
+                    Id = cw.Id,
+                    CustomerId = cw.CustomerId,
+                    OrderId = cw.OrderId,
+                    Withdraw = cw.Withdraw,
+                    Deposit = cw.Deposit,
+                    Description = cw.Description,
+                    Type = cw.Type,
+                    State = cw.State,
+                    CreatedDate = cw.CreatedDate
                 })
                 .ToListAsync(cancellationToken);
 

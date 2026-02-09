@@ -64,17 +64,19 @@ namespace Application.Features.Order.Command.CancelOrderCommand
                 // Calculate cancellation fee (4 days policy)
                 var cancellationFee = OrderCalculationService.CalculateCancellationFee(order.City, order.CreatedDate);
 
-                // Create cancellation fee if applicable
+                // Add cancellation fee to customer wallet as withdraw (OrderCancellationFees)
                 if (cancellationFee.HasValue && cancellationFee.Value > 0)
                 {
-                    var orderCancellationFee = Domain.Models.OrderCancellationFee.Create(
+                    var walletEntry = CustomerWallet.Create(
                         order.CustomerId,
-                        order.OrderId,
-                        cancellationFee.Value,
-                        _userSession.UserName ?? "System"
+                        withdraw: cancellationFee.Value,
+                        deposit: 0,
+                        description: $"Order cancellation fee - Order #{order.OrderCode}",
+                        type: WalletType.OrderCancellationFees,
+                        orderId: order.OrderId
                     );
 
-                    _context.OrderCancellationFees.Add(orderCancellationFee);
+                    _context.CustomerWallets.Add(walletEntry);
                 }
 
                 // Handle refund if PayPal payment

@@ -9,6 +9,8 @@ using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -106,17 +108,54 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 return Result.Failure<OrderDto>("Reservation date from must be a future date");
             }
 
-            // Check date conflicts
-            var hasConflict = await _context.ReservedVehiclesPerDays
+            // Check vehicle availability for each date in the requested range
+            var totalVehicles = await _context.Vehicles
+                .CountAsync(v => v.SubCategoryId == request.SubCategoryId, cancellationToken);
+
+            var reservedRecords = await _context.ReservedVehiclesPerDays
                 .Include(rv => rv.Order)
-                .AnyAsync(rv => rv.SubCategoryId == request.SubCategoryId
+                .Where(rv => rv.SubCategoryId == request.SubCategoryId
                     && rv.State == ReservedVehicleState.StillBooked
                     && rv.Order.OrderState != OrderState.Completed
-                    && ((rv.DateFrom <= request.ReservationDateTo && rv.DateTo >= request.ReservationDateFrom)), cancellationToken);
+                    && rv.DateFrom <= request.ReservationDateTo
+                    && rv.DateTo >= request.ReservationDateFrom)
+                .ToListAsync(cancellationToken);
 
-            if (hasConflict)
+            var reservedCountByDate = new Dictionary<DateTime, int>();
+            foreach (var record in reservedRecords)
             {
-                return Result.Failure<OrderDto>("Selected dates are not available");
+                var currentDate = record.DateFrom.Date;
+                var endDate = record.DateTo.Date;
+                while (currentDate <= endDate)
+                {
+                    if (currentDate >= request.ReservationDateFrom.Date && currentDate <= request.ReservationDateTo.Date)
+                    {
+                        if (!reservedCountByDate.TryGetValue(currentDate, out var count))
+                            count = 0;
+                        reservedCountByDate[currentDate] = count + 1;
+                    }
+                    currentDate = currentDate.AddDays(1);
+                }
+            }
+
+            var unavailableDates = new List<(DateTime Date, int Available)>();
+            for (var date = request.ReservationDateFrom.Date; date <= request.ReservationDateTo.Date; date = date.AddDays(1))
+            {
+                var reservedCount = reservedCountByDate.TryGetValue(date, out var c) ? c : 0;
+                var available = totalVehicles - reservedCount;
+                if (available < request.VehiclesCount)
+                {
+                    unavailableDates.Add((date, available));
+                }
+            }
+
+            if (unavailableDates.Count > 0)
+            {
+                var details = string.Join("; ", unavailableDates.Select(x => $"{x.Date.ToString("d/M/yyyy", CultureInfo.InvariantCulture)} ({x.Available} available)"));
+                var message = unavailableDates.Count == 1
+                    ? $"On ({details}) there is not enough vehicles."
+                    : $"In days ({details}) there are not enough vehicles.";
+                return Result.Failure<OrderDto>(message);
             }
 
             // Calculate totals
@@ -125,7 +164,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
             // Calculate individual fees
             var deliveryFeesAmount = (city.DeliveryFees ?? 0) * request.VehiclesCount;
             var serviceFeesAmount = (city.ServiceFees ?? 0) * orderSubTotal / 100;
-            var urgentFeesAmount = (request.IsUrgent && city.UrgentDelivery.HasValue) ? city.UrgentDelivery.Value : 0;
+            var urgentFeesAmount = (request.IsUrgent && city.UrgentDelivery.HasValue) ? (city.UrgentDelivery.Value * orderSubTotal / 100) : 0;
             
             var orderTotal = OrderCalculationService.CalculateOrderTotal(
                 orderSubTotal,

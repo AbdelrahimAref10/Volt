@@ -29,6 +29,16 @@ namespace Application.Features.City.Command.AddCityCommand
                 return Result.Failure("City name must be at least 2 characters long");
             }
 
+            // Validate fees are non-negative when provided
+            if (request.DeliveryFees.HasValue && request.DeliveryFees.Value < 0)
+                return Result.Failure("Delivery fees cannot be negative");
+            if (request.UrgentDelivery.HasValue && request.UrgentDelivery.Value < 0)
+                return Result.Failure("Urgent delivery fees cannot be negative");
+            if (request.ServiceFees.HasValue && request.ServiceFees.Value < 0)
+                return Result.Failure("Service fees cannot be negative");
+            if (request.CancellationFees.HasValue && request.CancellationFees.Value < 0)
+                return Result.Failure("Cancellation fees cannot be negative");
+
             // Check if city with same name already exists
             var existingCity = await _context.Cities
                 .FirstOrDefaultAsync(c => c.Name.ToLower() == request.Name.ToLower().Trim(), cancellationToken);

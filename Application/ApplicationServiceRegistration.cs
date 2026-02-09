@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +19,9 @@ namespace Application
             services.AddScoped<Features.Customer.Command.RegisterCustomerCommand.RegisterCustomerCommandValidator>();
             services.AddScoped<Features.Customer.Command.UpdateCustomerCommand.UpdateCustomerCommandValidator>();
             services.AddScoped<Features.Customer.Command.ActivateCustomerCommand.ActivateCustomerCommandValidator>();
+            services.AddScoped<Features.Customer.Command.ResendActivationCodeCommand.ResendActivationCodeCommandValidator>();
+            services.AddScoped<Features.Customer.Command.ForgetPasswordCommand.ForgetPasswordCommandValidator>();
+            services.AddScoped<Features.Customer.Command.ResetPasswordCommand.ResetPasswordCommandValidator>();
             services.AddScoped<Features.Customer.Command.CustomerLoginCommand.CustomerLoginCommandValidator>();
             services.AddScoped<Features.City.Command.AddCityCommand.AddCityCommandValidator>();
             services.AddScoped<Features.City.Command.UpdateCityCommand.UpdateCityCommandValidator>();

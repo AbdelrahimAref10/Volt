@@ -1,6 +1,7 @@
 using Application.Features.SubCategory.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ namespace Application.Features.SubCategory.Query.GetAllOffersByCityQuery
     public class GetAllOffersByCityQueryHandler : IRequestHandler<GetAllOffersByCityQuery, Result<List<SubCategoryDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetAllOffersByCityQueryHandler(DatabaseContext context)
+        public GetAllOffersByCityQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<List<SubCategoryDto>>> Handle(GetAllOffersByCityQuery request, CancellationToken cancellationToken)
@@ -56,6 +59,11 @@ namespace Application.Features.SubCategory.Query.GetAllOffersByCityQuery
                     VehicleCount = sc.Vehicles.Count
                 })
                 .ToListAsync(cancellationToken);
+
+            foreach (var dto in subCategories)
+            {
+                dto.ImageUrl = _imageService.GetImageUrl(dto.ImageUrl);
+            }
 
             return Result.Success(subCategories);
         }

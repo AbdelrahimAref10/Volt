@@ -1,0 +1,61 @@
+<div class="report">
+  <header class="report__header">
+    <button type="button" (click)="onBack()" class="report__back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Reports
+    </button>
+    <h1 class="report__title">Revenue by Period</h1>
+  </header>
+
+  <div *ngIf="errorMessage" class="report__error">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div class="report__filters">
+    <div class="report__filter-row">
+      <label>Period</label>
+      <select [(ngModel)]="period">
+        <option value="month">Month</option>
+        <option value="quarter">Quarter</option>
+        <option value="year">Year</option>
+      </select>
+      <label>Number of periods</label>
+      <input type="number" min="1" max="24" [(ngModel)]="numberOfPeriods" />
+    </div>
+    <button type="button" (click)="load()" class="report__apply-btn">Apply</button>
+  </div>
+
+  <div *ngIf="isLoading" class="report__loading">
+    <div class="report__spinner"></div>
+    <p>Loading report...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="report__body">
+    <div *ngIf="data.length" class="report__section">
+      <div class="report__table-wrap">
+        <table class="report__table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Total Revenue</th>
+              <th>Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of data">
+              <td>{{ r.period }}</td>
+              <td>{{ formatCurrency(r.totalRevenue) }}</td>
+              <td>{{ formatNumber(r.totalOrders) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="!data.length" class="report__empty">No data.</div>
+  </div>
+</div>

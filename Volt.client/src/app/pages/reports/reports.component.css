@@ -1,0 +1,61 @@
+/* Reports Landing - Clean card grid */
+
+.reports {
+  @apply p-6 bg-neutral-50 min-h-screen;
+}
+
+.reports__header {
+  @apply mb-10;
+}
+
+.reports__title {
+  @apply text-4xl font-bold text-neutral-900 mb-2;
+}
+
+.reports__subtitle {
+  @apply text-neutral-600 text-base max-w-2xl;
+}
+
+.reports__grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+.reports__card {
+  @apply block p-6 bg-white rounded-2xl border border-neutral-200 shadow-sm hover:shadow-md hover:border-primary-200 transition-all duration-200 no-underline text-inherit;
+}
+
+.reports__card:hover {
+  @apply -translate-y-0.5;
+}
+
+.reports__card-icon {
+  @apply w-14 h-14 rounded-xl flex items-center justify-center mb-4;
+}
+
+.reports__card-icon[data-icon="chart"] { @apply bg-primary-100 text-primary-600; }
+.reports__card-icon[data-icon="calendar"] { @apply bg-emerald-100 text-emerald-600; }
+.reports__card-icon[data-icon="currency"] { @apply bg-amber-100 text-amber-600; }
+.reports__card-icon[data-icon="x-circle"] { @apply bg-rose-100 text-rose-600; }
+.reports__card-icon[data-icon="truck"] { @apply bg-sky-100 text-sky-600; }
+.reports__card-icon[data-icon="user"] { @apply bg-violet-100 text-violet-600; }
+.reports__card-icon[data-icon="wallet"] { @apply bg-teal-100 text-teal-600; }
+
+.reports__card-icon svg {
+  @apply w-7 h-7;
+}
+
+.reports__card-title {
+  @apply text-lg font-bold text-neutral-900 mb-2;
+}
+
+.reports__card-desc {
+  @apply text-sm text-neutral-600 mb-4 line-clamp-2;
+}
+
+.reports__card-link {
+  @apply inline-flex items-center gap-1 text-sm font-semibold text-primary-600;
+}
+
+.reports__card-arrow {
+  @apply w-4 h-4;
+}

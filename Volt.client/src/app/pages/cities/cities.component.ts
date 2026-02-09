@@ -34,7 +34,11 @@ export class CitiesComponent implements OnInit {
   ) {
     this.cityForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      description: [null]
+      description: [null],
+      deliveryFees: [0, [Validators.min(0)]],
+      urgentDelivery: [0, [Validators.min(0)]],
+      serviceFees: [0, [Validators.min(0)]],
+      cancellationFees: [0, [Validators.min(0)]]
     });
   }
 
@@ -78,7 +82,14 @@ export class CitiesComponent implements OnInit {
   onAddNew(): void {
     this.isEditMode = false;
     this.selectedCityId = null;
-    this.cityForm.reset();
+    this.cityForm.reset({
+      name: '',
+      description: null,
+      deliveryFees: 0,
+      urgentDelivery: 0,
+      serviceFees: 0,
+      cancellationFees: 0
+    });
     this.showModal = true;
   }
 
@@ -87,7 +98,11 @@ export class CitiesComponent implements OnInit {
     this.selectedCityId = city.cityId;
     this.cityForm.patchValue({
       name: city.name,
-      description: city.description
+      description: city.description ?? null,
+      deliveryFees: city.deliveryFees ?? 0,
+      urgentDelivery: city.urgentDelivery ?? 0,
+      serviceFees: city.serviceFees ?? 0,
+      cancellationFees: city.cancellationFees ?? 0
     });
     this.showModal = true;
   }
@@ -153,6 +168,10 @@ export class CitiesComponent implements OnInit {
       command.cityId = this.selectedCityId;
       command.name = formValue.name;
       command.description = formValue.description || null;
+      command.deliveryFees = formValue.deliveryFees ?? null;
+      command.urgentDelivery = formValue.urgentDelivery ?? null;
+      command.serviceFees = formValue.serviceFees ?? null;
+      command.cancellationFees = formValue.cancellationFees ?? null;
 
       this.cityClient.update(command).subscribe({
         next: () => {
@@ -168,6 +187,10 @@ export class CitiesComponent implements OnInit {
       const command = new AddCityCommand();
       command.name = formValue.name;
       command.description = formValue.description || null;
+      command.deliveryFees = formValue.deliveryFees ?? null;
+      command.urgentDelivery = formValue.urgentDelivery ?? null;
+      command.serviceFees = formValue.serviceFees ?? null;
+      command.cancellationFees = formValue.cancellationFees ?? null;
 
       this.cityClient.add(command).subscribe({
         next: () => {
