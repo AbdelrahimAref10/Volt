@@ -28,7 +28,7 @@ namespace Application.Features.Customer.Command.ActivateCustomerCommand
                 return Result.Failure("Invitation code is required");
             }
 
-            var customer = await _context.Customers
+            var customer = await _context.Customers.AsTracking()
                 .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
 
             if (customer == null)

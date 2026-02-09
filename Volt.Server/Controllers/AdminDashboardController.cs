@@ -9,7 +9,7 @@ namespace Volt.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AdminDashboardController : ControllerBase
     {
         private readonly IMediator _mediator;

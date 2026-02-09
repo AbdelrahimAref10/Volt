@@ -1,6 +1,7 @@
 using Application.Features.Category.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ namespace Application.Features.Category.Query.GetAllActiveCategoriesByCityQuery
     public class GetAllActiveCategoriesByCityQueryHandler : IRequestHandler<GetAllActiveCategoriesByCityQuery, Result<List<CategoryDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetAllActiveCategoriesByCityQueryHandler(DatabaseContext context)
+        public GetAllActiveCategoriesByCityQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<List<CategoryDto>>> Handle(GetAllActiveCategoriesByCityQuery request, CancellationToken cancellationToken)
@@ -51,6 +54,11 @@ namespace Application.Features.Category.Query.GetAllActiveCategoriesByCityQuery
                     CityName = c.City.Name
                 })
                 .ToListAsync(cancellationToken);
+
+            foreach (var dto in categories)
+            {
+                dto.ImageUrl = _imageService.GetImageUrl(dto.ImageUrl);
+            }
 
             return Result.Success(categories);
         }

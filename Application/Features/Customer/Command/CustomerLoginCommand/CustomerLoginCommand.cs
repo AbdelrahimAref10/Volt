@@ -29,17 +29,20 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
         private readonly DatabaseContext _context;
         private readonly IJwtSettings _jwtSettings;
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly IImageService _imageService;
         private readonly CustomerLoginCommandValidator _validator;
 
         public CustomerLoginCommandHandler(
             DatabaseContext context,
             IJwtSettings jwtSettings,
             IPasswordHasher<ApplicationUser> passwordHasher,
+            IImageService imageService,
             CustomerLoginCommandValidator validator)
         {
             _context = context;
             _jwtSettings = jwtSettings;
             _passwordHasher = passwordHasher;
+            _imageService = imageService;
             _validator = validator;
         }
 
@@ -52,8 +55,9 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
                 return Result.Failure<LoginResponse>(validationResult.Error);
             }
 
-            // Find customer by mobile number
+            // Find customer by mobile number (include City for response)
             var customer = await _context.Customers
+                .Include(c => c.City)
                 .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
 
             if (customer == null)
@@ -68,7 +72,7 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
                 {
                     return Result.Failure<LoginResponse>("Customer account is blocked. Please contact support.");
                 }
-                return Result.Failure<LoginResponse>("Customer account is not activated. Please activate your account first.");
+                return Result.Failure<LoginResponse>("Not Verified");
             }
 
             // Verify password
@@ -96,7 +100,10 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
                 UserId = customer.CustomerId, // Return CustomerId as UserId for compatibility
                 UserName = customer.MobileNumber, // Use MobileNumber instead of UserName
                 Roles = new List<string> { "Customer" },
-                CustomerId = customer.CustomerId
+                CustomerId = customer.CustomerId,
+                PersonalImage = _imageService.GetImageUrl(customer.PersonalImage),
+                CityId = customer.CityId,
+                CityName = customer.City?.Name ?? string.Empty
             });
         }
 
@@ -144,6 +151,9 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
         public string UserName { get; set; } = string.Empty;
         public List<string> Roles { get; set; } = new List<string>();
         public int CustomerId { get; set; }
+        public string? PersonalImage { get; set; }
+        public int CityId { get; set; }
+        public string CityName { get; set; } = string.Empty;
     }
 }
 

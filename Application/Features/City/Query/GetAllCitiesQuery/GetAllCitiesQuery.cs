@@ -58,7 +58,11 @@ namespace Application.Features.City.Query.GetAllCitiesQuery
                     Description = c.Description,
                     IsActive = c.IsActive,
                     CustomerCount = c.Customers.Count,
-                    CreatedDate = c.CreatedDate
+                    CreatedDate = c.CreatedDate,
+                    DeliveryFees = c.DeliveryFees,
+                    UrgentDelivery = c.UrgentDelivery,
+                    ServiceFees = c.ServiceFees,
+                    CancellationFees = c.CancellationFees
                 })
                 .ToListAsync(cancellationToken);
 

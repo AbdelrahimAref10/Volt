@@ -999,8 +999,76 @@ export class AdminOrderClient {
         return _observableOf(null as any);
     }
 
+    markOrderCancellationFeePaid(orderId: number): Observable<void> {
+        let url_ = this.baseUrl + "/api/AdminOrder/{orderId}/CancellationFee/MarkPaid";
+        if (orderId === undefined || orderId === null)
+            throw new Error("The parameter 'orderId' must be defined.");
+        url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMarkOrderCancellationFeePaid(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMarkOrderCancellationFeePaid(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMarkOrderCancellationFeePaid(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AdminReportsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
     getOrdersByStateReport(): Observable<OrdersByStateReportDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/OrdersByState";
+        let url_ = this.baseUrl + "/api/AdminReports/OrdersByState";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1062,7 +1130,7 @@ export class AdminOrderClient {
     }
 
     getOrdersByDateRangeReport(fromDate?: Date | undefined, toDate?: Date | undefined): Observable<OrderDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/OrdersByDateRange?";
+        let url_ = this.baseUrl + "/api/AdminReports/OrdersByDateRange?";
         if (fromDate === null)
             throw new Error("The parameter 'fromDate' cannot be null.");
         else if (fromDate !== undefined)
@@ -1132,7 +1200,7 @@ export class AdminOrderClient {
     }
 
     getRevenueReport(period?: string | undefined): Observable<RevenueReportDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/Revenue?";
+        let url_ = this.baseUrl + "/api/AdminReports/Revenue?";
         if (period === null)
             throw new Error("The parameter 'period' cannot be null.");
         else if (period !== undefined)
@@ -1191,7 +1259,7 @@ export class AdminOrderClient {
     }
 
     getCancellationReport(): Observable<CancellationReportDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/Cancellations";
+        let url_ = this.baseUrl + "/api/AdminReports/Cancellations";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1246,7 +1314,7 @@ export class AdminOrderClient {
     }
 
     getVehicleUtilizationReport(): Observable<VehicleUtilizationReportDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/VehicleUtilization";
+        let url_ = this.baseUrl + "/api/AdminReports/VehicleUtilization";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1308,7 +1376,7 @@ export class AdminOrderClient {
     }
 
     getCustomerOrderHistoryReport(customerId?: number | undefined): Observable<OrderDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/CustomerOrderHistory?";
+        let url_ = this.baseUrl + "/api/AdminReports/CustomerOrderHistory?";
         if (customerId === null)
             throw new Error("The parameter 'customerId' cannot be null.");
         else if (customerId !== undefined)
@@ -1374,7 +1442,7 @@ export class AdminOrderClient {
     }
 
     getTreasuryBalanceReport(): Observable<TreasuryReportDto> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/TreasuryBalance";
+        let url_ = this.baseUrl + "/api/AdminReports/TreasuryBalance";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1429,7 +1497,7 @@ export class AdminOrderClient {
     }
 
     getRevenueByPeriodReport(period?: string | undefined, numberOfPeriods?: number | undefined): Observable<RevenueReportDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/RevenueByPeriod?";
+        let url_ = this.baseUrl + "/api/AdminReports/RevenueByPeriod?";
         if (period === null)
             throw new Error("The parameter 'period' cannot be null.");
         else if (period !== undefined)
@@ -1498,8 +1566,8 @@ export class AdminOrderClient {
         return _observableOf(null as any);
     }
 
-    getCancellationFeesReport(): Observable<OrderCancellationFeeDto[]> {
-        let url_ = this.baseUrl + "/api/AdminOrder/Reports/CancellationFees";
+    getCancellationFeesReport(): Observable<CustomerWalletDto[]> {
+        let url_ = this.baseUrl + "/api/AdminReports/CancellationFees";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1517,14 +1585,14 @@ export class AdminOrderClient {
                 try {
                     return this.processGetCancellationFeesReport(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<OrderCancellationFeeDto[]>;
+                    return _observableThrow(e) as any as Observable<CustomerWalletDto[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<OrderCancellationFeeDto[]>;
+                return _observableThrow(response_) as any as Observable<CustomerWalletDto[]>;
         }));
     }
 
-    protected processGetCancellationFeesReport(response: HttpResponseBase): Observable<OrderCancellationFeeDto[]> {
+    protected processGetCancellationFeesReport(response: HttpResponseBase): Observable<CustomerWalletDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1538,7 +1606,75 @@ export class AdminOrderClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(OrderCancellationFeeDto.fromJS(item));
+                    result200!.push(CustomerWalletDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getWalletReport(customerId?: number | null | undefined, customerSearch?: string | null | undefined, state?: CustomerWalletState | null | undefined): Observable<WalletReportEntryDto[]> {
+        let url_ = this.baseUrl + "/api/AdminReports/Wallet?";
+        if (customerId !== undefined && customerId !== null)
+            url_ += "CustomerId=" + encodeURIComponent("" + customerId) + "&";
+        if (customerSearch !== undefined && customerSearch !== null)
+            url_ += "CustomerSearch=" + encodeURIComponent("" + customerSearch) + "&";
+        if (state !== undefined && state !== null)
+            url_ += "State=" + encodeURIComponent("" + state) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetWalletReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetWalletReport(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<WalletReportEntryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<WalletReportEntryDto[]>;
+        }));
+    }
+
+    protected processGetWalletReport(response: HttpResponseBase): Observable<WalletReportEntryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(WalletReportEntryDto.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -2956,6 +3092,183 @@ export class CustomerClient {
         return _observableOf(null as any);
     }
 
+    resendActivationCode(command: ResendActivationCodeCommand): Observable<ResendActivationCodeResponse> {
+        let url_ = this.baseUrl + "/api/Customer/ResendActivationCode";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processResendActivationCode(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processResendActivationCode(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResendActivationCodeResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResendActivationCodeResponse>;
+        }));
+    }
+
+    protected processResendActivationCode(response: HttpResponseBase): Observable<ResendActivationCodeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResendActivationCodeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    forgetPassword(command: ForgetPasswordCommand): Observable<ForgetPasswordResponse> {
+        let url_ = this.baseUrl + "/api/Customer/ForgetPassword";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processForgetPassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processForgetPassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ForgetPasswordResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ForgetPasswordResponse>;
+        }));
+    }
+
+    protected processForgetPassword(response: HttpResponseBase): Observable<ForgetPasswordResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ForgetPasswordResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    resetPassword(command: ResetPasswordCommand): Observable<ResetPasswordResponse> {
+        let url_ = this.baseUrl + "/api/Customer/ResetPassword";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processResetPassword(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processResetPassword(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ResetPasswordResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ResetPasswordResponse>;
+        }));
+    }
+
+    protected processResetPassword(response: HttpResponseBase): Observable<ResetPasswordResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResetPasswordResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     login(command: CustomerLoginCommand): Observable<LoginResponse> {
         let url_ = this.baseUrl + "/api/Customer/Login";
         url_ = url_.replace(/[?&]$/, "");
@@ -3119,6 +3432,61 @@ export class CustomerClient {
             else {
                 result200 = <any>null;
             }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetail.fromJS(resultData400);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getCustomerInfo(): Observable<CustomerDto> {
+        let url_ = this.baseUrl + "/api/Customer/GetCustomerInfo";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCustomerInfo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCustomerInfo(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerDto>;
+        }));
+    }
+
+    protected processGetCustomerInfo(response: HttpResponseBase): Observable<CustomerDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -6165,9 +6533,9 @@ export class OrderDetailDto {
     createdDate!: Date;
     orderVehicles!: OrderVehicleDto[];
     orderPayments!: OrderPaymentDto[];
-    orderCancellationFee!: OrderCancellationFeeDto | null;
     refundablePaypalAmount!: RefundablePaypalAmountDto | null;
     orderTotals!: OrderTotalsDto | null;
+    orderCancellationFee!: OrderCancellationFeeInfoDto | null;
 
     init(_data?: any) {
         if (_data) {
@@ -6211,9 +6579,9 @@ export class OrderDetailDto {
             else {
                 this.orderPayments = <any>null;
             }
-            this.orderCancellationFee = _data["orderCancellationFee"] ? OrderCancellationFeeDto.fromJS(_data["orderCancellationFee"]) : <any>null;
             this.refundablePaypalAmount = _data["refundablePaypalAmount"] ? RefundablePaypalAmountDto.fromJS(_data["refundablePaypalAmount"]) : <any>null;
             this.orderTotals = _data["orderTotals"] ? OrderTotalsDto.fromJS(_data["orderTotals"]) : <any>null;
+            this.orderCancellationFee = _data["orderCancellationFee"] ? OrderCancellationFeeInfoDto.fromJS(_data["orderCancellationFee"]) : <any>null;
         }
     }
 
@@ -6260,9 +6628,9 @@ export class OrderDetailDto {
             for (let item of this.orderPayments)
                 data["orderPayments"].push(item.toJSON());
         }
-        data["orderCancellationFee"] = this.orderCancellationFee ? this.orderCancellationFee.toJSON() : <any>null;
         data["refundablePaypalAmount"] = this.refundablePaypalAmount ? this.refundablePaypalAmount.toJSON() : <any>null;
         data["orderTotals"] = this.orderTotals ? this.orderTotals.toJSON() : <any>null;
+        data["orderCancellationFee"] = this.orderCancellationFee ? this.orderCancellationFee.toJSON() : <any>null;
         return data;
     }
 }
@@ -6342,49 +6710,6 @@ export enum PaymentState {
     Paid = 1,
     Failed = 2,
     Refunded = 3,
-}
-
-export class OrderCancellationFeeDto {
-    id!: number;
-    customerId!: number;
-    orderId!: number;
-    amount!: number;
-    state!: CancellationFeeState;
-    createdDate!: Date;
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            this.customerId = _data["customerId"] !== undefined ? _data["customerId"] : <any>null;
-            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
-            this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
-            this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
-            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
-        }
-    }
-
-    static fromJS(data: any): OrderCancellationFeeDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new OrderCancellationFeeDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["customerId"] = this.customerId !== undefined ? this.customerId : <any>null;
-        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
-        data["amount"] = this.amount !== undefined ? this.amount : <any>null;
-        data["state"] = this.state !== undefined ? this.state : <any>null;
-        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
-        return data;
-    }
-}
-
-export enum CancellationFeeState {
-    NotYet = 0,
-    Paid = 1,
 }
 
 export class RefundablePaypalAmountDto {
@@ -6478,6 +6803,40 @@ export class OrderTotalsDto {
     }
 }
 
+export class OrderCancellationFeeInfoDto {
+    walletEntryId!: number;
+    amount!: number;
+    state!: CustomerWalletState;
+
+    init(_data?: any) {
+        if (_data) {
+            this.walletEntryId = _data["walletEntryId"] !== undefined ? _data["walletEntryId"] : <any>null;
+            this.amount = _data["amount"] !== undefined ? _data["amount"] : <any>null;
+            this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): OrderCancellationFeeInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderCancellationFeeInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["walletEntryId"] = this.walletEntryId !== undefined ? this.walletEntryId : <any>null;
+        data["amount"] = this.amount !== undefined ? this.amount : <any>null;
+        data["state"] = this.state !== undefined ? this.state : <any>null;
+        return data;
+    }
+}
+
+export enum CustomerWalletState {
+    Pending = 0,
+    Paid = 1,
+}
+
 export class UpdateOrderStateCommand {
     orderId!: number;
     newState!: OrderState;
@@ -6552,6 +6911,112 @@ export class VehicleUtilizationReportDto {
         data["totalDaysBooked"] = this.totalDaysBooked !== undefined ? this.totalDaysBooked : <any>null;
         data["totalOrders"] = this.totalOrders !== undefined ? this.totalOrders : <any>null;
         data["utilizationPercentage"] = this.utilizationPercentage !== undefined ? this.utilizationPercentage : <any>null;
+        return data;
+    }
+}
+
+export class CustomerWalletDto {
+    id!: number;
+    customerId!: number;
+    orderId!: number | null;
+    withdraw!: number;
+    deposit!: number;
+    description!: string;
+    type!: WalletType;
+    state!: CustomerWalletState;
+    createdDate!: Date;
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.customerId = _data["customerId"] !== undefined ? _data["customerId"] : <any>null;
+            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
+            this.withdraw = _data["withdraw"] !== undefined ? _data["withdraw"] : <any>null;
+            this.deposit = _data["deposit"] !== undefined ? _data["deposit"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
+            this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): CustomerWalletDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerWalletDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["customerId"] = this.customerId !== undefined ? this.customerId : <any>null;
+        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
+        data["withdraw"] = this.withdraw !== undefined ? this.withdraw : <any>null;
+        data["deposit"] = this.deposit !== undefined ? this.deposit : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["type"] = this.type !== undefined ? this.type : <any>null;
+        data["state"] = this.state !== undefined ? this.state : <any>null;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
+        return data;
+    }
+}
+
+export enum WalletType {
+    Penalty = 0,
+    Bonus = 1,
+    OrderCancellationFees = 2,
+}
+
+export class WalletReportEntryDto {
+    id!: number;
+    customerId!: number;
+    customerName!: string;
+    customerMobileNumber!: string;
+    orderId!: number | null;
+    withdraw!: number;
+    deposit!: number;
+    description!: string;
+    type!: WalletType;
+    state!: CustomerWalletState;
+    createdDate!: Date;
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.customerId = _data["customerId"] !== undefined ? _data["customerId"] : <any>null;
+            this.customerName = _data["customerName"] !== undefined ? _data["customerName"] : <any>null;
+            this.customerMobileNumber = _data["customerMobileNumber"] !== undefined ? _data["customerMobileNumber"] : <any>null;
+            this.orderId = _data["orderId"] !== undefined ? _data["orderId"] : <any>null;
+            this.withdraw = _data["withdraw"] !== undefined ? _data["withdraw"] : <any>null;
+            this.deposit = _data["deposit"] !== undefined ? _data["deposit"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.type = _data["type"] !== undefined ? _data["type"] : <any>null;
+            this.state = _data["state"] !== undefined ? _data["state"] : <any>null;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): WalletReportEntryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new WalletReportEntryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["customerId"] = this.customerId !== undefined ? this.customerId : <any>null;
+        data["customerName"] = this.customerName !== undefined ? this.customerName : <any>null;
+        data["customerMobileNumber"] = this.customerMobileNumber !== undefined ? this.customerMobileNumber : <any>null;
+        data["orderId"] = this.orderId !== undefined ? this.orderId : <any>null;
+        data["withdraw"] = this.withdraw !== undefined ? this.withdraw : <any>null;
+        data["deposit"] = this.deposit !== undefined ? this.deposit : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["type"] = this.type !== undefined ? this.type : <any>null;
+        data["state"] = this.state !== undefined ? this.state : <any>null;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
         return data;
     }
 }
@@ -7005,6 +7470,10 @@ export class CityDto {
     isActive!: boolean;
     customerCount!: number;
     createdDate!: Date;
+    deliveryFees!: number | null;
+    urgentDelivery!: number | null;
+    serviceFees!: number | null;
+    cancellationFees!: number | null;
 
     init(_data?: any) {
         if (_data) {
@@ -7014,6 +7483,10 @@ export class CityDto {
             this.isActive = _data["isActive"] !== undefined ? _data["isActive"] : <any>null;
             this.customerCount = _data["customerCount"] !== undefined ? _data["customerCount"] : <any>null;
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>null;
+            this.deliveryFees = _data["deliveryFees"] !== undefined ? _data["deliveryFees"] : <any>null;
+            this.urgentDelivery = _data["urgentDelivery"] !== undefined ? _data["urgentDelivery"] : <any>null;
+            this.serviceFees = _data["serviceFees"] !== undefined ? _data["serviceFees"] : <any>null;
+            this.cancellationFees = _data["cancellationFees"] !== undefined ? _data["cancellationFees"] : <any>null;
         }
     }
 
@@ -7032,6 +7505,10 @@ export class CityDto {
         data["isActive"] = this.isActive !== undefined ? this.isActive : <any>null;
         data["customerCount"] = this.customerCount !== undefined ? this.customerCount : <any>null;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>null;
+        data["deliveryFees"] = this.deliveryFees !== undefined ? this.deliveryFees : <any>null;
+        data["urgentDelivery"] = this.urgentDelivery !== undefined ? this.urgentDelivery : <any>null;
+        data["serviceFees"] = this.serviceFees !== undefined ? this.serviceFees : <any>null;
+        data["cancellationFees"] = this.cancellationFees !== undefined ? this.cancellationFees : <any>null;
         return data;
     }
 }
@@ -7039,11 +7516,19 @@ export class CityDto {
 export class AddCityCommand {
     name!: string;
     description!: string | null;
+    deliveryFees!: number | null;
+    urgentDelivery!: number | null;
+    serviceFees!: number | null;
+    cancellationFees!: number | null;
 
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.deliveryFees = _data["deliveryFees"] !== undefined ? _data["deliveryFees"] : <any>null;
+            this.urgentDelivery = _data["urgentDelivery"] !== undefined ? _data["urgentDelivery"] : <any>null;
+            this.serviceFees = _data["serviceFees"] !== undefined ? _data["serviceFees"] : <any>null;
+            this.cancellationFees = _data["cancellationFees"] !== undefined ? _data["cancellationFees"] : <any>null;
         }
     }
 
@@ -7058,6 +7543,10 @@ export class AddCityCommand {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["deliveryFees"] = this.deliveryFees !== undefined ? this.deliveryFees : <any>null;
+        data["urgentDelivery"] = this.urgentDelivery !== undefined ? this.urgentDelivery : <any>null;
+        data["serviceFees"] = this.serviceFees !== undefined ? this.serviceFees : <any>null;
+        data["cancellationFees"] = this.cancellationFees !== undefined ? this.cancellationFees : <any>null;
         return data;
     }
 }
@@ -7066,12 +7555,20 @@ export class UpdateCityCommand {
     cityId!: number;
     name!: string;
     description!: string | null;
+    deliveryFees!: number | null;
+    urgentDelivery!: number | null;
+    serviceFees!: number | null;
+    cancellationFees!: number | null;
 
     init(_data?: any) {
         if (_data) {
             this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
             this.name = _data["name"] !== undefined ? _data["name"] : <any>null;
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.deliveryFees = _data["deliveryFees"] !== undefined ? _data["deliveryFees"] : <any>null;
+            this.urgentDelivery = _data["urgentDelivery"] !== undefined ? _data["urgentDelivery"] : <any>null;
+            this.serviceFees = _data["serviceFees"] !== undefined ? _data["serviceFees"] : <any>null;
+            this.cancellationFees = _data["cancellationFees"] !== undefined ? _data["cancellationFees"] : <any>null;
         }
     }
 
@@ -7087,6 +7584,10 @@ export class UpdateCityCommand {
         data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
         data["name"] = this.name !== undefined ? this.name : <any>null;
         data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["deliveryFees"] = this.deliveryFees !== undefined ? this.deliveryFees : <any>null;
+        data["urgentDelivery"] = this.urgentDelivery !== undefined ? this.urgentDelivery : <any>null;
+        data["serviceFees"] = this.serviceFees !== undefined ? this.serviceFees : <any>null;
+        data["cancellationFees"] = this.cancellationFees !== undefined ? this.cancellationFees : <any>null;
         return data;
     }
 }
@@ -7196,6 +7697,159 @@ export class ActivateCustomerCommand {
     }
 }
 
+export class ResendActivationCodeResponse {
+    message!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ResendActivationCodeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResendActivationCodeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        return data;
+    }
+}
+
+export class ResendActivationCodeCommand {
+    mobileNumber!: string | null;
+    email!: string | null;
+
+    init(_data?: any) {
+        if (_data) {
+            this.mobileNumber = _data["mobileNumber"] !== undefined ? _data["mobileNumber"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ResendActivationCodeCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResendActivationCodeCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mobileNumber"] = this.mobileNumber !== undefined ? this.mobileNumber : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        return data;
+    }
+}
+
+export class ForgetPasswordResponse {
+    message!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ForgetPasswordResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ForgetPasswordResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        return data;
+    }
+}
+
+export class ForgetPasswordCommand {
+    mobileNumber!: string | null;
+    email!: string | null;
+
+    init(_data?: any) {
+        if (_data) {
+            this.mobileNumber = _data["mobileNumber"] !== undefined ? _data["mobileNumber"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ForgetPasswordCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ForgetPasswordCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mobileNumber"] = this.mobileNumber !== undefined ? this.mobileNumber : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        return data;
+    }
+}
+
+export class ResetPasswordResponse {
+    message!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        return data;
+    }
+}
+
+export class ResetPasswordCommand {
+    mobileNumber!: string | null;
+    email!: string | null;
+    resetCode!: string;
+    newPassword!: string;
+
+    init(_data?: any) {
+        if (_data) {
+            this.mobileNumber = _data["mobileNumber"] !== undefined ? _data["mobileNumber"] : <any>null;
+            this.email = _data["email"] !== undefined ? _data["email"] : <any>null;
+            this.resetCode = _data["resetCode"] !== undefined ? _data["resetCode"] : <any>null;
+            this.newPassword = _data["newPassword"] !== undefined ? _data["newPassword"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mobileNumber"] = this.mobileNumber !== undefined ? this.mobileNumber : <any>null;
+        data["email"] = this.email !== undefined ? this.email : <any>null;
+        data["resetCode"] = this.resetCode !== undefined ? this.resetCode : <any>null;
+        data["newPassword"] = this.newPassword !== undefined ? this.newPassword : <any>null;
+        return data;
+    }
+}
+
 export class LoginResponse {
     token!: string;
     refreshToken!: string;
@@ -7203,6 +7857,9 @@ export class LoginResponse {
     userName!: string;
     roles!: string[];
     customerId!: number;
+    personalImage!: string | null;
+    cityId!: number;
+    cityName!: string;
 
     init(_data?: any) {
         if (_data) {
@@ -7219,6 +7876,9 @@ export class LoginResponse {
                 this.roles = <any>null;
             }
             this.customerId = _data["customerId"] !== undefined ? _data["customerId"] : <any>null;
+            this.personalImage = _data["personalImage"] !== undefined ? _data["personalImage"] : <any>null;
+            this.cityId = _data["cityId"] !== undefined ? _data["cityId"] : <any>null;
+            this.cityName = _data["cityName"] !== undefined ? _data["cityName"] : <any>null;
         }
     }
 
@@ -7241,6 +7901,9 @@ export class LoginResponse {
                 data["roles"].push(item);
         }
         data["customerId"] = this.customerId !== undefined ? this.customerId : <any>null;
+        data["personalImage"] = this.personalImage !== undefined ? this.personalImage : <any>null;
+        data["cityId"] = this.cityId !== undefined ? this.cityId : <any>null;
+        data["cityName"] = this.cityName !== undefined ? this.cityName : <any>null;
         return data;
     }
 }

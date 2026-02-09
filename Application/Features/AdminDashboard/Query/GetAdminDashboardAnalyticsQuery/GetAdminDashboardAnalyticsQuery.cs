@@ -147,8 +147,8 @@ namespace Application.Features.AdminDashboard.Query.GetAdminDashboardAnalyticsQu
             var onWayOrders = await allOrders.CountAsync(o => o.OrderState == OrderState.OnWay, cancellationToken);
             var customerReceivedOrders = await allOrders.CountAsync(o => o.OrderState == OrderState.CustomerReceived, cancellationToken);
             var completedOrders = await allOrders.CountAsync(o => o.OrderState == OrderState.Completed, cancellationToken);
-            var cancelledOrders = await _context.OrderCancellationFees
-                .CountAsync(cancellationToken);
+            var cancelledOrders = await _context.CustomerWallets
+                .CountAsync(cw => cw.Type == Domain.Enums.WalletType.OrderCancellationFees, cancellationToken);
             
             var ordersToday = await allOrders.CountAsync(o => o.CreatedDate >= today && o.CreatedDate < today.AddDays(1), cancellationToken);
             var ordersThisWeek = await allOrders.CountAsync(o => o.CreatedDate >= startOfWeek, cancellationToken);

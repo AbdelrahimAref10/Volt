@@ -209,6 +209,24 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  onMarkCancellationFeePaid(): void {
+    if (!this.order?.orderCancellationFee) return;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.actionLoading = 'markFeePaid';
+    this.orderClient.markOrderCancellationFeePaid(this.orderId).subscribe({
+      next: () => {
+        this.showSuccessMessage('Cancellation fee marked as paid');
+        this.loadOrder();
+        this.actionLoading = '';
+      },
+      error: (error: any) => {
+        this.showErrorMessage(error.error?.errorMessage || 'Failed to mark fee as paid');
+        this.actionLoading = '';
+      }
+    });
+  }
+
 
   // Navigation
   onBack(): void {

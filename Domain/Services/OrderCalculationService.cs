@@ -20,7 +20,7 @@ namespace Domain.Services
 
         /// <summary>
         /// Calculates the full order total with all fees
-        /// Formula: SubTotal + (DeliveryFees * Count) + (ServiceFees * SubTotal / 100) + UrgentFees (if urgent)
+        /// Formula: SubTotal + (DeliveryFees * Count) + (ServiceFees % * SubTotal) + (UrgentDelivery % * SubTotal if urgent)
         /// </summary>
         public static decimal CalculateOrderTotal(
             decimal subTotal,
@@ -51,10 +51,11 @@ namespace Domain.Services
                 total += serviceFeesAmount;
             }
 
-            // Add urgent delivery fee (if urgent)
+            // Add urgent delivery fee (percentage of subtotal, if urgent)
             if (isUrgent && urgentDelivery.HasValue && urgentDelivery.Value > 0)
             {
-                total += urgentDelivery.Value;
+                var urgentFeesAmount = urgentDelivery.Value * subTotal / 100;
+                total += urgentFeesAmount;
             }
 
             return total;
@@ -80,7 +81,7 @@ namespace Domain.Services
             var daysSinceCreation = (DateTime.UtcNow - orderCreatedDate).TotalDays;
 
             // If order created within 4 days, no cancellation fee
-            if (daysSinceCreation <= 4)
+            if (daysSinceCreation <= 2)
             {
                 return null;
             }

@@ -42,7 +42,11 @@ namespace Application.Features.City.Query.GetCityByIdQuery
                 Description = city.Description,
                 IsActive = city.IsActive,
                 CustomerCount = customerCount,
-                CreatedDate = city.CreatedDate
+                CreatedDate = city.CreatedDate,
+                DeliveryFees = city.DeliveryFees,
+                UrgentDelivery = city.UrgentDelivery,
+                ServiceFees = city.ServiceFees,
+                CancellationFees = city.CancellationFees
             };
 
             return Result.Success(cityDto);

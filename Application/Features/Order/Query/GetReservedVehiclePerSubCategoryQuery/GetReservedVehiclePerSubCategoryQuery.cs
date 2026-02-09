@@ -27,9 +27,16 @@ namespace Application.Features.Order.Query.GetReservedVehiclePerSubCategoryQuery
 
         public async Task<Result<List<ReservedDateDto>>> Handle(GetReservedVehiclePerSubCategoryQuery request, CancellationToken cancellationToken)
         {
-            // Get all reserved vehicles for this subcategory where:
-            // - State = StillBooked
-            // - Order.OrderState != Completed && != Cancelled (orders that are still active)
+            // Total vehicles in this subcategory
+            var totalVehicles = await _context.Vehicles
+                .CountAsync(v => v.SubCategoryId == request.SubCategoryId, cancellationToken);
+
+            if (totalVehicles == 0)
+            {
+                return Result.Failure<List<ReservedDateDto>>("No vehicles found in this subcategory");
+            }
+
+            // Get all reserved records from ReservedVehiclesPerDays for this subcategory (StillBooked, order still active)
             var reservedRecords = await _context.ReservedVehiclesPerDays
                 .Include(rv => rv.Order)
                 .Where(rv => rv.SubCategoryId == request.SubCategoryId
@@ -37,8 +44,8 @@ namespace Application.Features.Order.Query.GetReservedVehiclePerSubCategoryQuery
                     && rv.Order.OrderState != OrderState.Completed)
                 .ToListAsync(cancellationToken);
 
-            // Expand date ranges into individual dates
-            var reservedDates = new HashSet<DateTime>();
+            // Build reserved count per date (only dates that appear in the table)
+            var reservedCountByDate = new Dictionary<DateTime, int>();
 
             foreach (var record in reservedRecords)
             {
@@ -47,17 +54,21 @@ namespace Application.Features.Order.Query.GetReservedVehiclePerSubCategoryQuery
 
                 while (currentDate <= endDate)
                 {
-                    reservedDates.Add(currentDate);
+                    if (!reservedCountByDate.TryGetValue(currentDate, out var count))
+                        count = 0;
+                    reservedCountByDate[currentDate] = count + 1;
                     currentDate = currentDate.AddDays(1);
                 }
             }
 
-            var result = reservedDates
-                .OrderBy(d => d)
-                .Select(d => new ReservedDateDto { Date = d })
+            // Return only dates that appear in ReservedVehiclesPerDays where ALL vehicles in subcategory are booked
+            var fullyBookedDates = reservedCountByDate
+                .Where(kv => kv.Value >= totalVehicles)
+                .Select(kv => new ReservedDateDto { Date = kv.Key })
+                .OrderBy(d => d.Date)
                 .ToList();
 
-            return Result.Success(result);
+            return Result.Success(fullyBookedDates);
         }
     }
 }

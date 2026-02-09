@@ -31,9 +31,10 @@ namespace Application.Features.Order.DTOs
         public DateTime CreatedDate { get; set; }
         public List<OrderVehicleDto> OrderVehicles { get; set; } = new List<OrderVehicleDto>();
         public List<OrderPaymentDto> OrderPayments { get; set; } = new List<OrderPaymentDto>();
-        public OrderCancellationFeeDto? OrderCancellationFee { get; set; }
         public RefundablePaypalAmountDto? RefundablePaypalAmount { get; set; }
         public OrderTotalsDto? OrderTotals { get; set; }
+        /// <summary>Present when order was cancelled and has a cancellation fee (wallet entry).</summary>
+        public OrderCancellationFeeInfoDto? OrderCancellationFee { get; set; }
     }
 }
 

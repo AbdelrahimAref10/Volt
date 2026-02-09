@@ -78,6 +78,13 @@ namespace Infrastructure.MappingConfiguration
                 .HasDefaultValue(false)
                 .IsRequired();
 
+            builder.Property(c => c.PasswordResetCode)
+                .HasColumnName("PasswordResetCode")
+                .HasMaxLength(10);
+
+            builder.Property(c => c.PasswordResetCodeExpiry)
+                .HasColumnName("PasswordResetCodeExpiry");
+
             builder.Property(c => c.PasswordHash)
                 .HasColumnName("PasswordHash")
                 .HasMaxLength(256)

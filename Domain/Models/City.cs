@@ -10,7 +10,7 @@ namespace Domain.Models
         public string? Description { get; private set; }
         public bool IsActive { get; private set; } = true;
         public decimal? DeliveryFees { get; private set; }
-        public decimal? UrgentDelivery { get; private set; }
+        public decimal? UrgentDelivery { get; private set; } // Percentage value (e.g., 5.0 means 5%)
         public decimal? ServiceFees { get; private set; } // Percentage value (e.g., 5.0 means 5%)
         public decimal? CancellationFees { get; private set; }
 
@@ -30,16 +30,33 @@ namespace Domain.Models
         public static City Create(
             string name,
             string? description = null,
+            decimal? deliveryFees = null,
+            decimal? urgentDelivery = null,
+            decimal? serviceFees = null,
+            decimal? cancellationFees = null,
             string? createdBy = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("City name cannot be empty", nameof(name));
+
+            if (deliveryFees.HasValue && deliveryFees.Value < 0)
+                throw new ArgumentException("Delivery fees cannot be negative", nameof(deliveryFees));
+            if (urgentDelivery.HasValue && urgentDelivery.Value < 0)
+                throw new ArgumentException("Urgent delivery fees cannot be negative", nameof(urgentDelivery));
+            if (serviceFees.HasValue && serviceFees.Value < 0)
+                throw new ArgumentException("Service fees cannot be negative", nameof(serviceFees));
+            if (cancellationFees.HasValue && cancellationFees.Value < 0)
+                throw new ArgumentException("Cancellation fees cannot be negative", nameof(cancellationFees));
 
             return new City
             {
                 Name = name.Trim(),
                 Description = description,
                 IsActive = true,
+                DeliveryFees = deliveryFees ?? 0,
+                UrgentDelivery = urgentDelivery ?? 0,
+                ServiceFees = serviceFees ?? 0,
+                CancellationFees = cancellationFees ?? 0,
                 CreatedBy = createdBy,
                 CreatedDate = DateTime.UtcNow,
                 LastModifiedDate = DateTime.UtcNow
@@ -91,10 +108,10 @@ namespace Domain.Models
             if (cancellationFees.HasValue && cancellationFees.Value < 0)
                 throw new ArgumentException("Cancellation fees cannot be negative", nameof(cancellationFees));
 
-            DeliveryFees = deliveryFees;
-            UrgentDelivery = urgentDelivery;
-            ServiceFees = serviceFees;
-            CancellationFees = cancellationFees;
+            DeliveryFees = deliveryFees ?? 0;
+            UrgentDelivery = urgentDelivery ?? 0;
+            ServiceFees = serviceFees ?? 0;
+            CancellationFees = cancellationFees ?? 0;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
         }

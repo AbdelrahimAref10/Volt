@@ -25,20 +25,14 @@ namespace Application.Features.Order.Query.Reports.CancellationReportQuery
 
         public async Task<Result<CancellationReportDto>> Handle(CancellationReportQuery request, CancellationToken cancellationToken)
         {
-            // Count cancelled orders (orders with cancellation fees)
-            var totalCancelledOrders = await _context.OrderCancellationFees
-                .CountAsync(cancellationToken);
-
-            var cancellationFees = await _context.OrderCancellationFees
+            var cancellationWalletEntries = await _context.CustomerWallets
+                .Where(cw => cw.Type == WalletType.OrderCancellationFees)
                 .ToListAsync(cancellationToken);
 
-            var totalCancellationFees = cancellationFees.Sum(cf => cf.Amount);
-            var paidCancellationFees = cancellationFees
-                .Where(cf => cf.State == CancellationFeeState.Paid)
-                .Sum(cf => cf.Amount);
-            var unpaidCancellationFees = cancellationFees
-                .Where(cf => cf.State == CancellationFeeState.NotYet)
-                .Sum(cf => cf.Amount);
+            var totalCancelledOrders = cancellationWalletEntries.Count;
+            var totalCancellationFees = cancellationWalletEntries.Sum(cw => cw.Withdraw);
+            var paidCancellationFees = cancellationWalletEntries.Where(cw => cw.State == CustomerWalletState.Paid).Sum(cw => cw.Withdraw);
+            var unpaidCancellationFees = cancellationWalletEntries.Where(cw => cw.State == CustomerWalletState.Pending).Sum(cw => cw.Withdraw);
 
             var report = new CancellationReportDto
             {

@@ -149,11 +149,6 @@ namespace Infrastructure.MappingConfiguration
                 .HasForeignKey(rv => rv.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(o => o.OrderCancellationFee)
-                .WithOne(ocf => ocf.Order)
-                .HasForeignKey<OrderCancellationFee>(ocf => ocf.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Configure indexes
             builder.HasIndex(o => o.OrderCode)
                 .HasDatabaseName("IX_VO_Order_OrderCode")

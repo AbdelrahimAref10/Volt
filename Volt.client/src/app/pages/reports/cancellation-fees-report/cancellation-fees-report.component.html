@@ -1,0 +1,53 @@
+<div class="report">
+  <header class="report__header">
+    <button type="button" (click)="onBack()" class="report__back">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Reports
+    </button>
+    <h1 class="report__title">Cancellation Fees</h1>
+  </header>
+
+  <div *ngIf="errorMessage" class="report__error">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="report__loading">
+    <div class="report__spinner"></div>
+    <p>Loading report...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="report__body">
+    <p *ngIf="!data.length" class="report__empty">No cancellation fee entries.</p>
+    <div *ngIf="data.length" class="report__section">
+      <div class="report__table-wrap">
+        <table class="report__table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer ID</th>
+              <th>Order ID</th>
+              <th>Amount</th>
+              <th>State</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of data">
+              <td>{{ c.id }}</td>
+              <td>{{ c.customerId }}</td>
+              <td>{{ c.orderId ?? '—' }}</td>
+              <td>{{ formatCurrency(c.withdraw) }}</td>
+              <td>{{ getStateLabel(c.state) }}</td>
+              <td>{{ c.createdDate | date : 'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -65,6 +65,46 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent)
       },
       {
+        path: 'reports/orders-by-state',
+        loadComponent: () => import('./pages/reports/orders-by-state-report/orders-by-state-report.component').then(m => m.OrdersByStateReportComponent)
+      },
+      {
+        path: 'reports/orders-by-date-range',
+        loadComponent: () => import('./pages/reports/orders-by-date-range-report/orders-by-date-range-report.component').then(m => m.OrdersByDateRangeReportComponent)
+      },
+      {
+        path: 'reports/revenue',
+        loadComponent: () => import('./pages/reports/revenue-report/revenue-report.component').then(m => m.RevenueReportComponent)
+      },
+      {
+        path: 'reports/revenue-by-period',
+        loadComponent: () => import('./pages/reports/revenue-by-period-report/revenue-by-period-report.component').then(m => m.RevenueByPeriodReportComponent)
+      },
+      {
+        path: 'reports/cancellations',
+        loadComponent: () => import('./pages/reports/cancellations-report/cancellations-report.component').then(m => m.CancellationsReportComponent)
+      },
+      {
+        path: 'reports/cancellation-fees',
+        loadComponent: () => import('./pages/reports/cancellation-fees-report/cancellation-fees-report.component').then(m => m.CancellationFeesReportComponent)
+      },
+      {
+        path: 'reports/vehicle-utilization',
+        loadComponent: () => import('./pages/reports/vehicle-utilization-report/vehicle-utilization-report.component').then(m => m.VehicleUtilizationReportComponent)
+      },
+      {
+        path: 'reports/customer-order-history',
+        loadComponent: () => import('./pages/reports/customer-order-history-report/customer-order-history-report.component').then(m => m.CustomerOrderHistoryReportComponent)
+      },
+      {
+        path: 'reports/treasury-balance',
+        loadComponent: () => import('./pages/reports/treasury-balance-report/treasury-balance-report.component').then(m => m.TreasuryBalanceReportComponent)
+      },
+      {
+        path: 'reports/wallet',
+        loadComponent: () => import('./pages/reports/wallet-report/wallet-report.component').then(m => m.WalletReportComponent)
+      },
+      {
         path: 'support',
         loadComponent: () => import('./pages/support/support.component').then(m => m.SupportComponent)
       },
