@@ -27,6 +27,7 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
         public async Task<Result<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _context.Categories
+                .AsTracking()
                 .Include(c => c.SubCategories)
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
 
@@ -41,17 +42,10 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
                 return Result.Failure<bool>("Cannot delete category that has subcategories. Please remove or reassign subcategories first.");
             }
 
-            try
-            {
-                category.Deactivate(_userSession.UserName ?? "System");
-                await _context.SaveChangesAsync(cancellationToken);
+            category.Deactivate(_userSession.UserName ?? "System");
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(true);
-            }
-            catch (System.Exception ex)
-            {
-                return Result.Failure<bool>($"Error deleting category: {ex.Message}");
-            }
+            return Result.Success(true);
         }
     }
 }

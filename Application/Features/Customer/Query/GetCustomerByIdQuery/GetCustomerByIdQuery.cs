@@ -1,6 +1,7 @@
 using Application.Features.Customer.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -16,10 +17,12 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
     public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, Result<CustomerDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetCustomerByIdQueryHandler(DatabaseContext context)
+        public GetCustomerByIdQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
@@ -39,9 +42,9 @@ namespace Application.Features.Customer.Query.GetCustomerByIdQuery
                 MobileNumber = customer.MobileNumber,
                 FullName = customer.FullName,
                 Gender = customer.Gender,
-                PersonalImage = customer.PersonalImage,
+                PersonalImage = _imageService.GetImageUrl(customer.PersonalImage),
                 Email = customer.Email,
-                CommercialRegisterImage = customer.CommercialRegisterImage,
+                CommercialRegisterImage = _imageService.GetImageUrl(customer.CommercialRegisterImage),
                 RegisterAs = customer.RegisterAs,
                 VerificationBy = customer.VerificationBy,
                 CityId = customer.CityId,

@@ -25,6 +25,7 @@ namespace Application.Features.Order.Command.MarkOrderCancellationFeePaidCommand
         public async Task<Result<int>> Handle(MarkOrderCancellationFeePaidCommand request, CancellationToken cancellationToken)
         {
             var walletEntry = await _context.CustomerWallets
+                .AsTracking()
                 .FirstOrDefaultAsync(
                     cw => cw.OrderId == request.OrderId && cw.Type == WalletType.OrderCancellationFees,
                     cancellationToken);

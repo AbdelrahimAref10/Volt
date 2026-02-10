@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -13,6 +13,11 @@ import { AdminUserClient, UserDto, PagedResultOfUserDto, CreateUserCommand, Role
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit, OnDestroy {
+  private adminUserClient = inject(AdminUserClient);
+  private roleClient = inject(RoleClient);
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+
   users: UserDto[] = [];
   currentPage = 1;
   pageSize = 10;
@@ -39,12 +44,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   showPassword = false;
 
-  constructor(
-    private adminUserClient: AdminUserClient,
-    private roleClient: RoleClient,
-    private fb: FormBuilder,
-    private router: Router
-  ) {
+  constructor() {
     this.userForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],

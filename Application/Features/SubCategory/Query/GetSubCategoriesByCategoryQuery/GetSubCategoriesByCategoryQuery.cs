@@ -1,6 +1,7 @@
 using Application.Features.SubCategory.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ namespace Application.Features.SubCategory.Query.GetSubCategoriesByCategoryQuery
     public class GetSubCategoriesByCategoryQueryHandler : IRequestHandler<GetSubCategoriesByCategoryQuery, Result<List<SubCategoryDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetSubCategoriesByCategoryQueryHandler(DatabaseContext context)
+        public GetSubCategoriesByCategoryQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<List<SubCategoryDto>>> Handle(GetSubCategoriesByCategoryQuery request, CancellationToken cancellationToken)
@@ -40,24 +43,25 @@ namespace Application.Features.SubCategory.Query.GetSubCategoriesByCategoryQuery
                     .ThenInclude(c => c.City)
                 .Where(sc => sc.CategoryId == request.CategoryId && sc.IsActive)
                 .OrderBy(sc => sc.Name)
-                .Select(sc => new SubCategoryDto
-                {
-                    SubCategoryId = sc.SubCategoryId,
-                    Name = sc.Name,
-                    Description = sc.Description,
-                    ImageUrl = sc.ImageUrl,
-                    IsActive = sc.IsActive,
-                    IsOffer = sc.IsOffer,
-                    Price = sc.Price,
-                    CategoryId = sc.CategoryId,
-                    CategoryName = sc.Category.Name,
-                    CityId = sc.Category.CityId,
-                    CityName = sc.Category.City.Name,
-                    VehicleCount = sc.Vehicles.Count
-                })
                 .ToListAsync(cancellationToken);
 
-            return Result.Success(subCategories);
+            var result = subCategories.Select(sc => new SubCategoryDto
+            {
+                SubCategoryId = sc.SubCategoryId,
+                Name = sc.Name,
+                Description = sc.Description,
+                ImageUrl = _imageService.GetImageUrl(sc.ImageUrl),
+                IsActive = sc.IsActive,
+                IsOffer = sc.IsOffer,
+                Price = sc.Price,
+                CategoryId = sc.CategoryId,
+                CategoryName = sc.Category.Name,
+                CityId = sc.Category.CityId,
+                CityName = sc.Category.City.Name,
+                VehicleCount = sc.Vehicles.Count
+            }).ToList();
+
+            return Result.Success(result);
         }
     }
 }

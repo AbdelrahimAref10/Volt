@@ -45,6 +45,7 @@ namespace Application.Features.City.Command.UpdateCityCommand
             }
 
             var city = await _context.Cities
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CityId == request.CityId, cancellationToken);
 
             city.Update(

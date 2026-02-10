@@ -24,6 +24,7 @@ namespace Application.Features.Customer.Command.DeleteCustomerCommand
         public async Task<Result<bool>> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
             var customer = await _context.Customers
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             if (customer == null)

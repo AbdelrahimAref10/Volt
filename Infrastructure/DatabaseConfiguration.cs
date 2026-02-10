@@ -27,6 +27,7 @@ namespace Infrastructure
                 options.UseSqlServer(
                         configuration.GetConnectionString("DefaultConnection")
                 )
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             );
 
             // Configure Identity with int primary keys

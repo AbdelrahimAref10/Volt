@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AdminCustomerClient, CustomerDto, CustomerState } from '../../../core/services/clientAPI';
@@ -11,18 +11,16 @@ import { AdminCustomerClient, CustomerDto, CustomerState } from '../../../core/s
   styleUrl: './customer-detail.component.css'
 })
 export class CustomerDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private customerClient = inject(AdminCustomerClient);
+
   customer: CustomerDto | null = null;
   customerId: number = 0;
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   actionLoading: string = '';
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private customerClient: AdminCustomerClient
-  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

@@ -28,6 +28,7 @@ namespace Application.Features.Customer.Command.AdminActivateCustomerCommand
         public async Task<Result<bool>> Handle(AdminActivateCustomerCommand request, CancellationToken cancellationToken)
         {
             var customer = await _context.Customers
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             if (customer == null)

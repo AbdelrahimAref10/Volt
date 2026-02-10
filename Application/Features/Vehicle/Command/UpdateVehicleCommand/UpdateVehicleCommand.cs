@@ -1,7 +1,7 @@
-using Application.Features.Vehicle.DTOs;
 using CSharpFunctionalExtensions;
 using Domain.Common;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
 {
-    public record UpdateVehicleCommand : IRequest<Result<VehicleDto>>
+    public record UpdateVehicleCommand : IRequest<Result<int>>
     {
         public int VehicleId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -19,77 +19,66 @@ namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
         public string? ImageUrl { get; set; }
     }
 
-    public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand, Result<VehicleDto>>
+    public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand, Result<int>>
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly IImageService _imageService;
 
-        public UpdateVehicleCommandHandler(DatabaseContext context, IUserSession userSession)
+        public UpdateVehicleCommandHandler(DatabaseContext context, IUserSession userSession, IImageService imageService)
         {
             _context = context;
             _userSession = userSession;
+            _imageService = imageService;
         }
 
-        public async Task<Result<VehicleDto>> Handle(UpdateVehicleCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(UpdateVehicleCommand request, CancellationToken cancellationToken)
         {
             var vehicle = await _context.Vehicles
-                .Include(v => v.SubCategory)
-                    .ThenInclude(sc => sc.Category)
-                        .ThenInclude(c => c.City)
+                .AsTracking()
                 .FirstOrDefaultAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
 
             if (vehicle == null)
             {
-                return Result.Failure<VehicleDto>($"Vehicle with ID {request.VehicleId} not found");
+                return Result.Failure<int>($"Vehicle with ID {request.VehicleId} not found");
             }
 
             // Verify subcategory exists
             var subCategory = await _context.SubCategories
-                .Include(sc => sc.Category)
-                    .ThenInclude(c => c.City)
                 .FirstOrDefaultAsync(sc => sc.SubCategoryId == request.SubCategoryId && sc.IsActive, cancellationToken);
 
             if (subCategory == null)
             {
-                return Result.Failure<VehicleDto>($"SubCategory with ID {request.SubCategoryId} not found");
+                return Result.Failure<int>($"SubCategory with ID {request.SubCategoryId} not found");
             }
 
-            try
+            // Store old image URL for deletion if new image is provided
+            string? oldImageUrl = vehicle.ImageUrl;
+
+            // Save base64 image as file and get URL
+            string? imageUrl = vehicle.ImageUrl; // Keep existing if no new image provided
+            if (!string.IsNullOrWhiteSpace(request.ImageUrl))
             {
-                vehicle.Update(
-                    request.Name,
-                    request.VehicleCode,
-                    request.SubCategoryId,
-                    request.Status,
-                    request.ImageUrl,
-                    _userSession.UserName ?? "System"
-                );
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                var vehicleDto = new VehicleDto
+                imageUrl = _imageService.SaveBase64Image(request.ImageUrl, "vehicles");
+                // Delete old image if it exists and is different
+                if (!string.IsNullOrWhiteSpace(oldImageUrl) && oldImageUrl != imageUrl)
                 {
-                    VehicleId = vehicle.VehicleId,
-                    Name = vehicle.Name,
-                    VehicleCode = vehicle.VehicleCode,
-                    ImageUrl = vehicle.ImageUrl,
-                    Status = vehicle.Status,
-                    SubCategoryId = vehicle.SubCategoryId,
-                    SubCategoryName = vehicle.SubCategory.Name,
-                    SubCategoryPrice = vehicle.SubCategory.Price,
-                    CategoryId = vehicle.SubCategory.CategoryId,
-                    CategoryName = vehicle.SubCategory.Category.Name,
-                    CityId = vehicle.SubCategory.Category.CityId,
-                    CityName = vehicle.SubCategory.Category.City.Name,
-                    IsNewThisMonth = vehicle.IsNewThisMonth
-                };
+                    _imageService.DeleteImage(oldImageUrl);
+                }
+            }
 
-                return Result.Success(vehicleDto);
-            }
-            catch (System.Exception ex)
-            {
-                return Result.Failure<VehicleDto>($"Error updating vehicle: {ex.Message}");
-            }
+            vehicle.Update(
+                request.Name,
+                request.VehicleCode,
+                request.SubCategoryId,
+                request.Status,
+                imageUrl,
+                _userSession.UserName ?? "System"
+            );
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(vehicle.VehicleId);
         }
     }
 }

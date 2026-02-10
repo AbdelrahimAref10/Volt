@@ -27,6 +27,7 @@ namespace Application.Features.City.Command.ActivateCityCommand
         public async Task<Result<int>> Handle(ActivateCityCommand request, CancellationToken cancellationToken)
         {
             var city = await _context.Cities
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CityId == request.CityId, cancellationToken);
 
             if (city == null)

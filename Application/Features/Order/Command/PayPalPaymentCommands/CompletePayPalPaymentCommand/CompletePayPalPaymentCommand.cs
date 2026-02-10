@@ -48,6 +48,7 @@ namespace Application.Features.Order.Command.PayPalPaymentCommands.CompletePayPa
 
             // Verify the order belongs to the current customer
             var order = await _context.Orders
+                .AsTracking()
                 .Include(o => o.OrderPayments)
                 .FirstOrDefaultAsync(o => o.OrderId == request.OrderId && o.CustomerId == _userSession.UserId, cancellationToken);
 

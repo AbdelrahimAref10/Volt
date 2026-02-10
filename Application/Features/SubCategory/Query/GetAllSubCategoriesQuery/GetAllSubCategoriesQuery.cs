@@ -2,6 +2,7 @@ using Application.Common;
 using Application.Features.SubCategory.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -21,10 +22,12 @@ namespace Application.Features.SubCategory.Query.GetAllSubCategoriesQuery
     public class GetAllSubCategoriesQueryHandler : IRequestHandler<GetAllSubCategoriesQuery, Result<PagedResult<SubCategoryDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetAllSubCategoriesQueryHandler(DatabaseContext context)
+        public GetAllSubCategoriesQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<PagedResult<SubCategoryDto>>> Handle(GetAllSubCategoriesQuery request, CancellationToken cancellationToken)
@@ -51,26 +54,27 @@ namespace Application.Features.SubCategory.Query.GetAllSubCategoriesQuery
 
             var totalCount = await query.CountAsync(cancellationToken);
 
-            var items = await query
+            var subCategories = await query
                 .OrderBy(sc => sc.Name)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .Select(sc => new SubCategoryDto
-                {
-                    SubCategoryId = sc.SubCategoryId,
-                    Name = sc.Name,
-                    Description = sc.Description,
-                    ImageUrl = sc.ImageUrl,
-                    IsActive = sc.IsActive,
-                    IsOffer = sc.IsOffer,
-                    Price = sc.Price,
-                    CategoryId = sc.CategoryId,
-                    CategoryName = sc.Category.Name,
-                    CityId = sc.Category.CityId,
-                    CityName = sc.Category.City.Name,
-                    VehicleCount = sc.Vehicles.Count
-                })
                 .ToListAsync(cancellationToken);
+
+            var items = subCategories.Select(sc => new SubCategoryDto
+            {
+                SubCategoryId = sc.SubCategoryId,
+                Name = sc.Name,
+                Description = sc.Description,
+                ImageUrl = _imageService.GetImageUrl(sc.ImageUrl),
+                IsActive = sc.IsActive,
+                IsOffer = sc.IsOffer,
+                Price = sc.Price,
+                CategoryId = sc.CategoryId,
+                CategoryName = sc.Category.Name,
+                CityId = sc.Category.CityId,
+                CityName = sc.Category.City.Name,
+                VehicleCount = sc.Vehicles.Count
+            }).ToList();
 
             var result = new PagedResult<SubCategoryDto>
             {

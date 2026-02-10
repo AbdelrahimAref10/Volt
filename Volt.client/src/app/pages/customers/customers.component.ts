@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -13,6 +13,11 @@ import { AdminCustomerClient, CustomerDto, PagedResultOfCustomerDto, CustomerSta
   styleUrl: './customers.component.css'
 })
 export class CustomersComponent implements OnInit, OnDestroy {
+  private customerClient = inject(AdminCustomerClient);
+  private cityClient = inject(CityClient);
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+
   customers: CustomerDto[] = [];
   currentPage = 1;
   pageSize = 10;
@@ -67,12 +72,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
   commercialImagePreview: string | null = null;
   showCommercialImageError = false;
 
-  constructor(
-    private customerClient: AdminCustomerClient,
-    private cityClient: CityClient,
-    private fb: FormBuilder,
-    private router: Router
-  ) {
+  constructor() {
     this.customerForm = this.fb.group({
       mobileNumber: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       fullName: ['', [Validators.required, Validators.minLength(2)]],

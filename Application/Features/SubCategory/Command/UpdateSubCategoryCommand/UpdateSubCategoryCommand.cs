@@ -1,16 +1,15 @@
-using Application.Features.SubCategory.DTOs;
 using CSharpFunctionalExtensions;
 using Domain.Common;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.Features.SubCategory.Command.UpdateSubCategoryCommand
 {
-    public record UpdateSubCategoryCommand : IRequest<Result<SubCategoryDto>>
+    public record UpdateSubCategoryCommand : IRequest<Result<int>>
     {
         public int SubCategoryId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -21,90 +20,80 @@ namespace Application.Features.SubCategory.Command.UpdateSubCategoryCommand
         public string? ImageUrl { get; set; }
     }
 
-    public class UpdateSubCategoryCommandHandler : IRequestHandler<UpdateSubCategoryCommand, Result<SubCategoryDto>>
+    public class UpdateSubCategoryCommandHandler : IRequestHandler<UpdateSubCategoryCommand, Result<int>>
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly IImageService _imageService;
         private readonly UpdateSubCategoryCommandValidator _validator;
 
         public UpdateSubCategoryCommandHandler(
             DatabaseContext context, 
             IUserSession userSession,
+            IImageService imageService,
             UpdateSubCategoryCommandValidator validator)
         {
             _context = context;
             _userSession = userSession;
+            _imageService = imageService;
             _validator = validator;
         }
 
-        public async Task<Result<SubCategoryDto>> Handle(UpdateSubCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(UpdateSubCategoryCommand request, CancellationToken cancellationToken)
         {
             // Validate command using validator
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (validationResult.IsFailure)
             {
-                return Result.Failure<SubCategoryDto>(validationResult.Error);
+                return Result.Failure<int>(validationResult.Error);
             }
 
             var subCategory = await _context.SubCategories
-                .Include(sc => sc.Category)
-                    .ThenInclude(c => c.City)
+                .AsTracking()
                 .FirstOrDefaultAsync(sc => sc.SubCategoryId == request.SubCategoryId, cancellationToken);
 
             if (subCategory == null)
             {
-                return Result.Failure<SubCategoryDto>($"SubCategory with ID {request.SubCategoryId} not found");
+                return Result.Failure<int>($"SubCategory with ID {request.SubCategoryId} not found");
             }
 
             // Verify category exists
             var category = await _context.Categories
-                .Include(c => c.City)
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId && c.IsActive, cancellationToken);
 
             if (category == null)
             {
-                return Result.Failure<SubCategoryDto>($"Category with ID {request.CategoryId} not found");
+                return Result.Failure<int>($"Category with ID {request.CategoryId} not found");
             }
 
-            try
+            // Store old image URL for deletion if new image is provided
+            string? oldImageUrl = subCategory.ImageUrl;
+
+            // Save base64 image as file and get URL
+            string? imageUrl = subCategory.ImageUrl; // Keep existing if no new image provided
+            if (!string.IsNullOrWhiteSpace(request.ImageUrl))
             {
-                subCategory.Update(
-                    request.Name,
-                    request.Description,
-                    request.CategoryId,
-                    request.Price,
-                    request.ImageUrl,
-                    request.IsOffer,
-                    _userSession.UserName ?? "System"
-                );
-
-                await _context.SaveChangesAsync(cancellationToken);
-
-                var vehicleCount = await _context.Vehicles
-                    .CountAsync(v => v.SubCategoryId == subCategory.SubCategoryId, cancellationToken);
-
-                var subCategoryDto = new SubCategoryDto
+                imageUrl = _imageService.SaveBase64Image(request.ImageUrl, "subcategories");
+                // Delete old image if it exists and is different
+                if (!string.IsNullOrWhiteSpace(oldImageUrl) && oldImageUrl != imageUrl)
                 {
-                    SubCategoryId = subCategory.SubCategoryId,
-                    Name = subCategory.Name,
-                    Description = subCategory.Description,
-                    ImageUrl = subCategory.ImageUrl,
-                    IsActive = subCategory.IsActive,
-                    IsOffer = subCategory.IsOffer,
-                    Price = subCategory.Price,
-                    CategoryId = subCategory.CategoryId,
-                    CategoryName = subCategory.Category.Name,
-                    CityId = subCategory.Category.CityId,
-                    CityName = subCategory.Category.City.Name,
-                    VehicleCount = vehicleCount
-                };
+                    _imageService.DeleteImage(oldImageUrl);
+                }
+            }
 
-                return Result.Success(subCategoryDto);
-            }
-            catch (System.Exception ex)
-            {
-                return Result.Failure<SubCategoryDto>($"Error updating subcategory: {ex.Message}");
-            }
+            subCategory.Update(
+                request.Name,
+                request.Description,
+                request.CategoryId,
+                request.Price,
+                imageUrl,
+                request.IsOffer,
+                _userSession.UserName ?? "System"
+            );
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(subCategory.SubCategoryId);
         }
     }
 }

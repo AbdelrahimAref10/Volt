@@ -28,6 +28,7 @@ namespace Application.Features.City.Command.DeactivateCityCommand
         public async Task<Result<bool>> Handle(DeactivateCityCommand request, CancellationToken cancellationToken)
         {
             var city = await _context.Cities
+                .AsTracking()
                 .Include(c => c.Customers)
                 .FirstOrDefaultAsync(c => c.CityId == request.CityId, cancellationToken);
 

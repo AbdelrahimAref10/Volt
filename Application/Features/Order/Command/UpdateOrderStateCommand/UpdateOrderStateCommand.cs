@@ -36,6 +36,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
         {
             OrderPayment orderPayment; 
             var order = await _context.Orders
+                .AsTracking()
                 .Include(o => o.Customer)
                 .Include(o => o.SubCategory)
                 .Include(o => o.City)
@@ -49,9 +50,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                 return Result.Failure<OrderDto>($"Order with ID {request.OrderId} not found");
             }
 
-            try
-            {
-                // Update state based on transition
+            // Update state based on transition
                 switch (request.NewState)
                 {
                     case OrderState.Confirmed:
@@ -73,6 +72,7 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
 
                         // Get and validate vehicles
                         var vehicles = await _context.Vehicles
+                            .AsTracking()
                             .Where(v => request.VehicleIds.Contains(v.VehicleId))
                             .ToListAsync(cancellationToken);
 
@@ -237,11 +237,6 @@ namespace Application.Features.Order.Command.UpdateOrderStateCommand
                 };
 
                 return Result.Success(orderDto);
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure<OrderDto>($"Error updating order state: {ex.Message}");
-            }
         }
     }
 }

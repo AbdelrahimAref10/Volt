@@ -24,6 +24,7 @@ namespace Application.Features.Vehicle.Command.DeleteVehicleCommand
         public async Task<Result<bool>> Handle(DeleteVehicleCommand request, CancellationToken cancellationToken)
         {
             var vehicle = await _context.Vehicles
+                .AsTracking()
                 .FirstOrDefaultAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
 
             if (vehicle == null)
@@ -31,17 +32,10 @@ namespace Application.Features.Vehicle.Command.DeleteVehicleCommand
                 return Result.Failure<bool>($"Vehicle with ID {request.VehicleId} not found");
             }
 
-            try
-            {
-                _context.Vehicles.Remove(vehicle);
-                await _context.SaveChangesAsync(cancellationToken);
+            _context.Vehicles.Remove(vehicle);
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(true);
-            }
-            catch (System.Exception ex)
-            {
-                return Result.Failure<bool>($"Error deleting vehicle: {ex.Message}");
-            }
+            return Result.Success(true);
         }
     }
 }

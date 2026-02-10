@@ -28,6 +28,7 @@ namespace Application.Features.SubCategory.Command.DeleteSubCategoryCommand
         public async Task<Result<bool>> Handle(DeleteSubCategoryCommand request, CancellationToken cancellationToken)
         {
             var subCategory = await _context.SubCategories
+                .AsTracking()
                 .Include(sc => sc.Vehicles)
                 .FirstOrDefaultAsync(sc => sc.SubCategoryId == request.SubCategoryId, cancellationToken);
 
@@ -42,17 +43,10 @@ namespace Application.Features.SubCategory.Command.DeleteSubCategoryCommand
                 return Result.Failure<bool>("Cannot delete subcategory that has vehicles. Please remove or reassign vehicles first.");
             }
 
-            try
-            {
-                subCategory.Deactivate(_userSession.UserName ?? "System");
-                await _context.SaveChangesAsync(cancellationToken);
+            subCategory.Deactivate(_userSession.UserName ?? "System");
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(true);
-            }
-            catch (System.Exception ex)
-            {
-                return Result.Failure<bool>($"Error deleting subcategory: {ex.Message}");
-            }
+            return Result.Success(true);
         }
     }
 }

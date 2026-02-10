@@ -1,11 +1,12 @@
 ﻿using Application;
 using Infrastructure;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Volt.Server
 {
     public static class StatupExtensions
     {
-        public static WebApplication ConfigureServices (this WebApplicationBuilder builder)
+        public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
         {
             builder.Services.AddApplicationServices();
             builder.Services.AddDatabaseServices(builder.Configuration);
@@ -28,19 +29,29 @@ namespace Volt.Server
             return builder.Build();
         }
 
-        public static WebApplication ConfigurePipeline (this WebApplication app)
+        public static WebApplication ConfigurePipeline(this WebApplication app)
         {
             // Global exception handling must be first
             app.UseMiddleware<Presentation.Middleware.GlobalExceptionHandlingMiddleware>();
-            
+
             app.UseCors("AllowAll");
+
+            // Static files must be before routing
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    // Cache static files for 1 year
+                    ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000");
+                }
+            });
+
             app.UseSwaggerUi();
             app.UseOpenApi();
             app.UseRouting();
             app.UseHttpsRedirection();
-            
+
             // JWT Authentication
             app.UseAuthentication();
             app.UseAuthorization();
