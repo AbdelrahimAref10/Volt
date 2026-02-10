@@ -79,6 +79,16 @@ namespace Infrastructure.Services
                 return fileName;
             }
 
+            // Check if it's a base64 string (long string without slashes, starts with data: or is very long)
+            // Base64 strings are typically long and don't contain path separators
+            if (fileName.StartsWith("data:image/") || 
+                (fileName.Length > 100 && !fileName.Contains("/") && !fileName.Contains("\\")))
+            {
+                // This is likely base64 data - return null as we can't serve it as a URL
+                // In production, you might want to log this and migrate the data
+                return null;
+            }
+
             return $"{_baseUrl}/{fileName}";
         }
 

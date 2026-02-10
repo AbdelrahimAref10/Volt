@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPasswordResetToCustomer : Migration
+    public partial class UpdateCustomersTableWithNewPassworedResetColumns : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +18,7 @@ namespace Infrastructure.Migrations
                 maxLength: 10,
                 nullable: true);
 
-            migrationBuilder.AddColumn<DateTime?>(
+            migrationBuilder.AddColumn<DateTime>(
                 name: "PasswordResetCodeExpiry",
                 table: "VO_Customer",
                 type: "datetime2",

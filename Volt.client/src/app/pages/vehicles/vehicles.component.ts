@@ -45,6 +45,7 @@ export class VehiclesComponent implements OnInit {
   ) {
     this.vehicleForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
+      vehicleCode: ['', [Validators.required, Validators.minLength(1)]],
       subCategoryId: [null, [Validators.required]],
       status: ['Available', [Validators.required]],
       imageUrl: [null]
@@ -188,6 +189,7 @@ export class VehiclesComponent implements OnInit {
     this.selectedVehicleId = vehicle.vehicleId;
     this.vehicleForm.patchValue({
       name: vehicle.name,
+      vehicleCode: vehicle.vehicleCode,
       subCategoryId: vehicle.subCategoryId,
       status: vehicle.status,
       imageUrl: vehicle.imageUrl
@@ -238,6 +240,7 @@ export class VehiclesComponent implements OnInit {
       const command = new UpdateVehicleCommand();
       command.vehicleId = this.selectedVehicleId;
       command.name = formValue.name;
+      command.vehicleCode = formValue.vehicleCode;
       command.subCategoryId = formValue.subCategoryId;
       command.status = formValue.status;
       command.imageUrl = formValue.imageUrl;
@@ -256,6 +259,7 @@ export class VehiclesComponent implements OnInit {
     } else {
       const command = new CreateVehicleCommand();
       command.name = formValue.name;
+      command.vehicleCode = formValue.vehicleCode;
       command.subCategoryId = formValue.subCategoryId;
       command.status = formValue.status;
       command.imageUrl = formValue.imageUrl;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RoleClient, RoleDto, CreateRoleCommand, UpdateRoleCommand } from '../../core/services/clientAPI';
@@ -11,6 +11,9 @@ import { RoleClient, RoleDto, CreateRoleCommand, UpdateRoleCommand } from '../..
   styleUrl: './roles.component.css'
 })
 export class RolesComponent implements OnInit {
+  private roleClient = inject(RoleClient);
+  private fb = inject(FormBuilder);
+
   roles: RoleDto[] = [];
   isLoading = false;
   errorMessage = '';
@@ -22,10 +25,7 @@ export class RolesComponent implements OnInit {
   editingRoleId: number | null = null;
   isSubmitting = false;
 
-  constructor(
-    private roleClient: RoleClient,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.roleForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[A-Za-z][A-Za-z0-9]*$/)]]
     });

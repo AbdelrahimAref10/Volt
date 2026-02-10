@@ -5045,7 +5045,7 @@ export class VehicleClient {
         return _observableOf(null as any);
     }
 
-    create(command: CreateVehicleCommand): Observable<VehicleDto> {
+    create(command: CreateVehicleCommand): Observable<number> {
         let url_ = this.baseUrl + "/api/Vehicle";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5068,14 +5068,14 @@ export class VehicleClient {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<VehicleDto>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<VehicleDto>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<VehicleDto> {
+    protected processCreate(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5086,7 +5086,8 @@ export class VehicleClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = VehicleDto.fromJS(resultData200);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status === 400) {

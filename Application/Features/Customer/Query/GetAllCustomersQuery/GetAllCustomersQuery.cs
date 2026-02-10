@@ -2,6 +2,7 @@ using Application.Common;
 using Application.Features.Customer.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,10 +25,12 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
     public class GetAllCustomersQueryHandler : IRequestHandler<GetAllCustomersQuery, Result<PagedResult<CustomerDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetAllCustomersQueryHandler(DatabaseContext context)
+        public GetAllCustomersQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<PagedResult<CustomerDto>>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
@@ -63,28 +66,29 @@ namespace Application.Features.Customer.Query.GetAllCustomersQuery
 
             var totalCount = await query.CountAsync(cancellationToken);
 
-            var items = await query
+            var customers = await query
                 .OrderByDescending(c => c.CreatedDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .Select(c => new CustomerDto
-                {
-                    CustomerId = c.CustomerId,
-                    MobileNumber = c.MobileNumber,
-                    FullName = c.FullName,
-                    Gender = c.Gender,
-                    PersonalImage = c.PersonalImage,
-                    Email = c.Email,
-                    CommercialRegisterImage = c.CommercialRegisterImage,
-                    RegisterAs = c.RegisterAs,
-                    VerificationBy = c.VerificationBy,
-                    CityId = c.CityId,
-                    CityName = c.City != null ? c.City.Name : string.Empty,
-                    State = c.State,
-                    CashBlock = c.CashBlock,
-                    CreatedDate = c.CreatedDate
-                })
                 .ToListAsync(cancellationToken);
+
+            var items = customers.Select(c => new CustomerDto
+            {
+                CustomerId = c.CustomerId,
+                MobileNumber = c.MobileNumber,
+                FullName = c.FullName,
+                Gender = c.Gender,
+                PersonalImage = _imageService.GetImageUrl(c.PersonalImage),
+                Email = c.Email,
+                CommercialRegisterImage = _imageService.GetImageUrl(c.CommercialRegisterImage),
+                RegisterAs = c.RegisterAs,
+                VerificationBy = c.VerificationBy,
+                CityId = c.CityId,
+                CityName = c.City != null ? c.City.Name : string.Empty,
+                State = c.State,
+                CashBlock = c.CashBlock,
+                CreatedDate = c.CreatedDate
+            }).ToList();
 
             var result = new PagedResult<CustomerDto>
             {

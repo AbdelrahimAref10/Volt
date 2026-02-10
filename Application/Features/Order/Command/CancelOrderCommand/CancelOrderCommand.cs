@@ -32,6 +32,7 @@ namespace Application.Features.Order.Command.CancelOrderCommand
         public async Task<Result<bool>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
         {
             var order = await _context.Orders
+                .AsTracking()
                 .Include(o => o.Customer)
                 .Include(o => o.City)
                 .Include(o => o.OrderPayments)
@@ -59,9 +60,7 @@ namespace Application.Features.Order.Command.CancelOrderCommand
                 return Result.Failure<bool>("You do not have permission to cancel this order");
             }
 
-            try
-            {
-                // Calculate cancellation fee (4 days policy)
+            // Calculate cancellation fee (4 days policy)
                 var cancellationFee = OrderCalculationService.CalculateCancellationFee(order.City, order.CreatedDate);
 
                 // Add cancellation fee to customer wallet as withdraw (OrderCancellationFees)
@@ -116,6 +115,7 @@ namespace Application.Features.Order.Command.CancelOrderCommand
 
                 // Update ReservedVehiclesPerDays state to Cancelled
                 var reservedVehicles = await _context.ReservedVehiclesPerDays
+                    .AsTracking()
                     .Where(rv => rv.OrderId == order.OrderId)
                     .ToListAsync(cancellationToken);
 
@@ -130,14 +130,9 @@ namespace Application.Features.Order.Command.CancelOrderCommand
                 // TODO: Add treasury record handling for cancellation
                 // This will be implemented soon - treasury records will be created when cancellation fees are paid
 
-                await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(true);
-            }
-            catch (Exception ex)
-            {
-                return Result.Failure<bool>($"Error cancelling order: {ex.Message}");
-            }
+            return Result.Success(true);
         }
     }
 }

@@ -73,11 +73,13 @@ namespace Application.Features.Customer.Command.ResetPasswordCommand
             if (!string.IsNullOrWhiteSpace(request.MobileNumber))
             {
                 return await _context.Customers
+                    .AsTracking()
                     .FirstOrDefaultAsync(c => c.MobileNumber == request.MobileNumber, cancellationToken);
             }
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
                 return await _context.Customers
+                    .AsTracking()
                     .FirstOrDefaultAsync(c => c.Email == request.Email, cancellationToken);
             }
             return null;

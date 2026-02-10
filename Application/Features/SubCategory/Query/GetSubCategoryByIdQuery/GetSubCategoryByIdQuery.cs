@@ -1,6 +1,7 @@
 using Application.Features.SubCategory.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace Application.Features.SubCategory.Query.GetSubCategoryByIdQuery
     public class GetSubCategoryByIdQueryHandler : IRequestHandler<GetSubCategoryByIdQuery, Result<SubCategoryDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetSubCategoryByIdQueryHandler(DatabaseContext context)
+        public GetSubCategoryByIdQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<SubCategoryDto>> Handle(GetSubCategoryByIdQuery request, CancellationToken cancellationToken)
@@ -43,7 +46,7 @@ namespace Application.Features.SubCategory.Query.GetSubCategoryByIdQuery
                 SubCategoryId = subCategory.SubCategoryId,
                 Name = subCategory.Name,
                 Description = subCategory.Description,
-                ImageUrl = subCategory.ImageUrl,
+                ImageUrl = _imageService.GetImageUrl(subCategory.ImageUrl),
                 IsActive = subCategory.IsActive,
                 IsOffer = subCategory.IsOffer,
                 Price = subCategory.Price,

@@ -30,17 +30,20 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
         private readonly DatabaseContext _context;
         private readonly IInvitationCodeService _invitationCodeService;
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly IImageService _imageService;
         private readonly RegisterCustomerCommandValidator _validator;
 
         public RegisterCustomerCommandHandler(
             DatabaseContext context,
             IInvitationCodeService invitationCodeService,
             IPasswordHasher<ApplicationUser> passwordHasher,
+            IImageService imageService,
             RegisterCustomerCommandValidator validator)
         {
             _context = context;
             _invitationCodeService = invitationCodeService;
             _passwordHasher = passwordHasher;
+            _imageService = imageService;
             _validator = validator;
         }
 
@@ -60,10 +63,32 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
             // Generate invitation code
             var invitationCode = _invitationCodeService.GenerateInvitationCode();
 
-            // Ensure CommercialRegisterImage is null for Individual customers
-            var commercialRegisterImage = request.RegisterAs == (int)Domain.Enums.RegisterAs.Institution 
-                ? request.CommercialRegisterImage 
-                : null;
+            // Save base64 images as files and get URLs
+            string? personalImageUrl = null;
+            if (!string.IsNullOrWhiteSpace(request.PersonalImage))
+            {
+                try
+                {
+                    personalImageUrl = _imageService.SaveBase64Image(request.PersonalImage, "customers");
+                }
+                catch (Exception ex)
+                {
+                    return Result.Failure<RegisterCustomerResponse>($"Failed to save personal image: {ex.Message}");
+                }
+            }
+
+            string? commercialRegisterImageUrl = null;
+            if (request.RegisterAs == (int)Domain.Enums.RegisterAs.Institution && !string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            {
+                try
+                {
+                    commercialRegisterImageUrl = _imageService.SaveBase64Image(request.CommercialRegisterImage, "customers");
+                }
+                catch (Exception ex)
+                {
+                    return Result.Failure<RegisterCustomerResponse>($"Failed to save commercial register image: {ex.Message}");
+                }
+            }
 
             // Create Customer
             var customer = Domain.Models.Customer.Create(
@@ -76,8 +101,8 @@ namespace Application.Features.Customer.Command.RegisterCustomerCommand
                 request.RegisterAs,
                 request.VerificationBy,
                 request.Email,
-                request.PersonalImage,
-                commercialRegisterImage,
+                personalImageUrl,
+                commercialRegisterImageUrl,
                 "System"
             );
 

@@ -3537,7 +3537,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VehicleDto"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }

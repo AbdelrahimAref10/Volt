@@ -1,8 +1,8 @@
-using Application.Features.Category.DTOs;
 using CSharpFunctionalExtensions;
 using Domain.Common;
 using Domain.Models;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Category.Command.CreateCategoryCommand
 {
-    public record CreateCategoryCommand : IRequest<Result<CategoryDto>>
+    public record CreateCategoryCommand : IRequest<Result<int>>
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -18,71 +18,62 @@ namespace Application.Features.Category.Command.CreateCategoryCommand
         public string? ImageUrl { get; set; }
     }
 
-    public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<CategoryDto>>
+    public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Result<int>>
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly IImageService _imageService;
         private readonly CreateCategoryCommandValidator _validator;
 
         public CreateCategoryCommandHandler(
-            DatabaseContext context, 
+            DatabaseContext context,
             IUserSession userSession,
+            IImageService imageService,
             CreateCategoryCommandValidator validator)
         {
             _context = context;
             _userSession = userSession;
+            _imageService = imageService;
             _validator = validator;
         }
 
-        public async Task<Result<CategoryDto>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             // Validate command using validator
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (validationResult.IsFailure)
             {
-                return Result.Failure<CategoryDto>(validationResult.Error);
+                return Result.Failure<int>(validationResult.Error);
             }
 
-            try
+            // Verify city exists
+            var city = await _context.Cities
+                .FirstOrDefaultAsync(c => c.CityId == request.CityId && c.IsActive, cancellationToken);
+
+            if (city == null)
             {
-                // Verify city exists
-                var city = await _context.Cities
-                    .FirstOrDefaultAsync(c => c.CityId == request.CityId && c.IsActive, cancellationToken);
-
-                if (city == null)
-                {
-                    return Result.Failure<CategoryDto>("City not found or is not active");
-                }
-
-                var category = Domain.Models.Category.Create(
-                    request.Name,
-                    request.Description,
-                    request.CityId,
-                    request.ImageUrl,
-                    _userSession.UserName ?? "System"
-                );
-
-                _context.Categories.Add(category);
-                await _context.SaveChangesAsync(cancellationToken);
-
-                var categoryDto = new CategoryDto
-                {
-                    CategoryId = category.CategoryId,
-                    Name = category.Name,
-                    Description = category.Description,
-                    ImageUrl = category.ImageUrl,
-                    IsActive = category.IsActive,
-                    SubCategoryCount = 0,
-                    CityId = category.CityId,
-                    CityName = city.Name
-                };
-
-                return Result.Success(categoryDto);
+                return Result.Failure<int>("City not found or is not active");
             }
-            catch (System.Exception ex)
+
+            // Save base64 image as file and get URL
+            string? imageUrl = null;
+            if (!string.IsNullOrWhiteSpace(request.ImageUrl))
             {
-                return Result.Failure<CategoryDto>($"Error creating category: {ex.Message}");
+                imageUrl = _imageService.SaveBase64Image(request.ImageUrl, "categories");
             }
+
+            var category = Domain.Models.Category.Create(
+                request.Name,
+                request.Description,
+                request.CityId,
+                imageUrl,
+                _userSession.UserName ?? "System"
+            );
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(category.CategoryId);
         }
     }
 }

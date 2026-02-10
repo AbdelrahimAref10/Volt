@@ -28,6 +28,7 @@ namespace Application.Features.Customer.Command.BlockCashPaymentCommand
         public async Task<Result<bool>> Handle(BlockCashPaymentCommand request, CancellationToken cancellationToken)
         {
             var customer = await _context.Customers
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             if (customer == null)

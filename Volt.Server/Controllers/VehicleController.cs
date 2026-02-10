@@ -103,7 +103,7 @@ namespace Volt.Server.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(VehicleDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateVehicleCommand command)
         {

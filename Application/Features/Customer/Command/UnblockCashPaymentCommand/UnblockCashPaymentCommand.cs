@@ -28,6 +28,7 @@ namespace Application.Features.Customer.Command.UnblockCashPaymentCommand
         public async Task<Result<bool>> Handle(UnblockCashPaymentCommand request, CancellationToken cancellationToken)
         {
             var customer = await _context.Customers
+                .AsTracking()
                 .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId, cancellationToken);
 
             if (customer == null)

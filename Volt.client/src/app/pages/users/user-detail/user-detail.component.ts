@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -12,6 +12,12 @@ import { AdminUserClient, UserDto, UpdateUserCommand, RoleClient, RoleDto } from
   styleUrl: './user-detail.component.css'
 })
 export class UserDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private adminUserClient = inject(AdminUserClient);
+  private roleClient = inject(RoleClient);
+  private fb = inject(FormBuilder);
+
   user: UserDto | null = null;
   userId: number = 0;
   isLoading = false;
@@ -24,13 +30,7 @@ export class UserDetailComponent implements OnInit {
   availableRoles: RoleDto[] = [];
   isLoadingRoles = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private adminUserClient: AdminUserClient,
-    private roleClient: RoleClient,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.userForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],

@@ -2,8 +2,10 @@ using Application.Common;
 using Application.Features.Category.DTOs;
 using CSharpFunctionalExtensions;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,36 +20,39 @@ namespace Application.Features.Category.Query.GetAllCategoriesQuery
     public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, Result<PagedResult<CategoryDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IImageService _imageService;
 
-        public GetAllCategoriesQueryHandler(DatabaseContext context)
+        public GetAllCategoriesQueryHandler(DatabaseContext context, IImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<Result<PagedResult<CategoryDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Categories
                 .Include(c => c.City)
-                .Where(c => c.IsActive)
-                .Select(c => new CategoryDto
-                {
-                    CategoryId = c.CategoryId,
-                    Name = c.Name,
-                    Description = c.Description,
-                    ImageUrl = c.ImageUrl,
-                    IsActive = c.IsActive,
-                    SubCategoryCount = c.SubCategories.Count(sc => sc.IsActive),
-                    CityId = c.CityId,
-                    CityName = c.City.Name
-                });
+                .Where(c => c.IsActive);
 
             var totalCount = await query.CountAsync(cancellationToken);
 
-            var items = await query
+            var categories = await query
                 .OrderBy(c => c.Name)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync(cancellationToken);
+
+            var items = categories.Select(c => new CategoryDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                Description = c.Description,
+                ImageUrl = _imageService.GetImageUrl(c.ImageUrl),
+                IsActive = c.IsActive,
+                SubCategoryCount = c.SubCategories.Count(sc => sc.IsActive),
+                CityId = c.CityId,
+                CityName = c.City.Name
+            }).ToList();
 
             var result = new PagedResult<CategoryDto>
             {
