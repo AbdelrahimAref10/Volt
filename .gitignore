@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Firebase Configuration (contains secrets)
+Volt.Server/FireBaseConfigurations.json
+**/FireBaseConfigurations.json
