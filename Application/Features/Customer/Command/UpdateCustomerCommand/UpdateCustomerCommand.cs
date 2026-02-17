@@ -29,7 +29,7 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
         private readonly UpdateCustomerCommandValidator _validator;
 
         public UpdateCustomerCommandHandler(
-            DatabaseContext context, 
+            DatabaseContext context,
             IUserSession userSession,
             IImageService imageService,
             UpdateCustomerCommandValidator validator)
@@ -64,7 +64,7 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
             string? oldCommercialRegisterImage = customer.CommercialRegisterImage;
 
             string? personalImageUrl = customer.PersonalImage; // Keep existing if no new image provided
-            if (!string.IsNullOrWhiteSpace(request.PersonalImage))
+            if (!string.IsNullOrWhiteSpace(request.PersonalImage) && _imageService.IsBase64String(request.PersonalImage))
             {
                 personalImageUrl = _imageService.SaveBase64Image(request.PersonalImage, "customers");
                 // Delete old image if it exists and is different
@@ -75,7 +75,7 @@ namespace Application.Features.Customer.Command.UpdateCustomerCommand
             }
 
             string? commercialRegisterImageUrl = customer.CommercialRegisterImage; // Keep existing if no new image provided
-            if (!string.IsNullOrWhiteSpace(request.CommercialRegisterImage))
+            if (!string.IsNullOrWhiteSpace(request.CommercialRegisterImage) && _imageService.IsBase64String(request.CommercialRegisterImage))
             {
                 commercialRegisterImageUrl = _imageService.SaveBase64Image(request.CommercialRegisterImage, "customers");
                 // Delete old image if it exists and is different

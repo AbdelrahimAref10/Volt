@@ -57,7 +57,7 @@ namespace Application.Features.Vehicle.Command.UpdateVehicleCommand
 
             // Save base64 image as file and get URL
             string? imageUrl = vehicle.ImageUrl; // Keep existing if no new image provided
-            if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            if (!string.IsNullOrWhiteSpace(request.ImageUrl) && _imageService.IsBase64String(request.ImageUrl))
             {
                 imageUrl = _imageService.SaveBase64Image(request.ImageUrl, "vehicles");
                 // Delete old image if it exists and is different

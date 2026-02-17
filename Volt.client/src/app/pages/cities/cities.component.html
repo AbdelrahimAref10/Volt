@@ -79,7 +79,6 @@
       <input
         type="text"
         [(ngModel)]="searchTerm"
-        (keyup.enter)="onSearch()"
         placeholder="Search by name or description..."
         class="cities__search-input"
       />
@@ -317,169 +316,16 @@
   </div>
 </div>
 
-<!-- Add/Edit City Modal -->
-<div *ngIf="showModal" class="cities__modal-overlay" (click)="onCloseModal()">
-  <div class="cities__modal" (click)="$event.stopPropagation()">
-    <div class="cities__modal-header">
-      <h2 class="cities__modal-title">
-        {{ isEditMode ? "Edit City" : "Add New City" }}
-      </h2>
-      <button
-        type="button"
-        (click)="onCloseModal()"
-        class="cities__modal-close"
-      >
-        <svg
-          class="cities__modal-close-icon"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
-    </div>
+<!-- Confirmation Dialog -->
+<app-confirm-dialog
+  [isVisible]="showConfirmDialog"
+  [title]="confirmDialogTitle"
+  [message]="confirmDialogMessage"
+  [type]="confirmDialogType"
+  [isLoading]="confirmDialogLoading"
+  [confirmText]="pendingAction === 'permanentDelete' ? 'Delete Permanently' : (pendingAction === 'deactivate' ? 'Deactivate' : 'Activate')"
+  cancelText="Cancel"
+  (confirm)="onConfirmAction()"
+  (cancel)="onCancelAction()"
+></app-confirm-dialog>
 
-    <form
-      [formGroup]="cityForm"
-      (ngSubmit)="onSubmit()"
-      class="cities__modal-form"
-    >
-      <!-- Name -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">
-          <span>City Name</span>
-          <span class="cities__form-required">*</span>
-        </label>
-        <div class="cities__input-wrapper">
-          <input
-            type="text"
-            formControlName="name"
-            class="cities__form-input"
-            [class.cities__form-input--error]="
-              cityForm.get('name')?.invalid && cityForm.get('name')?.touched
-            "
-            placeholder="Enter city name"
-          />
-        </div>
-        <div
-          *ngIf="cityForm.get('name')?.invalid && cityForm.get('name')?.touched"
-          class="cities__form-error"
-        >
-          <svg
-            class="cities__error-icon-small"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          Name is required and must be at least 2 characters
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">
-          <span>Description</span>
-        </label>
-        <div class="cities__input-wrapper">
-          <textarea
-            formControlName="description"
-            class="cities__form-textarea"
-            placeholder="Enter city description (optional)"
-            rows="4"
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- Delivery Fees -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">Delivery Fees</label>
-        <div class="cities__input-wrapper">
-          <input
-            type="number"
-            formControlName="deliveryFees"
-            class="cities__form-input"
-            min="0"
-            step="0.01"
-            placeholder="0"
-          />
-        </div>
-      </div>
-
-      <!-- Urgent Delivery (%) -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">Urgent Delivery (%)</label>
-        <div class="cities__input-wrapper">
-          <input
-            type="number"
-            formControlName="urgentDelivery"
-            class="cities__form-input"
-            min="0"
-            step="0.01"
-            placeholder="0"
-          />
-        </div>
-      </div>
-
-      <!-- Service Fees (%) -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">Service Fees (%)</label>
-        <div class="cities__input-wrapper">
-          <input
-            type="number"
-            formControlName="serviceFees"
-            class="cities__form-input"
-            min="0"
-            step="0.01"
-            placeholder="0"
-          />
-        </div>
-      </div>
-
-      <!-- Cancellation Fees -->
-      <div class="cities__form-group">
-        <label class="cities__form-label">Cancellation Fees</label>
-        <div class="cities__input-wrapper">
-          <input
-            type="number"
-            formControlName="cancellationFees"
-            class="cities__form-input"
-            min="0"
-            step="0.01"
-            placeholder="0"
-          />
-        </div>
-      </div>
-
-      <!-- Form Actions -->
-      <div class="cities__modal-actions">
-        <button
-          type="button"
-          (click)="onCloseModal()"
-          class="cities__modal-btn cities__modal-btn--cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          [disabled]="cityForm.invalid"
-          class="cities__modal-btn cities__modal-btn--submit"
-        >
-          {{ isEditMode ? "Update" : "Create" }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>

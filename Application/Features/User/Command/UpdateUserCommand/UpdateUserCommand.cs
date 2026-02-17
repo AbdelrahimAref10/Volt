@@ -24,15 +24,18 @@ namespace Application.Features.User.Command.UpdateUserCommand
         private readonly UserManager<Domain.Models.ApplicationUser> _userManager;
         private readonly RoleManager<Domain.Models.ApplicationRole> _roleManager;
         private readonly IUserSession _userSession;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public UpdateUserCommandHandler(
             UserManager<Domain.Models.ApplicationUser> userManager,
             RoleManager<Domain.Models.ApplicationRole> roleManager,
-            IUserSession userSession)
+            IUserSession userSession,
+            IDateTimeProvider dateTimeProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _userSession = userSession;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -80,7 +83,7 @@ namespace Application.Features.User.Command.UpdateUserCommand
             user.Email = request.Email;
             user.PhoneNumber = request.PhoneNumber;
             user.LastModifiedBy = _userSession.UserName;
-            user.LastModifiedDate = DateTime.UtcNow;
+            user.LastModifiedDate = _dateTimeProvider.Now;
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)

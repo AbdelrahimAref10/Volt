@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminClient, AdminLoginCommand, AdminLoginResponse, CustomerClient, RefreshTokenCommand, RefreshTokenResponse } from './clientAPI';
 import { Observable, tap, catchError, throwError, BehaviorSubject, map, filter, take } from 'rxjs';
+import { SignalRService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class AuthService {
   constructor(
     private adminClient: AdminClient,
     private customerClient: CustomerClient,
-    private router: Router
+    private router: Router,
+    private signalRService: SignalRService
   ) {}
 
   login(credentials: AdminLoginCommand): Observable<AdminLoginResponse> {
@@ -30,6 +32,12 @@ export class AuthService {
           userName: response.userName,
           roles: response.roles
         });
+
+        // Start SignalR connection for admin notifications
+        if (response.token) {
+          console.log('Starting SignalR connection for admin notifications...');
+          this.signalRService.StartNotificationConnection(response.token);
+        }
       }),
       catchError((error) => {
         console.error('Login error:', error);
@@ -39,6 +47,9 @@ export class AuthService {
   }
 
   logout(): void {
+    // Stop SignalR connection
+    this.signalRService.StopNotificationConnection();
+    
     this.clearAuthData();
     this.router.navigate(['/login']);
   }

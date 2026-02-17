@@ -1,3 +1,4 @@
+using Domain.Common;
 using Domain.Models;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
@@ -18,11 +19,13 @@ namespace Infrastructure.Services
     {
         private readonly IJwtSettings _jwtSettings;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public JwtTokenService(IJwtSettings jwtSettings, UserManager<ApplicationUser> userManager)
+        public JwtTokenService(IJwtSettings jwtSettings, UserManager<ApplicationUser> userManager, IDateTimeProvider dateTimeProvider)
         {
             _jwtSettings = jwtSettings;
             _userManager = userManager;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public string GenerateToken(ApplicationUser user, IList<string> roles)
@@ -53,7 +56,7 @@ namespace Infrastructure.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+                expires: _dateTimeProvider.Now.AddHours(_jwtSettings.ExpirationHours),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

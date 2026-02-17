@@ -1,5 +1,6 @@
 ﻿using Application;
 using Infrastructure;
+using Infrastructure.Configuration;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Volt.Server
@@ -10,6 +11,14 @@ namespace Volt.Server
         {
             builder.Services.AddApplicationServices();
             builder.Services.AddDatabaseServices(builder.Configuration);
+            builder.Services.AddFireBaseConfigurations(builder.Configuration, builder.Environment.ContentRootPath);
+
+            // Add SignalR
+            builder.Services.AddSignalR();
+
+            // Register Admin Notification Hub Service (must be here as it requires Presentation layer)
+            builder.Services.AddScoped<Infrastructure.Services.IAdminNotificationHubService, Presentation.Services.AdminNotificationHubService>();
+
             builder.Services.AddControllers();
             // Configure CORS
             builder.Services.AddCors(options =>
@@ -56,6 +65,10 @@ namespace Volt.Server
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+
+            // Map SignalR Hub
+            app.MapHub<Presentation.Hubs.AdminNotificationHub>("/AdminNotificationHub");
+
             app.MapFallbackToFile("/index.html");
             return app;
         }

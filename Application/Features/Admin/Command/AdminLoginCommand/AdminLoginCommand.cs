@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Services;
@@ -25,6 +26,7 @@ namespace Application.Features.Admin.Command.AdminLoginCommand
         private readonly IJwtSettings _jwtSettings;
         private readonly DatabaseContext _context;
         private readonly AdminLoginCommandValidator _validator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public AdminLoginCommandHandler(
             UserManager<ApplicationUser> userManager,
@@ -32,7 +34,8 @@ namespace Application.Features.Admin.Command.AdminLoginCommand
             IJwtTokenService jwtTokenService,
             IJwtSettings jwtSettings,
             DatabaseContext context,
-            AdminLoginCommandValidator validator)
+            AdminLoginCommandValidator validator,
+            IDateTimeProvider dateTimeProvider)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -40,6 +43,7 @@ namespace Application.Features.Admin.Command.AdminLoginCommand
             _jwtSettings = jwtSettings;
             _context = context;
             _validator = validator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<AdminLoginResponse>> Handle(AdminLoginCommand request, CancellationToken cancellationToken)
@@ -80,14 +84,15 @@ namespace Application.Features.Admin.Command.AdminLoginCommand
 
             // Generate refresh token
             var refreshToken = _jwtTokenService.GenerateRefreshToken();
-            var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+            var refreshTokenExpires = _dateTimeProvider.Now.AddDays(_jwtSettings.RefreshTokenExpirationDays);
 
             // Save refresh token to database
             var refreshTokenEntity = Domain.Models.RefreshToken.Create(
                 user.Id,
                 refreshToken,
                 refreshTokenExpires,
-                user.UserName ?? "System"
+                user.UserName ?? "System",
+                _dateTimeProvider
             );
 
             _context.RefreshTokens.Add(refreshTokenEntity);

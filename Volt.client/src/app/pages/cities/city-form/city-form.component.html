@@ -1,0 +1,334 @@
+<div class="city-form">
+  <!-- Header -->
+  <div class="city-form__header">
+    <div class="city-form__header-content">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="city-form__back-btn"
+        title="Back to Cities"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+      <div>
+        <h1 class="city-form__title">
+          {{ isEditMode ? 'Edit City' : 'Add New City' }}
+        </h1>
+        <p class="city-form__subtitle">
+          {{ isEditMode ? 'Update city information and settings' : 'Create a new city with fees and tiered discounts' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="city-form__error">
+    <svg class="city-form__error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="city-form__loading">
+    <div class="city-form__spinner"></div>
+    <p>Loading city details...</p>
+  </div>
+
+  <!-- Form -->
+  <form
+    *ngIf="!isLoading"
+    [formGroup]="cityForm"
+    (ngSubmit)="onSubmit()"
+    class="city-form__form"
+  >
+    <div class="city-form__content">
+      <!-- Basic Information Card -->
+      <div class="city-form__card">
+        <div class="city-form__card-header">
+          <h2 class="city-form__card-title">Basic Information</h2>
+          <p class="city-form__card-subtitle">Enter the city name and description</p>
+        </div>
+        <div class="city-form__card-body">
+          <!-- Name -->
+          <div class="city-form__form-group">
+            <label class="city-form__form-label">
+              <span>City Name</span>
+              <span class="city-form__form-required">*</span>
+            </label>
+            <div class="city-form__input-wrapper">
+              <input
+                type="text"
+                formControlName="name"
+                class="city-form__form-input"
+                [class.city-form__form-input--error]="cityForm.get('name')?.invalid && cityForm.get('name')?.touched"
+                placeholder="Enter city name"
+              />
+            </div>
+            <div
+              *ngIf="cityForm.get('name')?.invalid && cityForm.get('name')?.touched"
+              class="city-form__form-error"
+            >
+              <svg class="city-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Name is required and must be at least 2 characters
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="city-form__form-group">
+            <label class="city-form__form-label">
+              <span>Description</span>
+            </label>
+            <div class="city-form__input-wrapper">
+              <textarea
+                formControlName="description"
+                class="city-form__form-textarea"
+                placeholder="Enter city description (optional)"
+                rows="4"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fees Configuration Card -->
+      <div class="city-form__card">
+        <div class="city-form__card-header">
+          <h2 class="city-form__card-title">Fees Configuration</h2>
+          <p class="city-form__card-subtitle">Set up delivery, service, and cancellation fees</p>
+        </div>
+        <div class="city-form__card-body">
+          <div class="city-form__fees-grid">
+            <!-- Delivery Fees -->
+            <div class="city-form__form-group">
+              <label class="city-form__form-label">Delivery Fees (Amount per vehicle)</label>
+              <div class="city-form__input-wrapper">
+                <input
+                  type="number"
+                  formControlName="deliveryFees"
+                  class="city-form__form-input"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <!-- Urgent Delivery -->
+            <div class="city-form__form-group">
+              <label class="city-form__form-label">Urgent Delivery (Amount)</label>
+              <div class="city-form__input-wrapper">
+                <input
+                  type="number"
+                  formControlName="urgentDelivery"
+                  class="city-form__form-input"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <!-- Service Fees -->
+            <div class="city-form__form-group">
+              <label class="city-form__form-label">Service Fees (Amount)</label>
+              <div class="city-form__input-wrapper">
+                <input
+                  type="number"
+                  formControlName="serviceFees"
+                  class="city-form__form-input"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <!-- Cancellation Fees -->
+            <div class="city-form__form-group">
+              <label class="city-form__form-label">Cancellation Fees (Percentage)</label>
+              <div class="city-form__input-wrapper">
+                <input
+                  type="number"
+                  formControlName="cancellationFees"
+                  class="city-form__form-input"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </div>
+              <div
+                *ngIf="cityForm.get('cancellationFees')?.invalid && cityForm.get('cancellationFees')?.touched"
+                class="city-form__form-error"
+              >
+                Cancellation fees must be between 0 and 100 (percentage)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiered Discounts Card -->
+      <div class="city-form__card">
+        <div class="city-form__card-header">
+          <div class="city-form__card-header-content">
+            <div>
+              <h2 class="city-form__card-title">Tiered Discounts</h2>
+              <p class="city-form__card-subtitle">Configure discount tiers based on order subtotal</p>
+            </div>
+            <button
+              type="button"
+              (click)="addTieredDiscount()"
+              class="city-form__add-tier-btn"
+              title="Add Tiered Discount"
+            >
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Tier
+            </button>
+          </div>
+        </div>
+        <div class="city-form__card-body">
+          <div class="city-form__tiered-discounts">
+            <div
+              *ngFor="let tierControl of tieredDiscountsFormArray.controls; let i = index"
+              class="city-form__tier-item"
+              [formGroup]="getTieredDiscountFormGroup(i)"
+            >
+              <div class="city-form__tier-header">
+                <span class="city-form__tier-number">Tier {{ i + 1 }}</span>
+                <button
+                  type="button"
+                  (click)="removeTieredDiscount(i)"
+                  class="city-form__remove-tier-btn"
+                  title="Remove Tier"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div class="city-form__tier-row">
+                <div class="city-form__tier-field">
+                  <label class="city-form__tier-label">From ($)</label>
+                  <input
+                    type="number"
+                    formControlName="from"
+                    class="city-form__form-input city-form__tier-input"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                  <div
+                    *ngIf="tierControl.get('from')?.invalid && tierControl.get('from')?.touched"
+                    class="city-form__form-error city-form__tier-error"
+                  >
+                    Required
+                  </div>
+                </div>
+                <div class="city-form__tier-field">
+                  <label class="city-form__tier-label">To ($)</label>
+                  <input
+                    type="number"
+                    formControlName="to"
+                    class="city-form__form-input city-form__tier-input"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                  <div
+                    *ngIf="tierControl.get('to')?.invalid && tierControl.get('to')?.touched"
+                    class="city-form__form-error city-form__tier-error"
+                  >
+                    Required
+                  </div>
+                  <div
+                    *ngIf="tierControl.hasError('invalidRange') && tierControl.get('to')?.touched"
+                    class="city-form__form-error city-form__tier-error"
+                  >
+                    To must be greater than From
+                  </div>
+                </div>
+                <div class="city-form__tier-field">
+                  <label class="city-form__tier-label">Discount (%)</label>
+                  <input
+                    type="number"
+                    formControlName="discount"
+                    class="city-form__form-input city-form__tier-input"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                  <div
+                    *ngIf="tierControl.get('discount')?.invalid && tierControl.get('discount')?.touched"
+                    class="city-form__form-error city-form__tier-error"
+                  >
+                    Must be between 0 and 100
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              *ngIf="tieredDiscountsFormArray.length === 0"
+              class="city-form__tier-empty"
+            >
+              <svg class="city-form__tier-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p>No tiered discounts added. Click "Add Tier" to create discount tiers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="city-form__actions">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="city-form__btn city-form__btn--cancel"
+        [disabled]="isSaving"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="cityForm.get('name')?.invalid || isSaving"
+        class="city-form__btn city-form__btn--submit"
+      >
+        <span *ngIf="isSaving" class="city-form__btn-spinner"></span>
+        <span>{{ isEditMode ? 'Update City' : 'Create City' }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+

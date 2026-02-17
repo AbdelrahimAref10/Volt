@@ -83,6 +83,23 @@
   @apply w-5 h-5;
 }
 
+/* Messages */
+.vehicles__message {
+  @apply flex items-center gap-3 p-4 rounded-lg mb-6;
+}
+
+.vehicles__message--success {
+  @apply bg-success-50 border border-success-200 text-success-700;
+}
+
+.vehicles__message--error {
+  @apply bg-error-50 border border-error-200 text-error-700;
+}
+
+.vehicles__message-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
 /* Error */
 .vehicles__error {
   @apply flex items-center gap-3 p-4 bg-error-50 border border-error-200 rounded-lg text-error-700 mb-6;

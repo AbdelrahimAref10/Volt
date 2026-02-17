@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Services;
@@ -24,17 +25,20 @@ namespace Application.Features.Customer.Command.RefreshTokenCommand
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IJwtSettings _jwtSettings;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public RefreshTokenCommandHandler(
             DatabaseContext context,
             UserManager<ApplicationUser> userManager,
             IJwtTokenService jwtTokenService,
-            IJwtSettings jwtSettings)
+            IJwtSettings jwtSettings,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _userManager = userManager;
             _jwtTokenService = jwtTokenService;
             _jwtSettings = jwtSettings;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<RefreshTokenResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -55,14 +59,14 @@ namespace Application.Features.Customer.Command.RefreshTokenCommand
             }
 
             // Check if token is active
-            if (!refreshToken.IsActive)
+            if (!refreshToken.IsActive(_dateTimeProvider))
             {
                 return Result.Failure<RefreshTokenResponse>("Refresh token has been revoked or expired");
             }
 
             // Revoke old refresh token
             var newRefreshToken = _jwtTokenService.GenerateRefreshToken();
-            refreshToken.Revoke(newRefreshToken);
+            refreshToken.Revoke(_dateTimeProvider, newRefreshToken);
 
             // Get user roles
             var roles = await _userManager.GetRolesAsync(refreshToken.User);
@@ -74,8 +78,9 @@ namespace Application.Features.Customer.Command.RefreshTokenCommand
             var newRefreshTokenEntity = Domain.Models.RefreshToken.Create(
                 refreshToken.UserId,
                 newRefreshToken,
-                DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays),
-                refreshToken.User.UserName ?? "System"
+                _dateTimeProvider.Now.AddDays(_jwtSettings.RefreshTokenExpirationDays),
+                refreshToken.User.UserName ?? "System",
+                _dateTimeProvider
             );
 
             _context.RefreshTokens.Add(newRefreshTokenEntity);

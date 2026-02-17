@@ -1,5 +1,6 @@
 using Application.Features.Order.DTOs;
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Infrastructure;
 using MediatR;
@@ -18,15 +19,17 @@ namespace Application.Features.Order.Query.Reports.RevenueReportQuery
     public class RevenueReportQueryHandler : IRequestHandler<RevenueReportQuery, Result<RevenueReportDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public RevenueReportQueryHandler(DatabaseContext context)
+        public RevenueReportQueryHandler(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<RevenueReportDto>> Handle(RevenueReportQuery request, CancellationToken cancellationToken)
         {
-            var now = DateTime.UtcNow;
+            var now = _dateTimeProvider.Now;
             DateTime startDate;
 
             switch (request.Period.ToLower())

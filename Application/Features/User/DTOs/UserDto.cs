@@ -17,6 +17,7 @@ namespace Application.Features.User.DTOs
         public string? CreatedBy { get; set; }
         public DateTime LastModifiedDate { get; set; }
         public string? LastModifiedBy { get; set; }
+        public bool IsActive { get; set; }
     }
 }
 

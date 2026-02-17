@@ -14,8 +14,11 @@ namespace Infrastructure
 {
     public class DatabaseContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
     {
-        public DatabaseContext(DbContextOptions options) : base(options)
+        private readonly IDateTimeProvider _dateTimeProvider;
+
+        public DatabaseContext(DbContextOptions options, IDateTimeProvider dateTimeProvider) : base(options)
         {
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public DbSet<Permission> Permissions { get; set; }
@@ -26,6 +29,7 @@ namespace Infrastructure
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<TieredDiscount> TieredDiscounts { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderVehicle> OrderVehicles { get; set; }
         public DbSet<ReservedVehiclesPerDays> ReservedVehiclesPerDays { get; set; }
@@ -34,6 +38,8 @@ namespace Infrastructure
         public DbSet<RefundablePaypalAmount> RefundablePaypalAmounts { get; set; }
         public DbSet<CompanyTreasury> CompanyTreasuries { get; set; }
         public DbSet<OrderTotals> OrderTotals { get; set; }
+        public DbSet<CustomerLocation> CustomerLocations { get; set; }
+        public DbSet<AdminNotification> AdminNotifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,10 +60,10 @@ namespace Infrastructure
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            entry.Entity.CreatedDate = DateTime.UtcNow;
+                            entry.Entity.CreatedDate = _dateTimeProvider.Now;
                             break;
                         case EntityState.Modified:
-                            entry.Entity.LastModifiedDate = DateTime.UtcNow;
+                            entry.Entity.LastModifiedDate = _dateTimeProvider.Now;
                             break;
                     }
                 }

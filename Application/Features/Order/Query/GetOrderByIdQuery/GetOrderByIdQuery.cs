@@ -115,6 +115,7 @@ namespace Application.Features.Order.Query.GetOrderByIdQuery
                     ServiceFees = orderTotals.ServiceFees,
                     DeliveryFees = orderTotals.DeliveryFees,
                     UrgentFees = orderTotals.UrgentFees,
+                    TieredDiscount = orderTotals.TieredDiscount,
                     TotalAfterAllFees = orderTotals.TotalAfterAllFees
                 } : null,
                 OrderCancellationFee = cancellationFeeEntry != null ? new OrderCancellationFeeInfoDto

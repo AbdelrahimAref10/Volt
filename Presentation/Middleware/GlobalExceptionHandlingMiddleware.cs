@@ -1,3 +1,4 @@
+using Domain.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -16,15 +17,18 @@ namespace Presentation.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
         private readonly IWebHostEnvironment _environment;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public GlobalExceptionHandlingMiddleware(
             RequestDelegate next,
             ILogger<GlobalExceptionHandlingMiddleware> logger,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IDateTimeProvider dateTimeProvider)
         {
             _next = next;
             _logger = logger;
             _environment = environment;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -74,7 +78,7 @@ namespace Presentation.Middleware
                 StatusCode = (int)code,
                 Message = message,
                 RequestId = context.TraceIdentifier,
-                Timestamp = DateTime.UtcNow
+                Timestamp = _dateTimeProvider.Now
             };
 
             // Only include stack trace in development

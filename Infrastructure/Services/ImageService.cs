@@ -9,6 +9,7 @@ namespace Infrastructure.Services
         string SaveBase64Image(string base64String, string folderName = "uploads");
         string? GetImageUrl(string fileName);
         bool DeleteImage(string fileName);
+        bool IsBase64String(string value);
     }
 
     public class ImageService : IImageService
@@ -120,6 +121,51 @@ namespace Infrastructure.Services
             {
                 return false;
             }
+        }
+
+        public bool IsBase64String(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            // Check if it starts with data:image/ (base64 data URL)
+            if (value.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Check if it's a URL (starts with http://, https://, or /)
+            if (value.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                value.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                value.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Try to detect if it's base64 by attempting to decode it
+            // Base64 strings are typically long and don't contain path separators
+            if (value.Length > 100 && !value.Contains("/") && !value.Contains("\\"))
+            {
+                try
+                {
+                    // Remove data URL prefix if present
+                    var base64Data = value.Contains(",") 
+                        ? value.Split(',')[1] 
+                        : value;
+                    
+                    // Try to decode - if it succeeds, it's likely base64
+                    Convert.FromBase64String(base64Data);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
     }
 }

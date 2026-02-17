@@ -49,13 +49,19 @@ namespace Application.Features.User.Query.GetUserByIdQuery
                 CreatedDate = user.CreatedDate,
                 CreatedBy = user.CreatedBy,
                 LastModifiedDate = user.LastModifiedDate,
-                LastModifiedBy = user.LastModifiedBy
+                LastModifiedBy = user.LastModifiedBy,
+                IsActive = user.Active
             };
 
             return Result.Success(userDto);
         }
     }
 }
+
+
+
+
+
 
 
 

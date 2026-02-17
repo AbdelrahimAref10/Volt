@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,7 @@ namespace Application.Features.City.Query.GetCityByIdQuery
         public async Task<Result<CityDto>> Handle(GetCityByIdQuery request, CancellationToken cancellationToken)
         {
             var city = await _context.Cities
+                .Include(c => c.TieredDiscounts)
                 .FirstOrDefaultAsync(c => c.CityId == request.CityId, cancellationToken);
 
             if (city == null)
@@ -46,7 +48,15 @@ namespace Application.Features.City.Query.GetCityByIdQuery
                 DeliveryFees = city.DeliveryFees,
                 UrgentDelivery = city.UrgentDelivery,
                 ServiceFees = city.ServiceFees,
-                CancellationFees = city.CancellationFees
+                CancellationFees = city.CancellationFees,
+                TieredDiscounts = city.TieredDiscounts.Select(td => new DTOs.TieredDiscountDto
+                {
+                    Id = td.Id,
+                    CityId = td.CityId,
+                    From = td.From,
+                    To = td.To,
+                    Discount = td.Discount
+                }).ToList()
             };
 
             return Result.Success(cityDto);

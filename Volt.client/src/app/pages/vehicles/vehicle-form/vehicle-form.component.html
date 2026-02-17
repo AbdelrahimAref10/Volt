@@ -1,0 +1,255 @@
+<div class="vehicle-form">
+  <!-- Header -->
+  <div class="vehicle-form__header">
+    <div class="vehicle-form__header-content">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="vehicle-form__back-btn"
+        title="Back to Vehicles"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+      <div>
+        <h1 class="vehicle-form__title">
+          {{ isEditMode ? 'Edit Vehicle' : 'Add New Vehicle' }}
+        </h1>
+        <p class="vehicle-form__subtitle">
+          {{ isEditMode ? 'Update vehicle information' : 'Create a new vehicle' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="vehicle-form__error">
+    <svg class="vehicle-form__error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="vehicle-form__loading">
+    <div class="vehicle-form__spinner"></div>
+    <p>Loading vehicle details...</p>
+  </div>
+
+  <!-- Form -->
+  <form
+    *ngIf="!isLoading"
+    [formGroup]="vehicleForm"
+    (ngSubmit)="onSubmit()"
+    class="vehicle-form__form"
+  >
+    <div class="vehicle-form__content">
+      <!-- Basic Information Card -->
+      <div class="vehicle-form__card">
+        <div class="vehicle-form__card-header">
+          <h2 class="vehicle-form__card-title">Basic Information</h2>
+          <p class="vehicle-form__card-subtitle">Enter vehicle name, code, subcategory, and status</p>
+        </div>
+        <div class="vehicle-form__card-body">
+          <!-- Name -->
+          <div class="vehicle-form__form-group">
+            <label class="vehicle-form__form-label">
+              <span>Vehicle Name</span>
+              <span class="vehicle-form__form-required">*</span>
+            </label>
+            <div class="vehicle-form__input-wrapper">
+              <input
+                type="text"
+                formControlName="name"
+                class="vehicle-form__form-input"
+                [class.vehicle-form__form-input--error]="vehicleForm.get('name')?.invalid && vehicleForm.get('name')?.touched"
+                placeholder="Enter vehicle name"
+              />
+            </div>
+            <div
+              *ngIf="vehicleForm.get('name')?.invalid && vehicleForm.get('name')?.touched"
+              class="vehicle-form__form-error"
+            >
+              <svg class="vehicle-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Name is required and must be at least 2 characters
+            </div>
+          </div>
+
+          <!-- Vehicle Code -->
+          <div class="vehicle-form__form-group">
+            <label class="vehicle-form__form-label">
+              <span>Vehicle Code</span>
+              <span class="vehicle-form__form-required">*</span>
+            </label>
+            <div class="vehicle-form__input-wrapper">
+              <input
+                type="text"
+                formControlName="vehicleCode"
+                class="vehicle-form__form-input"
+                [class.vehicle-form__form-input--error]="vehicleForm.get('vehicleCode')?.invalid && vehicleForm.get('vehicleCode')?.touched"
+                placeholder="Enter vehicle code (e.g., V001)"
+              />
+            </div>
+            <div
+              *ngIf="vehicleForm.get('vehicleCode')?.invalid && vehicleForm.get('vehicleCode')?.touched"
+              class="vehicle-form__form-error"
+            >
+              <svg class="vehicle-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Vehicle code is required
+            </div>
+          </div>
+
+          <!-- SubCategory -->
+          <div class="vehicle-form__form-group">
+            <label class="vehicle-form__form-label">
+              <span>SubCategory</span>
+              <span class="vehicle-form__form-required">*</span>
+            </label>
+            <div class="vehicle-form__input-wrapper">
+              <select
+                formControlName="subCategoryId"
+                class="vehicle-form__form-input vehicle-form__form-select"
+                [class.vehicle-form__form-input--error]="vehicleForm.get('subCategoryId')?.invalid && vehicleForm.get('subCategoryId')?.touched"
+              >
+                <option [value]="null">Select a subcategory</option>
+                <option *ngFor="let subCategory of subCategories" [value]="subCategory.subCategoryId">
+                  {{ subCategory.name }} ({{ subCategory.categoryName }}) - ${{ subCategory.price }}
+                </option>
+              </select>
+            </div>
+            <div
+              *ngIf="vehicleForm.get('subCategoryId')?.invalid && vehicleForm.get('subCategoryId')?.touched"
+              class="vehicle-form__form-error"
+            >
+              <svg class="vehicle-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              SubCategory is required
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="vehicle-form__form-group">
+            <label class="vehicle-form__form-label">
+              <span>Status</span>
+              <span class="vehicle-form__form-required">*</span>
+            </label>
+            <div class="vehicle-form__input-wrapper">
+              <select
+                formControlName="status"
+                class="vehicle-form__form-input vehicle-form__form-select"
+                [class.vehicle-form__form-input--error]="vehicleForm.get('status')?.invalid && vehicleForm.get('status')?.touched"
+              >
+                <option value="Available">Available</option>
+                <option value="Under Maintenance">Under Maintenance</option>
+                <option value="Rented">Rented</option>
+              </select>
+            </div>
+            <div
+              *ngIf="vehicleForm.get('status')?.invalid && vehicleForm.get('status')?.touched"
+              class="vehicle-form__form-error"
+            >
+              <svg class="vehicle-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Status is required
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Upload Card -->
+      <div class="vehicle-form__card">
+        <div class="vehicle-form__card-header">
+          <h2 class="vehicle-form__card-title">Vehicle Image</h2>
+          <p class="vehicle-form__card-subtitle">Upload an image for this vehicle</p>
+        </div>
+        <div class="vehicle-form__card-body">
+          <div class="vehicle-form__image-section">
+            <div *ngIf="imagePreview" class="vehicle-form__image-preview">
+              <img [src]="imagePreview" alt="Vehicle preview" class="vehicle-form__preview-img" />
+              <button
+                type="button"
+                (click)="removeImage()"
+                class="vehicle-form__remove-image-btn"
+                title="Remove Image"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="vehicle-form__image-upload-area"
+              [class.vehicle-form__image-upload-area--has-image]="imagePreview"
+            >
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onImageSelect($event)"
+                class="vehicle-form__file-input"
+                id="vehicle-image"
+              />
+              <label for="vehicle-image" class="vehicle-form__file-label">
+                <svg class="vehicle-form__file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span class="vehicle-form__file-text">
+                  <span *ngIf="!imagePreview">Click to upload or drag and drop</span>
+                  <span *ngIf="imagePreview">Change Image</span>
+                </span>
+                <span class="vehicle-form__file-hint">PNG, JPG, GIF up to 10MB</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="vehicle-form__actions">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="vehicle-form__btn vehicle-form__btn--cancel"
+        [disabled]="isSaving"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="vehicleForm.invalid || isSaving"
+        class="vehicle-form__btn vehicle-form__btn--submit"
+      >
+        <span *ngIf="isSaving" class="vehicle-form__btn-spinner"></span>
+        <span>{{ isEditMode ? 'Update Vehicle' : 'Create Vehicle' }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+

@@ -1,0 +1,425 @@
+<div class="customer-form">
+  <!-- Header -->
+  <div class="customer-form__header">
+    <div class="customer-form__header-content">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="customer-form__back-btn"
+        title="Back to Customers"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+      <div>
+        <h1 class="customer-form__title">
+          {{ isEditMode ? 'Edit Customer' : 'Add New Customer' }}
+        </h1>
+        <p class="customer-form__subtitle">
+          {{ isEditMode ? 'Update customer information' : 'Create a new customer account' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="customer-form__error">
+    <svg class="customer-form__error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="customer-form__loading">
+    <div class="customer-form__spinner"></div>
+    <p>Loading customer details...</p>
+  </div>
+
+  <!-- Form -->
+  <form
+    *ngIf="!isLoading"
+    [formGroup]="customerForm"
+    (ngSubmit)="onSubmit()"
+    class="customer-form__form"
+  >
+    <div class="customer-form__content">
+      <!-- Basic Information Card -->
+      <div class="customer-form__card">
+        <div class="customer-form__card-header">
+          <h2 class="customer-form__card-title">Basic Information</h2>
+          <p class="customer-form__card-subtitle">Enter customer personal details</p>
+        </div>
+        <div class="customer-form__card-body">
+          <div class="customer-form__form-grid">
+            <!-- Mobile Number -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>Mobile Number</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <input
+                  type="text"
+                  formControlName="mobileNumber"
+                  class="customer-form__form-input"
+                  [class.customer-form__form-input--error]="customerForm.get('mobileNumber')?.invalid && customerForm.get('mobileNumber')?.touched"
+                  placeholder="Enter mobile number"
+                />
+              </div>
+              <div
+                *ngIf="customerForm.get('mobileNumber')?.invalid && customerForm.get('mobileNumber')?.touched"
+                class="customer-form__form-error"
+              >
+                <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Mobile number is required and must contain only numbers
+              </div>
+            </div>
+
+            <!-- Full Name -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>Full Name</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <input
+                  type="text"
+                  formControlName="fullName"
+                  class="customer-form__form-input"
+                  [class.customer-form__form-input--error]="customerForm.get('fullName')?.invalid && customerForm.get('fullName')?.touched"
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div
+                *ngIf="customerForm.get('fullName')?.invalid && customerForm.get('fullName')?.touched"
+                class="customer-form__form-error"
+              >
+                <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Full name is required and must be at least 2 characters
+              </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>Gender</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <select
+                  formControlName="gender"
+                  class="customer-form__form-input customer-form__form-select"
+                  [class.customer-form__form-input--error]="customerForm.get('gender')?.invalid && customerForm.get('gender')?.touched"
+                >
+                  <option value="">Select gender</option>
+                  <option *ngFor="let gender of genders" [value]="gender.value">{{ gender.label }}</option>
+                </select>
+              </div>
+              <div
+                *ngIf="customerForm.get('gender')?.invalid && customerForm.get('gender')?.touched"
+                class="customer-form__form-error"
+              >
+                <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Gender is required
+              </div>
+            </div>
+
+            <!-- City -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>City</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <select
+                  formControlName="cityId"
+                  class="customer-form__form-input customer-form__form-select"
+                  [class.customer-form__form-input--error]="customerForm.get('cityId')?.invalid && customerForm.get('cityId')?.touched"
+                  [disabled]="isLoadingCities"
+                >
+                  <option [value]="0">Select city</option>
+                  <option *ngFor="let city of cities" [value]="city.cityId">{{ city.name }}</option>
+                </select>
+              </div>
+              <div
+                *ngIf="customerForm.get('cityId')?.invalid && customerForm.get('cityId')?.touched"
+                class="customer-form__form-error"
+              >
+                <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                City is required
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Information Card -->
+      <div class="customer-form__card">
+        <div class="customer-form__card-header">
+          <h2 class="customer-form__card-title">Account Information</h2>
+          <p class="customer-form__card-subtitle">Set account type and verification method</p>
+        </div>
+        <div class="customer-form__card-body">
+          <div class="customer-form__form-grid">
+            <!-- Register As -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>Register As</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <select
+                  formControlName="registerAs"
+                  class="customer-form__form-input customer-form__form-select"
+                >
+                  <option *ngFor="let option of registerAsOptions" [value]="option.value">{{ option.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Verification By -->
+            <div class="customer-form__form-group">
+              <label class="customer-form__form-label">
+                <span>Verification By</span>
+                <span class="customer-form__form-required">*</span>
+              </label>
+              <div class="customer-form__input-wrapper">
+                <select
+                  formControlName="verificationBy"
+                  class="customer-form__form-input customer-form__form-select"
+                >
+                  <option *ngFor="let option of verificationByOptions" [value]="option.value">{{ option.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="customer-form__form-group">
+            <label class="customer-form__form-label">
+              <span>Email</span>
+              <span *ngIf="customerForm.get('verificationBy')?.value === 1" class="customer-form__form-required">*</span>
+            </label>
+            <div class="customer-form__input-wrapper">
+              <input
+                type="email"
+                formControlName="email"
+                class="customer-form__form-input"
+                [class.customer-form__form-input--error]="customerForm.get('email')?.invalid && customerForm.get('email')?.touched"
+                placeholder="Enter email address (required if verification by email)"
+              />
+            </div>
+            <div
+              *ngIf="customerForm.get('email')?.invalid && customerForm.get('email')?.touched"
+              class="customer-form__form-error"
+            >
+              <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Valid email is required when verification is by email
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="customer-form__form-group">
+            <label class="customer-form__form-label">
+              <span>Password</span>
+              <span *ngIf="!isEditMode" class="customer-form__form-required">*</span>
+            </label>
+            <div class="customer-form__input-wrapper">
+              <input
+                type="password"
+                formControlName="password"
+                class="customer-form__form-input"
+                [class.customer-form__form-input--error]="customerForm.get('password')?.invalid && customerForm.get('password')?.touched"
+                [placeholder]="isEditMode ? 'Leave blank to keep current password' : 'Enter password (min 6 characters)'"
+              />
+            </div>
+            <div
+              *ngIf="customerForm.get('password')?.invalid && customerForm.get('password')?.touched"
+              class="customer-form__form-error"
+            >
+              <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Password is required and must be at least 6 characters
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Image Card -->
+      <div class="customer-form__card">
+        <div class="customer-form__card-header">
+          <h2 class="customer-form__card-title">Personal Image</h2>
+          <p class="customer-form__card-subtitle">Upload a profile picture for the customer</p>
+        </div>
+        <div class="customer-form__card-body">
+          <div class="customer-form__image-section">
+            <div *ngIf="personalImagePreview" class="customer-form__image-preview">
+              <img [src]="personalImagePreview" alt="Personal image preview" class="customer-form__preview-img" />
+              <button
+                type="button"
+                (click)="removePersonalImage()"
+                class="customer-form__remove-image-btn"
+                title="Remove Image"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="customer-form__image-upload-area"
+              [class.customer-form__image-upload-area--has-image]="personalImagePreview"
+            >
+              <input
+                #personalImageInput
+                type="file"
+                accept="image/*"
+                (change)="onPersonalImageSelect()"
+                class="customer-form__file-input"
+                id="personal-image"
+              />
+              <label for="personal-image" class="customer-form__file-label">
+                <svg class="customer-form__file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span class="customer-form__file-text">
+                  <span *ngIf="!personalImagePreview">Click to upload or drag and drop</span>
+                  <span *ngIf="personalImagePreview">Change Image</span>
+                </span>
+                <span class="customer-form__file-hint">PNG, JPG, GIF up to 10MB</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commercial Register Image Card -->
+      <div class="customer-form__card">
+        <div class="customer-form__card-header">
+          <h2 class="customer-form__card-title">Commercial Register Image</h2>
+          <p class="customer-form__card-subtitle">
+            Upload commercial register document (required for institutions)
+          </p>
+        </div>
+        <div class="customer-form__card-body">
+          <div class="customer-form__image-section">
+            <div *ngIf="commercialImagePreview" class="customer-form__image-preview">
+              <img [src]="commercialImagePreview" alt="Commercial register preview" class="customer-form__preview-img" />
+              <button
+                type="button"
+                (click)="removeCommercialImage()"
+                class="customer-form__remove-image-btn"
+                title="Remove Image"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="customer-form__image-upload-area"
+              [class.customer-form__image-upload-area--has-image]="commercialImagePreview"
+              [class.customer-form__image-upload-area--error]="showCommercialImageError"
+            >
+              <input
+                #commercialImageInput
+                type="file"
+                accept="image/*"
+                (change)="onCommercialImageSelect()"
+                class="customer-form__file-input"
+                [class.customer-form__file-input--error]="showCommercialImageError"
+                id="commercial-image"
+              />
+              <label for="commercial-image" class="customer-form__file-label">
+                <svg class="customer-form__file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span class="customer-form__file-text">
+                  <span *ngIf="!commercialImagePreview">Click to upload or drag and drop</span>
+                  <span *ngIf="commercialImagePreview">Change Image</span>
+                </span>
+                <span class="customer-form__file-hint">PNG, JPG, GIF up to 10MB</span>
+              </label>
+            </div>
+            <div *ngIf="showCommercialImageError" class="customer-form__form-error">
+              <svg class="customer-form__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Commercial Register Image is required when registering as an Institution
+            </div>
+            <div *ngIf="customerForm.get('registerAs')?.value === 0" class="customer-form__form-hint">
+              <svg class="customer-form__hint-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Not required for Individual customers
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="customer-form__actions">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="customer-form__btn customer-form__btn--cancel"
+        [disabled]="isSaving"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="customerForm.invalid || isSaving"
+        class="customer-form__btn customer-form__btn--submit"
+      >
+        <span *ngIf="isSaving" class="customer-form__btn-spinner"></span>
+        <span>{{ isEditMode ? 'Update Customer' : 'Create Customer' }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+

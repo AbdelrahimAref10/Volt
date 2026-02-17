@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace Application.Features.Customer.Command.ActivateCustomerCommand
     public class ActivateCustomerCommandValidator
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public ActivateCustomerCommandValidator(DatabaseContext context)
+        public ActivateCustomerCommandValidator(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> ValidateAsync(ActivateCustomerCommand request, CancellationToken cancellationToken)
@@ -42,7 +45,7 @@ namespace Application.Features.Customer.Command.ActivateCustomerCommand
             }
 
             // Validate invitation code
-            if (!customer.ValidateInvitationCode(request.InvitationCode))
+            if (!customer.ValidateInvitationCode(request.InvitationCode, _dateTimeProvider))
             {
                 return Result.Failure("Invalid or expired invitation code");
             }

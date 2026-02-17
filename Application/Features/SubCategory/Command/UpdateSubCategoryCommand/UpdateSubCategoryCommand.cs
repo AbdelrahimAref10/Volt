@@ -71,7 +71,7 @@ namespace Application.Features.SubCategory.Command.UpdateSubCategoryCommand
 
             // Save base64 image as file and get URL
             string? imageUrl = subCategory.ImageUrl; // Keep existing if no new image provided
-            if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+            if (!string.IsNullOrWhiteSpace(request.ImageUrl) && _imageService.IsBase64String(request.ImageUrl))
             {
                 imageUrl = _imageService.SaveBase64Image(request.ImageUrl, "subcategories");
                 // Delete old image if it exists and is different

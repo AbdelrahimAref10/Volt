@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SubCategoryClient, SubCategoryDto, PagedResultOfSubCategoryDto, CreateSubCategoryCommand, UpdateSubCategoryCommand } from '../../core/services/clientAPI';
+import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { SubCategoryClient, SubCategoryDto, PagedResultOfSubCategoryDto } from '../../core/services/clientAPI';
 import { CategoryClient, CategoryLookupDto } from '../../core/services/clientAPI';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-subcategories',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ConfirmDialogComponent],
   templateUrl: './subcategories.component.html',
   styleUrl: './subcategories.component.css'
 })
@@ -23,29 +25,25 @@ export class SubCategoriesComponent implements OnInit {
   selectedCategoryId: number | null = null;
   isLoading = false;
   errorMessage = '';
-  
-  showModal = false;
-  isEditMode = false;
-  subCategoryForm: FormGroup;
-  selectedSubCategoryId: number | null = null;
-  imagePreview: string | null = null;
+  successMessage = '';
+
+  // Confirmation dialog
+  showConfirmDialog = false;
+  confirmDialogTitle = '';
+  confirmDialogMessage = '';
+  confirmDialogType: 'danger' | 'warning' | 'info' = 'danger';
+  confirmDialogLoading = false;
+  pendingDeleteId: number | null = null;
+  pendingDeactivateId: number | null = null;
+  pendingActivateId: number | null = null;
+  pendingAction: 'delete' | 'deactivate' | 'activate' | null = null;
 
   constructor(
     private subCategoryClient: SubCategoryClient,
     private categoryClient: CategoryClient,
     private router: Router,
-    private route: ActivatedRoute,
-    private fb: FormBuilder
-  ) {
-    this.subCategoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      description: ['', [Validators.required]],
-      categoryId: [null, [Validators.required]],
-      price: [0, [Validators.required, Validators.min(0)]],
-      isOffer: [false],
-      imageUrl: [null]
-    });
-  }
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     // Check for category filter from query params
@@ -116,17 +114,158 @@ export class SubCategoriesComponent implements OnInit {
   }
 
   onDelete(subCategoryId: number): void {
-    if (confirm('Are you sure you want to delete this subcategory? This will also delete all associated vehicles.')) {
-      this.subCategoryClient.delete(subCategoryId).subscribe({
+    this.pendingDeleteId = subCategoryId;
+    this.pendingDeactivateId = null;
+    this.pendingAction = 'delete';
+    this.confirmDialogTitle = 'Permanently Delete SubCategory';
+    this.confirmDialogMessage = 'Are you sure you want to permanently delete this subcategory? This action cannot be undone. The subcategory must be inactive first.';
+    this.confirmDialogType = 'danger';
+    this.showConfirmDialog = true;
+  }
+
+  onDeactivate(subCategoryId: number): void {
+    this.pendingDeactivateId = subCategoryId;
+    this.pendingDeleteId = null;
+    this.pendingActivateId = null;
+    this.pendingAction = 'deactivate';
+    this.confirmDialogTitle = 'Deactivate SubCategory';
+    this.confirmDialogMessage = 'Are you sure you want to deactivate this subcategory? It will be moved to inactive subcategories.';
+    this.confirmDialogType = 'warning';
+    this.showConfirmDialog = true;
+  }
+
+  onActivate(subCategoryId: number): void {
+    this.pendingActivateId = subCategoryId;
+    this.pendingDeleteId = null;
+    this.pendingDeactivateId = null;
+    this.pendingAction = 'activate';
+    this.confirmDialogTitle = 'Activate SubCategory';
+    this.confirmDialogMessage = 'Are you sure you want to activate this subcategory? It will be moved to active subcategories.';
+    this.confirmDialogType = 'info';
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmAction(): void {
+    if (this.pendingAction === 'delete' && this.pendingDeleteId !== null) {
+      this.confirmDialogLoading = true;
+      this.subCategoryClient.delete(this.pendingDeleteId).subscribe({
         next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingDeleteId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('SubCategory deleted successfully');
           this.loadSubCategories();
         },
-        error: (error) => {
-          alert('Failed to delete subcategory. Please try again.');
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          // Extract error message from backend - check errorMessage first (ProblemDetail structure)
+          let errorMessage = 'Failed to delete subcategory. Please try again.';
+          if (error.error) {
+            if (error.error.errorMessage) {
+              errorMessage = error.error.errorMessage;
+            } else if (error.error.detail) {
+              errorMessage = error.error.detail;
+            } else if (error.error.title) {
+              errorMessage = error.error.title;
+            } else if (typeof error.error === 'string') {
+              errorMessage = error.error;
+            }
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingDeleteId = null;
+          this.pendingAction = null;
           console.error('Error deleting subcategory:', error);
         }
       });
+    } else if (this.pendingAction === 'deactivate' && this.pendingDeactivateId !== null) {
+      this.confirmDialogLoading = true;
+      this.subCategoryClient.deactivate(this.pendingDeactivateId).subscribe({
+        next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingDeactivateId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('SubCategory deactivated successfully');
+          this.loadSubCategories();
+        },
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          const errorMessage = this.extractErrorMessage(error) || 'Failed to deactivate subcategory. Please try again.';
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingDeactivateId = null;
+          this.pendingAction = null;
+          console.error('Error deactivating subcategory:', error);
+        }
+      });
+    } else if (this.pendingAction === 'activate' && this.pendingActivateId !== null) {
+      this.confirmDialogLoading = true;
+      this.subCategoryClient.activate(this.pendingActivateId).subscribe({
+        next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingActivateId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('SubCategory activated successfully');
+          this.loadSubCategories();
+        },
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          const errorMessage = this.extractErrorMessage(error) || 'Failed to activate subcategory. Please try again.';
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingActivateId = null;
+          this.pendingAction = null;
+          console.error('Error activating subcategory:', error);
+        }
+      });
     }
+  }
+
+  onCancelAction(): void {
+    this.showConfirmDialog = false;
+    this.confirmDialogLoading = false;
+    this.pendingDeleteId = null;
+    this.pendingDeactivateId = null;
+    this.pendingActivateId = null;
+    this.pendingAction = null;
+  }
+
+  extractErrorMessage(error: any): string {
+    if (error.error) {
+      if (error.error.errorMessage) {
+        return error.error.errorMessage;
+      } else if (error.error.detail) {
+        return error.error.detail;
+      } else if (error.error.title) {
+        return error.error.title;
+      } else if (typeof error.error === 'string') {
+        return error.error;
+      }
+    } else if (error.message) {
+      return error.message;
+    }
+    return '';
+  }
+
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 5000);
+  }
+
+  showErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
   }
 
   onViewVehicles(subCategoryId: number): void {
@@ -139,7 +278,7 @@ export class SubCategoriesComponent implements OnInit {
     const maxPages = 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalPages, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(1, endPage - maxPages + 1);
     }
@@ -151,100 +290,11 @@ export class SubCategoriesComponent implements OnInit {
   }
 
   onAddNew(): void {
-    this.isEditMode = false;
-    this.selectedSubCategoryId = null;
-    this.subCategoryForm.reset({
-      price: 0,
-      isOffer: false
-    });
-    this.imagePreview = null;
-    this.showModal = true;
+    this.router.navigate(['/main/subcategories/new']);
   }
 
   onEdit(subCategory: SubCategoryDto): void {
-    this.isEditMode = true;
-    this.selectedSubCategoryId = subCategory.subCategoryId;
-    this.subCategoryForm.patchValue({
-      name: subCategory.name,
-      description: subCategory.description,
-      categoryId: subCategory.categoryId,
-      price: subCategory.price,
-      isOffer: subCategory.isOffer,
-      imageUrl: subCategory.imageUrl
-    });
-    this.imagePreview = subCategory.imageUrl || null;
-    this.showModal = true;
-  }
-
-  onImageSelect(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-        // Convert to base64 for backend
-        const base64 = e.target.result.split(',')[1];
-        this.subCategoryForm.patchValue({ imageUrl: `data:image/jpeg;base64,${base64}` });
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  onSubmit(): void {
-    if (this.subCategoryForm.invalid) {
-      this.subCategoryForm.markAllAsTouched();
-      return;
-    }
-
-    const formValue = this.subCategoryForm.value;
-
-    if (this.isEditMode && this.selectedSubCategoryId) {
-      const command = new UpdateSubCategoryCommand();
-      command.subCategoryId = this.selectedSubCategoryId;
-      command.name = formValue.name;
-      command.description = formValue.description;
-      command.categoryId = formValue.categoryId;
-      command.price = formValue.price;
-      command.isOffer = formValue.isOffer || false;
-      command.imageUrl = formValue.imageUrl;
-
-      this.subCategoryClient.update(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadSubCategories();
-        },
-        error: (error) => {
-          alert('Failed to update subcategory. Please try again.');
-          console.error('Error updating subcategory:', error);
-        }
-      });
-    } else {
-      const command = new CreateSubCategoryCommand();
-      command.name = formValue.name;
-      command.description = formValue.description;
-      command.categoryId = formValue.categoryId;
-      command.price = formValue.price;
-      command.isOffer = formValue.isOffer || false;
-      command.imageUrl = formValue.imageUrl;
-
-      this.subCategoryClient.create(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadSubCategories();
-        },
-        error: (error) => {
-          alert('Failed to create subcategory. Please try again.');
-          console.error('Error creating subcategory:', error);
-        }
-      });
-    }
-  }
-
-  onCloseModal(): void {
-    this.showModal = false;
-    this.subCategoryForm.reset();
-    this.imagePreview = null;
+    this.router.navigate(['/main/subcategories', subCategory.subCategoryId, 'edit']);
   }
 }
 

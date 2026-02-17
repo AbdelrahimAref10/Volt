@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using Infrastructure;
 using MediatR;
@@ -22,15 +23,18 @@ namespace Application.Features.Customer.Command.ResetPasswordCommand
         private readonly DatabaseContext _context;
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
         private readonly ResetPasswordCommandValidator _validator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public ResetPasswordCommandHandler(
             DatabaseContext context,
             IPasswordHasher<ApplicationUser> passwordHasher,
-            ResetPasswordCommandValidator validator)
+            ResetPasswordCommandValidator validator,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _validator = validator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<ResetPasswordResponse>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -47,7 +51,7 @@ namespace Application.Features.Customer.Command.ResetPasswordCommand
                 return Result.Failure<ResetPasswordResponse>("Customer not found");
             }
 
-            if (!customer.ValidatePasswordResetCode(request.ResetCode))
+            if (!customer.ValidatePasswordResetCode(request.ResetCode, _dateTimeProvider))
             {
                 return Result.Failure<ResetPasswordResponse>("Invalid or expired reset code. Please request a new code.");
             }

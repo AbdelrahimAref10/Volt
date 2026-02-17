@@ -24,15 +24,18 @@ namespace Application.Features.User.Command.CreateUserCommand
         private readonly UserManager<Domain.Models.ApplicationUser> _userManager;
         private readonly RoleManager<Domain.Models.ApplicationRole> _roleManager;
         private readonly IUserSession _userSession;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public CreateUserCommandHandler(
             UserManager<Domain.Models.ApplicationUser> userManager,
             RoleManager<Domain.Models.ApplicationRole> roleManager,
-            IUserSession userSession)
+            IUserSession userSession,
+            IDateTimeProvider dateTimeProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _userSession = userSession;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<int>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -78,8 +81,8 @@ namespace Application.Features.User.Command.CreateUserCommand
                 PhoneNumberConfirmed = false,
                 Active = true,
                 CreatedBy = _userSession.UserName,
-                CreatedDate = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                CreatedDate = _dateTimeProvider.Now,
+                LastModifiedDate = _dateTimeProvider.Now
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);

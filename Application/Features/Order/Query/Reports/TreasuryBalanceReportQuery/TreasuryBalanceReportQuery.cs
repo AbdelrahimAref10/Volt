@@ -1,5 +1,6 @@
 using Application.Features.Order.DTOs;
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using Domain.Services;
 using Infrastructure;
@@ -18,10 +19,12 @@ namespace Application.Features.Order.Query.Reports.TreasuryBalanceReportQuery
     public class TreasuryBalanceReportQueryHandler : IRequestHandler<TreasuryBalanceReportQuery, Result<TreasuryReportDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public TreasuryBalanceReportQueryHandler(DatabaseContext context)
+        public TreasuryBalanceReportQueryHandler(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<TreasuryReportDto>> Handle(TreasuryBalanceReportQuery request, CancellationToken cancellationToken)
@@ -38,7 +41,7 @@ namespace Application.Features.Order.Query.Reports.TreasuryBalanceReportQuery
                 TotalDebit = totalDebit,
                 TotalCredit = totalCredit,
                 Balance = balance,
-                LastUpdated = treasuryRecords.Any() ? treasuryRecords.Max(t => t.CreatedDate) : DateTime.UtcNow
+                LastUpdated = treasuryRecords.Any() ? treasuryRecords.Max(t => t.CreatedDate) : _dateTimeProvider.Now
             };
 
             return Result.Success(report);

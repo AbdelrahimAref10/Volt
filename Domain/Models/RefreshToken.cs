@@ -26,8 +26,10 @@ namespace Domain.Models
             int userId,
             string token,
             DateTime expiresAt,
-            string createdBy)
+            string createdBy,
+            IDateTimeProvider dateTimeProvider)
         {
+            var now = dateTimeProvider.Now;
             return new RefreshToken
             {
                 UserId = userId,
@@ -36,27 +38,28 @@ namespace Domain.Models
                 IsRevoked = false,
                 IsUsed = false,
                 CreatedBy = createdBy,
-                CreatedDate = DateTime.UtcNow,
-                LastModifiedDate = DateTime.UtcNow
+                CreatedDate = now,
+                LastModifiedDate = now
             };
         }
 
-        public void Revoke(string? replacedByToken = null)
+        public void Revoke(IDateTimeProvider dateTimeProvider, string? replacedByToken = null)
         {
+            var now = dateTimeProvider.Now;
             IsRevoked = true;
-            RevokedAt = DateTime.UtcNow;
+            RevokedAt = now;
             ReplacedByToken = replacedByToken;
-            LastModifiedDate = DateTime.UtcNow;
+            LastModifiedDate = now;
         }
 
-        public void MarkAsUsed()
+        public void MarkAsUsed(IDateTimeProvider dateTimeProvider)
         {
             IsUsed = true;
-            LastModifiedDate = DateTime.UtcNow;
+            LastModifiedDate = dateTimeProvider.Now;
         }
 
-        public bool IsExpired => DateTime.UtcNow >= ExpiresAt;
-        public bool IsActive => !IsRevoked && !IsUsed && !IsExpired;
+        public bool IsExpired(IDateTimeProvider dateTimeProvider) => dateTimeProvider.Now >= ExpiresAt;
+        public bool IsActive(IDateTimeProvider dateTimeProvider) => !IsRevoked && !IsUsed && !IsExpired(dateTimeProvider);
     }
 }
 

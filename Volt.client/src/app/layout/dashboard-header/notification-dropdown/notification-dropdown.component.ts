@@ -54,6 +54,7 @@ export class NotificationDropdownComponent implements OnInit, OnChanges {
       this.markAsRead.emit(notification.id);
     }
     this.notificationClick.emit(notification);
+    // Navigation will be handled by parent component if actionUrl is provided
   }
 
   getTimeAgo(timestamp: Date): string {

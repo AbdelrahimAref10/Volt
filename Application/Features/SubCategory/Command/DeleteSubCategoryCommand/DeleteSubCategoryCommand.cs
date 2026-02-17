@@ -28,7 +28,6 @@ namespace Application.Features.SubCategory.Command.DeleteSubCategoryCommand
         public async Task<Result<bool>> Handle(DeleteSubCategoryCommand request, CancellationToken cancellationToken)
         {
             var subCategory = await _context.SubCategories
-                .AsTracking()
                 .Include(sc => sc.Vehicles)
                 .FirstOrDefaultAsync(sc => sc.SubCategoryId == request.SubCategoryId, cancellationToken);
 
@@ -37,14 +36,24 @@ namespace Application.Features.SubCategory.Command.DeleteSubCategoryCommand
                 return Result.Failure<bool>($"SubCategory with ID {request.SubCategoryId} not found");
             }
 
+            // Only allow permanent deletion of inactive subcategories
+            if (subCategory.IsActive)
+            {
+                return Result.Failure<bool>("Cannot permanently delete an active subcategory. Please deactivate it first.");
+            }
+
             // Check if subcategory has vehicles
             if (subCategory.Vehicles.Any())
             {
-                return Result.Failure<bool>("Cannot delete subcategory that has vehicles. Please remove or reassign vehicles first.");
+                return Result.Failure<bool>("Cannot permanently delete subcategory that has vehicles. Please remove or reassign vehicles first.");
             }
 
-            subCategory.Deactivate(_userSession.UserName ?? "System");
-            await _context.SaveChangesAsync(cancellationToken);
+            _context.SubCategories.Remove(subCategory);
+            var saveResult = await _context.SaveChangesAsyncWithResult(cancellationToken);
+            if (!saveResult.IsSuccess)
+            {
+                return Result.Failure<bool>($"Failed to permanently delete subcategory: {saveResult.ErrorMessage}");
+            }
 
             return Result.Success(true);
         }

@@ -1,252 +1,436 @@
-/* User Detail Component */
+/* User Detail Page - Complete Redesign */
 
-.user-detail {
-  @apply p-6 max-w-7xl mx-auto;
+.user-detail-page {
+  @apply min-h-screen bg-gradient-to-br from-neutral-50 via-white to-primary-50/30;
 }
 
-/* Header */
-.user-detail__header {
-  @apply mb-6;
+/* Hero Section */
+.user-detail-hero {
+  @apply bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white shadow-2xl relative overflow-hidden;
 }
 
-.user-detail__back-btn {
-  @apply flex items-center gap-2 mb-4 px-4 py-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors;
+.user-detail-hero::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-primary-500/20 to-transparent;
 }
 
-.user-detail__back-btn svg {
-  @apply w-4 h-4;
+.user-detail-hero__container {
+  @apply max-w-7xl mx-auto px-6 py-12 relative z-10;
 }
 
-.user-detail__header-content {
-  @apply bg-white rounded-xl border border-neutral-200 shadow-sm p-6;
+.user-detail-hero__back {
+  @apply flex items-center gap-2 px-4 py-2 mb-6 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200 border border-white/30;
 }
 
-.user-detail__title-section {
-  @apply flex items-start gap-4 mb-4;
+.user-detail-hero__back svg {
+  @apply w-5 h-5;
 }
 
-.user-detail__avatar-section {
-  @apply flex-shrink-0;
+.user-detail-hero__content {
+  @apply flex flex-col md:flex-row items-start md:items-center gap-8;
 }
 
-.user-detail__avatar {
-  @apply w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-neutral-100;
+.user-detail-hero__avatar-wrapper {
+  @apply relative flex-shrink-0;
 }
 
-.user-detail__avatar--placeholder {
-  @apply text-neutral-400;
+.user-detail-hero__avatar {
+  @apply w-32 h-32 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-4 border-white/30 shadow-xl;
 }
 
-.user-detail__avatar--placeholder svg {
-  @apply w-10 h-10;
+.user-detail-hero__avatar svg {
+  @apply w-16 h-16 text-white;
 }
 
-.user-detail__title-info {
-  @apply flex-1;
+.user-detail-hero__status {
+  @apply absolute -bottom-2 -right-2 px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md border-2 flex items-center gap-2 shadow-lg;
 }
 
-.user-detail__title {
-  @apply text-2xl font-bold text-neutral-900 mb-2;
+.user-detail-hero__status--active {
+  @apply bg-success-500/95 text-white border-success-600;
 }
 
-.user-detail__meta {
-  @apply flex flex-wrap gap-4 text-sm text-neutral-600;
+.user-detail-hero__status--inactive {
+  @apply bg-error-500/95 text-white border-error-600;
 }
 
-.user-detail__meta-item {
-  @apply flex items-center gap-1.5;
+.user-detail-hero__status-dot {
+  @apply w-2.5 h-2.5 rounded-full bg-current animate-pulse;
 }
 
-.user-detail__meta-item svg {
-  @apply w-4 h-4;
+.user-detail-hero__info {
+  @apply flex-1 min-w-0;
 }
 
-.user-detail__verified {
-  @apply ml-1 text-success-600 font-semibold;
+.user-detail-hero__name {
+  @apply text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg;
 }
 
-.user-detail__actions {
-  @apply flex items-center gap-3;
+.user-detail-hero__role {
+  @apply text-primary-100 text-lg md:text-xl mb-6;
 }
 
-.user-detail__status {
-  @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold;
+.user-detail-hero__details {
+  @apply flex flex-wrap gap-6 text-sm;
 }
 
-.user-detail__status--active {
-  @apply bg-success-100 text-success-700 border border-success-200;
+.user-detail-hero__detail-item {
+  @apply flex items-center gap-2 text-primary-100;
 }
 
-.user-detail__status--locked {
-  @apply bg-error-100 text-error-700 border border-error-200;
+.user-detail-hero__detail-item svg {
+  @apply w-5 h-5;
 }
 
-.user-detail__action-btn {
-  @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+.user-detail-hero__verified {
+  @apply ml-1 text-success-300 font-bold text-base;
 }
 
-.user-detail__action-btn svg {
-  @apply w-4 h-4;
+.user-detail-hero__actions {
+  @apply flex flex-wrap items-center gap-3 flex-shrink-0;
 }
 
-.user-detail__action-btn--edit {
-  @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+.user-detail-hero__edit-buttons {
+  @apply flex gap-3;
 }
 
-.user-detail__action-btn--save {
-  @apply bg-success-500 text-white hover:bg-success-600 focus:ring-success-500 disabled:opacity-50;
+/* Buttons */
+.user-detail-btn {
+  @apply flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg;
 }
 
-.user-detail__action-btn--cancel {
-  @apply bg-neutral-200 text-neutral-700 hover:bg-neutral-300 focus:ring-neutral-500;
+.user-detail-btn svg {
+  @apply w-5 h-5;
 }
 
-.user-detail__action-btn--delete {
-  @apply bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 disabled:opacity-50;
+.user-detail-btn--primary {
+  @apply bg-white text-primary-600 hover:bg-primary-50 hover:shadow-xl hover:scale-105;
+}
+
+.user-detail-btn--secondary {
+  @apply bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/30;
+}
+
+.user-detail-btn--success {
+  @apply bg-success-500 text-white hover:bg-success-600 hover:shadow-xl hover:scale-105;
+}
+
+.user-detail-btn--warning {
+  @apply bg-warning-500 text-white hover:bg-warning-600 hover:shadow-xl hover:scale-105;
+}
+
+.user-detail-btn--danger {
+  @apply bg-error-500 text-white hover:bg-error-600 hover:shadow-xl hover:scale-105;
+}
+
+.user-detail-btn:disabled {
+  @apply opacity-50 cursor-not-allowed hover:scale-100;
 }
 
 /* Messages */
-.user-detail__message {
-  @apply flex items-center gap-3 p-4 rounded-xl mb-6 shadow-sm;
+.user-detail-message {
+  @apply max-w-7xl mx-auto px-6 mt-6 flex items-center gap-3 p-4 rounded-xl shadow-sm;
 }
 
-.user-detail__message--success {
+.user-detail-message--success {
   @apply bg-success-50 border border-success-200 text-success-700;
 }
 
-.user-detail__message--error {
+.user-detail-message--error {
   @apply bg-error-50 border border-error-200 text-error-700;
 }
 
-.user-detail__message svg {
+.user-detail-message svg {
   @apply w-5 h-5 flex-shrink-0;
 }
 
 /* Loading */
-.user-detail__loading {
-  @apply flex flex-col items-center justify-center py-16;
+.user-detail-loading {
+  @apply max-w-7xl mx-auto px-6 py-16 flex flex-col items-center justify-center;
 }
 
-.user-detail__spinner {
+.user-detail-spinner {
   @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
 }
 
-/* Content */
-.user-detail__content {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+/* Edit Mode */
+.user-detail-edit {
+  @apply max-w-5xl mx-auto px-6 py-8;
 }
 
-.user-detail__card {
-  @apply bg-white rounded-xl border border-neutral-200 shadow-sm;
+.user-detail-edit__container {
+  @apply bg-white rounded-3xl shadow-2xl border border-neutral-200 p-8;
 }
 
-.user-detail__card-header {
-  @apply p-4 border-b border-neutral-200;
+/* Progress */
+.user-detail-progress {
+  @apply mb-8 p-6 bg-gradient-to-r from-primary-50 to-primary-100 rounded-2xl border border-primary-200;
 }
 
-.user-detail__card-title {
-  @apply text-lg font-semibold text-neutral-900;
+.user-detail-progress__bar {
+  @apply w-full h-3 bg-white rounded-full overflow-hidden shadow-inner;
 }
 
-.user-detail__card-body {
-  @apply p-4;
+.user-detail-progress__fill {
+  @apply h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-500 ease-out;
 }
 
-/* Info Grid */
-.user-detail__info-grid {
-  @apply grid grid-cols-1 gap-4;
+.user-detail-progress__text {
+  @apply text-sm font-bold text-primary-700 mt-3 text-center;
 }
 
-.user-detail__info-item {
-  @apply flex flex-col gap-1;
+/* Steps */
+.user-detail-steps {
+  @apply flex items-center justify-between gap-4 mb-8 p-6 bg-neutral-50 rounded-2xl border border-neutral-200;
 }
 
-.user-detail__info-label {
-  @apply text-sm font-semibold text-neutral-600;
+.user-detail-step {
+  @apply flex items-center gap-3 flex-1 cursor-pointer transition-all duration-200;
 }
 
-.user-detail__info-value {
-  @apply text-sm text-neutral-900;
+.user-detail-step:hover {
+  @apply opacity-80;
+}
+
+.user-detail-step--active {
+  @apply opacity-100;
+}
+
+.user-detail-step--completed .user-detail-step__number {
+  @apply bg-success-500 text-white border-success-600;
+}
+
+.user-detail-step--active .user-detail-step__number {
+  @apply bg-primary-500 text-white border-primary-600 ring-4 ring-primary-200;
+}
+
+.user-detail-step__number {
+  @apply w-12 h-12 rounded-full flex items-center justify-center font-bold text-base border-2 border-neutral-300 bg-neutral-100 text-neutral-600 transition-all duration-200 flex-shrink-0;
+}
+
+.user-detail-step__info {
+  @apply flex-1 min-w-0;
+}
+
+.user-detail-step__title {
+  @apply text-sm font-bold text-neutral-900;
+}
+
+.user-detail-step__progress {
+  @apply text-xs text-neutral-500 mt-0.5;
 }
 
 /* Form */
-.user-detail__form-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+.user-detail-form {
+  @apply space-y-6;
 }
 
-.user-detail__form-group {
+.user-detail-form__step {
+  @apply animate-fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-detail-form__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.user-detail-form__field {
   @apply flex flex-col;
 }
 
-.user-detail__form-group--full {
-  @apply md:col-span-2;
+.user-detail-form__label {
+  @apply flex items-center gap-1 text-sm font-bold text-neutral-800 mb-2;
 }
 
-.user-detail__form-label {
-  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-2;
-}
-
-.user-detail__form-required {
+.user-detail-form__required {
   @apply text-error-500;
 }
 
-.user-detail__form-input {
-  @apply w-full px-4 py-3 border border-neutral-200 rounded-xl bg-white text-neutral-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+.user-detail-form__input {
+  @apply w-full px-4 py-3.5 border-2 border-neutral-300 rounded-xl bg-white text-neutral-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base;
 }
 
-.user-detail__form-input--error {
+.user-detail-form__input--error {
   @apply border-error-500 focus:ring-error-500 focus:border-error-500;
 }
 
-.user-detail__form-input[type="select"],
-.user-detail__form-input select {
-  @apply appearance-none bg-no-repeat bg-right pr-10;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-size: 1.5em 1.5em;
+.user-detail-form__input--success {
+  @apply border-success-500 focus:ring-success-500 focus:border-success-500;
 }
 
-select.user-detail__form-input {
-  @apply appearance-none bg-no-repeat bg-right pr-10;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-size: 1.5em 1.5em;
+.user-detail-form__error {
+  @apply mt-2 text-sm text-error-600 font-medium;
 }
 
-.user-detail__form-error {
-  @apply mt-1 text-sm text-error-600;
+.user-detail-form__hint {
+  @apply mt-2 text-xs text-neutral-500;
 }
 
-/* Roles */
-.user-detail__roles-select {
-  @apply grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border border-neutral-200 rounded-xl bg-neutral-50;
+.user-detail-form__navigation {
+  @apply flex items-center justify-between pt-6 mt-8 border-t border-neutral-200;
 }
 
-.user-detail__role-checkbox {
-  @apply flex items-center gap-2;
+/* Content */
+.user-detail-content {
+  @apply max-w-7xl mx-auto px-6 py-8;
 }
 
-.user-detail__role-checkbox input[type="checkbox"] {
-  @apply w-4 h-4 text-primary-600 border-neutral-300 rounded focus:ring-primary-500;
+.user-detail-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
 }
 
-.user-detail__role-checkbox label {
-  @apply text-sm text-neutral-700 cursor-pointer;
+/* Cards */
+.user-detail-card {
+  @apply bg-white rounded-2xl shadow-lg border border-neutral-200 overflow-hidden transition-all duration-200 hover:shadow-xl hover:scale-[1.02];
 }
 
-.user-detail__role-badge {
-  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700 border border-primary-200 mr-2;
+.user-detail-card__header {
+  @apply px-6 py-4 bg-gradient-to-r from-neutral-50 to-white border-b border-neutral-200;
 }
 
-.user-detail__role-badge--none {
-  @apply bg-neutral-100 text-neutral-500 border-neutral-200;
+.user-detail-card__title {
+  @apply text-lg font-bold text-neutral-900;
 }
 
-.user-detail__status-badge--active {
+.user-detail-card__body {
+  @apply px-6 py-4;
+}
+
+/* Info */
+.user-detail-info {
+  @apply space-y-4;
+}
+
+.user-detail-info__item {
+  @apply flex flex-col gap-1;
+}
+
+.user-detail-info__label {
+  @apply text-xs font-bold text-neutral-500 uppercase tracking-wider;
+}
+
+.user-detail-info__value {
+  @apply text-sm font-semibold text-neutral-900;
+}
+
+.user-detail-info__verified {
+  @apply ml-2 text-success-600 font-bold;
+}
+
+/* Badges */
+.user-detail-badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold;
+}
+
+.user-detail-badge--role {
+  @apply bg-primary-100 text-primary-700 border border-primary-200 mr-2 mb-1;
+}
+
+.user-detail-badge--none {
+  @apply bg-neutral-100 text-neutral-500 border border-neutral-200;
+}
+
+.user-detail-badge--active {
+  @apply bg-success-100 text-success-700 border border-success-200;
+}
+
+.user-detail-badge--inactive {
+  @apply bg-error-100 text-error-700 border border-error-200;
+}
+
+/* Password Toggle */
+.user-detail__input-wrapper {
+  @apply relative;
+}
+
+.user-detail__password-toggle {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-neutral-600 transition-colors duration-200 focus:outline-none rounded-lg hover:bg-neutral-100;
+}
+
+.user-detail__password-toggle svg {
+  @apply w-5 h-5;
+}
+
+.user-detail__input-icon {
+  @apply w-5 h-5;
+}
+
+/* Password Strength Indicator */
+.user-detail__password-strength {
+  @apply mt-4;
+}
+
+.user-detail__password-strength-bar {
+  @apply w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden shadow-inner;
+}
+
+.user-detail__password-strength-fill {
+  @apply h-full transition-all duration-300 ease-out rounded-full;
+}
+
+.user-detail__password-strength-fill--weak {
+  @apply bg-error-500;
+}
+
+.user-detail__password-strength-fill--medium {
+  @apply bg-warning-500;
+}
+
+.user-detail__password-strength-fill--strong {
+  @apply bg-success-500;
+}
+
+.user-detail__password-strength-text {
+  @apply mt-2 text-xs font-semibold;
+}
+
+.user-detail__password-strength-text--weak {
+  @apply text-error-600;
+}
+
+.user-detail__password-strength-text--medium {
+  @apply text-warning-600;
+}
+
+.user-detail__password-strength-text--strong {
+  @apply text-success-600;
+}
+
+/* Password Requirements */
+.user-detail__password-requirements {
+  @apply mt-4 space-y-2.5 p-4 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-xl border-2 border-neutral-200;
+}
+
+.user-detail__password-requirement {
+  @apply flex items-center gap-2.5 text-sm font-medium transition-colors duration-200;
+}
+
+.user-detail__password-requirement--met {
   @apply text-success-700;
 }
 
-.user-detail__status-badge--locked {
-  @apply text-error-700;
+.user-detail__password-requirement--unmet {
+  @apply text-neutral-500;
 }
 
+.user-detail__requirement-icon {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+.user-detail__password-requirement--met .user-detail__requirement-icon {
+  @apply text-success-600;
+}
+
+.user-detail__password-requirement--unmet .user-detail__requirement-icon {
+  @apply text-neutral-400;
+}

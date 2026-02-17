@@ -31,12 +31,12 @@ namespace Application.Features.Category.Query.GetAllCategoriesQuery
         public async Task<Result<PagedResult<CategoryDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
             var query = _context.Categories
-                .Include(c => c.City)
-                .Where(c => c.IsActive);
+                .Include(c => c.City);
 
             var totalCount = await query.CountAsync(cancellationToken);
 
             var categories = await query
+                .Include(z => z.SubCategories)
                 .OrderBy(c => c.Name)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)

@@ -90,6 +90,14 @@ namespace Infrastructure.MappingConfiguration
                 .HasMaxLength(256)
                 .IsRequired();
 
+            builder.Property(c => c.AndriodDevice)
+                .HasColumnName("AndriodDevice")
+                .HasMaxLength(500);
+
+            builder.Property(c => c.IosDevice)
+                .HasColumnName("IosDevice")
+                .HasMaxLength(500);
+
             builder.Property(c => c.CityId)
                 .HasColumnName("CityId")
                 .IsRequired();
@@ -117,8 +125,7 @@ namespace Infrastructure.MappingConfiguration
                 .HasForeignKey(c => c.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            builder.HasIndex(c =>  c.MobileNumber)
+            builder.HasIndex(c => c.MobileNumber)
                 .HasDatabaseName("IX_Customer_MobileNumber");
         }
     }

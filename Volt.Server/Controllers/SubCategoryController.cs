@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Application.Common;
 using Application.Features.SubCategory.Command.CreateSubCategoryCommand;
 using Application.Features.SubCategory.Command.DeleteSubCategoryCommand;
+using Application.Features.SubCategory.Command.ActivateSubCategoryCommand;
+using Application.Features.SubCategory.Command.DeactivateSubCategoryCommand;
 using Application.Features.SubCategory.Command.UpdateSubCategoryCommand;
 using Application.Features.SubCategory.DTOs;
 using Application.Features.SubCategory.Query.GetAllSubCategoriesQuery;
@@ -98,6 +100,32 @@ namespace Volt.Server.Controllers
         public async Task<IActionResult> Update([FromBody] UpdateSubCategoryCommand command)
         {
             var result = await _mediator.Send(command);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("{id}/activate")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Activate(int id)
+        {
+            var result = await _mediator.Send(new ActivateSubCategoryCommand { SubCategoryId = id });
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpPost("{id}/deactivate")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            var result = await _mediator.Send(new DeactivateSubCategoryCommand { SubCategoryId = id });
             if (result.IsFailure)
             {
                 return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));

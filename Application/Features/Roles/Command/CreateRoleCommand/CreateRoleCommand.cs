@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +17,12 @@ namespace Application.Features.Roles.Command.CreateRoleCommand
     public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, Result<int>>
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public CreateRoleCommandHandler(RoleManager<ApplicationRole> roleManager)
+        public CreateRoleCommandHandler(RoleManager<ApplicationRole> roleManager, IDateTimeProvider dateTimeProvider)
         {
             _roleManager = roleManager;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<int>> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
@@ -39,7 +42,7 @@ namespace Application.Features.Roles.Command.CreateRoleCommand
             {
                 Name = request.RoleName,
                 NormalizedName = request.RoleName.ToUpperInvariant(),
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = _dateTimeProvider.Now
             };
 
             var result = await _roleManager.CreateAsync(role);

@@ -5,7 +5,7 @@
       <h1 class="categories__title">Categories</h1>
       <p class="categories__subtitle">Manage vehicle categories</p>
     </div>
-    <button 
+    <button
       type="button"
       (click)="onAddNew()"
       class="categories__add-btn"
@@ -14,12 +14,21 @@
       <svg class="categories__add-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
       </svg>
+      Add Category
     </button>
   </div>
 
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="categories__message categories__message--success">
+    <svg class="categories__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{{ successMessage }}</span>
+  </div>
+
   <!-- Error Message -->
-  <div *ngIf="errorMessage" class="categories__error">
-    <svg class="categories__error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div *ngIf="errorMessage" class="categories__message categories__message--error">
+    <svg class="categories__message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
     <span>{{ errorMessage }}</span>
@@ -31,80 +40,125 @@
     <p>Loading categories...</p>
   </div>
 
-  <!-- Categories Grid -->
-  <div *ngIf="!isLoading && categories.length > 0" class="categories__grid">
-    <div *ngFor="let category of categories" class="categories__card group">
-      <!-- Category Image -->
-      <div class="categories__card-image">
-        <img 
-          *ngIf="category.imageUrl" 
-          [src]="category.imageUrl" 
-          [alt]="category.name"
-          class="categories__image"
-        />
-        <div *ngIf="!category.imageUrl" class="categories__image-placeholder">
-          <svg class="categories__placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Category Content -->
-      <div class="categories__card-content">
-        <div class="categories__card-header">
-          <h3 class="categories__card-title">{{ category.name }}</h3>
-          <span class="categories__vehicle-badge">
-            <svg class="categories__badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            {{ category.subCategoryCount || 0 }} SubCategories
-          </span>
-        </div>
-        <p class="categories__card-city">
-          <svg class="categories__city-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          {{ category.cityName }}
-        </p>
-        <p class="categories__card-description">{{ category.description || 'No description available' }}</p>
-      </div>
-
-      <!-- Category Actions -->
-      <div class="categories__card-actions">
-        <button 
-          type="button"
-          (click)="onViewSubCategories(category.categoryId)"
-          class="categories__btn categories__btn--view"
-          title="View subcategories"
-        >
-          <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-          </svg>
-        </button>
-        <button 
-          type="button"
-          (click)="onEdit(category)"
-          class="categories__btn categories__btn--edit"
-          title="Edit category"
-        >
-          <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-        </button>
-        <button 
-          type="button"
-          (click)="onDelete(category.categoryId)"
-          class="categories__btn categories__btn--delete"
-          title="Delete category"
-        >
-          <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+  <!-- Categories Table -->
+  <div *ngIf="!isLoading && categories.length > 0" class="categories__table-wrapper">
+    <table class="categories__table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>City</th>
+          <th>SubCategories</th>
+          <th>State</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of categories">
+          <td class="categories__image-cell">
+            <div class="categories__image-wrapper">
+              <img
+                *ngIf="category.imageUrl"
+                [src]="category.imageUrl"
+                [alt]="category.name"
+                class="categories__table-image"
+              />
+              <div *ngIf="!category.imageUrl" class="categories__image-placeholder">
+                <svg class="categories__placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+            </div>
+          </td>
+          <td class="categories__name">{{ category.name }}</td>
+          <td>{{ category.description || 'No description available' }}</td>
+          <td>
+            <span class="categories__city-badge">
+              <svg class="categories__city-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              {{ category.cityName }}
+            </span>
+          </td>
+          <td>
+            <span class="categories__subcategory-badge">
+              <svg class="categories__badge-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              {{ category.subCategoryCount || 0 }}
+            </span>
+          </td>
+          <td>
+            <span
+              class="categories__state-badge"
+              [class.categories__state-badge--active]="category.isActive"
+              [class.categories__state-badge--inactive]="!category.isActive"
+            >
+              {{ category.isActive ? 'Active' : 'InActive' }}
+            </span>
+          </td>
+          <td>
+            <div class="categories__actions">
+              <button
+                type="button"
+                (click)="onViewSubCategories(category.categoryId)"
+                class="categories__btn categories__btn--view"
+                title="View subcategories"
+              >
+                <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                (click)="onEdit(category)"
+                class="categories__btn categories__btn--edit"
+                title="Edit category"
+              >
+                <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button
+                *ngIf="category.isActive"
+                type="button"
+                (click)="onDeactivate(category.categoryId)"
+                class="categories__btn categories__btn--deactivate"
+                title="Deactivate category"
+              >
+                <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+              </button>
+              <button
+                *ngIf="!category.isActive"
+                type="button"
+                (click)="onActivate(category.categoryId)"
+                class="categories__btn categories__btn--activate"
+                title="Activate category"
+              >
+                <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                (click)="onDelete(category.categoryId)"
+                class="categories__btn categories__btn--delete"
+                title="Permanently delete category"
+              >
+                <svg class="categories__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Empty State -->
@@ -117,7 +171,7 @@
 
   <!-- Pagination -->
   <div *ngIf="!isLoading && totalPages > 1" class="categories__pagination">
-    <button 
+    <button
       type="button"
       (click)="onPageChange(currentPage - 1)"
       [disabled]="currentPage === 1"
@@ -131,7 +185,7 @@
     </button>
 
     <div class="categories__pagination-numbers">
-      <button 
+      <button
         *ngFor="let page of getPageNumbers()"
         type="button"
         (click)="onPageChange(page)"
@@ -142,7 +196,7 @@
       </button>
     </div>
 
-    <button 
+    <button
       type="button"
       (click)="onPageChange(currentPage + 1)"
       [disabled]="currentPage === totalPages"
@@ -157,156 +211,15 @@
   </div>
 </div>
 
-<!-- Add/Edit Category Modal -->
-<div *ngIf="showModal" class="categories__modal-overlay" (click)="onCloseModal()">
-  <div class="categories__modal" (click)="$event.stopPropagation()">
-    <div class="categories__modal-header">
-      <h2 class="categories__modal-title">{{ isEditMode ? 'Edit Category' : 'Add New Category' }}</h2>
-      <button 
-        type="button"
-        (click)="onCloseModal()"
-        class="categories__modal-close"
-      >
-        <svg class="categories__modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="categories__modal-form">
-      <!-- Name -->
-      <div class="categories__form-group">
-        <label class="categories__form-label">
-          <span>Category Name</span>
-          <span class="categories__form-required">*</span>
-        </label>
-        <div class="categories__input-wrapper">
-          <input 
-            type="text"
-            formControlName="name"
-            class="categories__form-input"
-            [class.categories__form-input--error]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
-            placeholder="Enter category name"
-          />
-        </div>
-        <div *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" class="categories__form-error">
-          <svg class="categories__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Name is required and must be at least 2 characters
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="categories__form-group">
-        <label class="categories__form-label">
-          <span>Description</span>
-          <span class="categories__form-required">*</span>
-        </label>
-        <div class="categories__input-wrapper">
-          <textarea 
-            formControlName="description"
-            class="categories__form-textarea"
-            [class.categories__form-input--error]="categoryForm.get('description')?.invalid && categoryForm.get('description')?.touched"
-            placeholder="Enter category description"
-            rows="4"
-          ></textarea>
-        </div>
-        <div *ngIf="categoryForm.get('description')?.invalid && categoryForm.get('description')?.touched" class="categories__form-error">
-          <svg class="categories__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Description is required
-        </div>
-      </div>
-
-      <!-- City -->
-      <div class="categories__form-group">
-        <label class="categories__form-label">
-          <span>City</span>
-          <span class="categories__form-required">*</span>
-        </label>
-        <div class="categories__input-wrapper">
-          <select 
-            formControlName="cityId"
-            class="categories__form-select"
-            [class.categories__form-input--error]="categoryForm.get('cityId')?.invalid && categoryForm.get('cityId')?.touched"
-          >
-            <option value="">Select a city</option>
-            <option *ngFor="let city of cities" [value]="city.cityId">
-              {{ city.name }}
-            </option>
-          </select>
-        </div>
-        <div *ngIf="categoryForm.get('cityId')?.invalid && categoryForm.get('cityId')?.touched" class="categories__form-error">
-          <svg class="categories__error-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          City is required
-        </div>
-      </div>
-
-      <!-- Image Upload -->
-      <div class="categories__form-group categories__form-group--image">
-        <label class="categories__form-label">
-          <span>Category Image</span>
-        </label>
-        <div class="categories__image-upload">
-          <div *ngIf="imagePreview" class="categories__image-preview-wrapper">
-            <div class="categories__image-preview">
-              <img [src]="imagePreview" alt="Preview" class="categories__preview-image" />
-              <button 
-                type="button"
-                (click)="imagePreview = null; categoryForm.patchValue({ imageUrl: null })"
-                class="categories__image-remove"
-                title="Remove image"
-              >
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="categories__image-upload-area" [class.categories__image-upload-area--has-image]="imagePreview">
-            <input 
-              type="file"
-              accept="image/*"
-              (change)="onImageSelect($event)"
-              class="categories__file-input"
-              id="category-image"
-            />
-            <label for="category-image" class="categories__file-label">
-              <svg class="categories__file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span class="categories__file-text">
-                <span *ngIf="!imagePreview">Click to upload or drag and drop</span>
-                <span *ngIf="imagePreview">Change Image</span>
-              </span>
-              <span class="categories__file-hint">PNG, JPG, GIF up to 10MB</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form Actions -->
-      <div class="categories__modal-actions">
-        <button 
-          type="button"
-          (click)="onCloseModal()"
-          class="categories__modal-btn categories__modal-btn--cancel"
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit"
-          [disabled]="categoryForm.invalid"
-          class="categories__modal-btn categories__modal-btn--submit"
-        >
-          {{ isEditMode ? 'Update' : 'Create' }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
+<!-- Confirmation Dialog -->
+<app-confirm-dialog
+  [isVisible]="showConfirmDialog"
+  [title]="confirmDialogTitle"
+  [message]="confirmDialogMessage"
+  [type]="confirmDialogType"
+  [isLoading]="confirmDialogLoading"
+          [confirmText]="pendingAction === 'delete' ? 'Delete Permanently' : pendingAction === 'activate' ? 'Activate' : 'Deactivate'"
+  cancelText="Cancel"
+          (confirm)="onConfirmAction()"
+          (cancel)="onCancelAction()"
+></app-confirm-dialog>

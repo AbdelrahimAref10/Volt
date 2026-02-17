@@ -21,16 +21,44 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/categories/categories.component').then(m => m.CategoriesComponent)
       },
       {
+        path: 'categories/new',
+        loadComponent: () => import('./pages/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
+      },
+      {
+        path: 'categories/:id/edit',
+        loadComponent: () => import('./pages/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
+      },
+      {
         path: 'subcategories',
         loadComponent: () => import('./pages/subcategories/subcategories.component').then(m => m.SubCategoriesComponent)
+      },
+      {
+        path: 'subcategories/new',
+        loadComponent: () => import('./pages/subcategories/subcategory-form/subcategory-form.component').then(m => m.SubCategoryFormComponent)
+      },
+      {
+        path: 'subcategories/:id/edit',
+        loadComponent: () => import('./pages/subcategories/subcategory-form/subcategory-form.component').then(m => m.SubCategoryFormComponent)
       },
       {
         path: 'vehicles',
         loadComponent: () => import('./pages/vehicles/vehicles.component').then(m => m.VehiclesComponent)
       },
       {
+        path: 'vehicles/new',
+        loadComponent: () => import('./pages/vehicles/vehicle-form/vehicle-form.component').then(m => m.VehicleFormComponent)
+      },
+      {
+        path: 'vehicles/:id/edit',
+        loadComponent: () => import('./pages/vehicles/vehicle-form/vehicle-form.component').then(m => m.VehicleFormComponent)
+      },
+      {
         path: 'customers',
         loadComponent: () => import('./pages/customers/customers.component').then(m => m.CustomersComponent)
+      },
+      {
+        path: 'customers/new',
+        loadComponent: () => import('./pages/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
       },
       {
         path: 'customers/:id',
@@ -51,6 +79,14 @@ export const routes: Routes = [
       {
         path: 'cities',
         loadComponent: () => import('./pages/cities/cities.component').then(m => m.CitiesComponent)
+      },
+      {
+        path: 'cities/new',
+        loadComponent: () => import('./pages/cities/city-form/city-form.component').then(m => m.CityFormComponent)
+      },
+      {
+        path: 'cities/:id/edit',
+        loadComponent: () => import('./pages/cities/city-form/city-form.component').then(m => m.CityFormComponent)
       },
       {
         path: 'orders',

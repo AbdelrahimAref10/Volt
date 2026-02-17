@@ -1,62 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { CategoryClient, CategoryDto, PagedResultOfCategoryDto, CreateCategoryCommand, UpdateCategoryCommand } from '../../core/services/clientAPI';
-import { CityClient, CityDto, PagedResultOfCityDto } from '../../core/services/clientAPI';
+import { Router, RouterModule } from '@angular/router';
+import { CategoryClient, CategoryDto, PagedResultOfCategoryDto } from '../../core/services/clientAPI';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ConfirmDialogComponent],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.css'
 })
 export class CategoriesComponent implements OnInit {
   categories: CategoryDto[] = [];
-  cities: CityDto[] = [];
   currentPage = 1;
   pageSize = 12;
   totalCount = 0;
   totalPages = 0;
   isLoading = false;
   errorMessage = '';
-  
-  showModal = false;
-  isEditMode = false;
-  categoryForm: FormGroup;
-  selectedCategoryId: number | null = null;
-  imagePreview: string | null = null;
+  successMessage = '';
+
+  // Confirmation dialog
+  showConfirmDialog = false;
+  confirmDialogTitle = '';
+  confirmDialogMessage = '';
+  confirmDialogType: 'danger' | 'warning' | 'info' = 'danger';
+  confirmDialogLoading = false;
+  pendingDeleteId: number | null = null;
+  pendingDeactivateId: number | null = null;
+  pendingActivateId: number | null = null;
+  pendingAction: 'delete' | 'deactivate' | 'activate' | null = null;
 
   constructor(
     private categoryClient: CategoryClient,
-    private cityClient: CityClient,
-    private router: Router,
-    private fb: FormBuilder
-  ) {
-    this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      description: ['', [Validators.required]],
-      cityId: [null, [Validators.required]],
-      imageUrl: [null]
-    });
-  }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadCities();
     this.loadCategories();
-  }
-
-  loadCities(): void {
-    // Load all active cities for the dropdown
-    this.cityClient.getAll(1, 1000, undefined, true).subscribe({
-      next: (result: PagedResultOfCityDto) => {
-        this.cities = result.items || [];
-      },
-      error: (error) => {
-        console.error('Error loading cities:', error);
-      }
-    });
   }
 
   loadCategories(): void {
@@ -87,17 +69,144 @@ export class CategoriesComponent implements OnInit {
   }
 
   onDelete(categoryId: number): void {
-    if (confirm('Are you sure you want to delete this category?')) {
-      this.categoryClient.delete(categoryId).subscribe({
+    this.pendingDeleteId = categoryId;
+    this.pendingDeactivateId = null;
+    this.pendingAction = 'delete';
+    this.confirmDialogTitle = 'Permanently Delete Category';
+    this.confirmDialogMessage = 'Are you sure you want to permanently delete this category? This action cannot be undone. The category must be inactive first.';
+    this.confirmDialogType = 'danger';
+    this.showConfirmDialog = true;
+  }
+
+  onDeactivate(categoryId: number): void {
+    this.pendingDeactivateId = categoryId;
+    this.pendingDeleteId = null;
+    this.pendingActivateId = null;
+    this.pendingAction = 'deactivate';
+    this.confirmDialogTitle = 'Deactivate Category';
+    this.confirmDialogMessage = 'Are you sure you want to deactivate this category? It will be moved to inactive categories.';
+    this.confirmDialogType = 'warning';
+    this.showConfirmDialog = true;
+  }
+
+  onActivate(categoryId: number): void {
+    this.pendingActivateId = categoryId;
+    this.pendingDeleteId = null;
+    this.pendingDeactivateId = null;
+    this.pendingAction = 'activate';
+    this.confirmDialogTitle = 'Activate Category';
+    this.confirmDialogMessage = 'Are you sure you want to activate this category? It will be moved to active categories.';
+    this.confirmDialogType = 'info';
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmAction(): void {
+    if (this.pendingAction === 'delete' && this.pendingDeleteId !== null) {
+      this.confirmDialogLoading = true;
+      this.categoryClient.delete(this.pendingDeleteId).subscribe({
         next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingDeleteId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('Category deleted successfully');
           this.loadCategories();
         },
-        error: (error) => {
-          alert('Failed to delete category. Please try again.');
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          const errorMessage = this.extractErrorMessage(error) || 'Failed to delete category. Please try again.';
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingDeleteId = null;
+          this.pendingAction = null;
           console.error('Error deleting category:', error);
         }
       });
+    } else if (this.pendingAction === 'deactivate' && this.pendingDeactivateId !== null) {
+      this.confirmDialogLoading = true;
+      this.categoryClient.deactivate(this.pendingDeactivateId).subscribe({
+        next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingDeactivateId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('Category deactivated successfully');
+          this.loadCategories();
+        },
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          const errorMessage = this.extractErrorMessage(error) || 'Failed to deactivate category. Please try again.';
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingDeactivateId = null;
+          this.pendingAction = null;
+          console.error('Error deactivating category:', error);
+        }
+      });
+    } else if (this.pendingAction === 'activate' && this.pendingActivateId !== null) {
+      this.confirmDialogLoading = true;
+      this.categoryClient.activate(this.pendingActivateId).subscribe({
+        next: () => {
+          this.showConfirmDialog = false;
+          this.confirmDialogLoading = false;
+          this.pendingActivateId = null;
+          this.pendingAction = null;
+          this.showSuccessMessage('Category activated successfully');
+          this.loadCategories();
+        },
+        error: (error: any) => {
+          this.confirmDialogLoading = false;
+          const errorMessage = this.extractErrorMessage(error) || 'Failed to activate category. Please try again.';
+          this.showErrorMessage(errorMessage);
+          this.showConfirmDialog = false;
+          this.pendingActivateId = null;
+          this.pendingAction = null;
+          console.error('Error activating category:', error);
+        }
+      });
     }
+  }
+
+  onCancelAction(): void {
+    this.showConfirmDialog = false;
+    this.confirmDialogLoading = false;
+    this.pendingDeleteId = null;
+    this.pendingDeactivateId = null;
+    this.pendingActivateId = null;
+    this.pendingAction = null;
+  }
+
+  extractErrorMessage(error: any): string {
+    if (error.error) {
+      if (error.error.errorMessage) {
+        return error.error.errorMessage;
+      } else if (error.error.detail) {
+        return error.error.detail;
+      } else if (error.error.title) {
+        return error.error.title;
+      } else if (typeof error.error === 'string') {
+        return error.error;
+      }
+    } else if (error.message) {
+      return error.message;
+    }
+    return '';
+  }
+
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 5000);
+  }
+
+  showErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
   }
 
   onViewSubCategories(categoryId: number): void {
@@ -110,7 +219,7 @@ export class CategoriesComponent implements OnInit {
     const maxPages = 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxPages / 2));
     let endPage = Math.min(this.totalPages, startPage + maxPages - 1);
-    
+
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(1, endPage - maxPages + 1);
     }
@@ -122,90 +231,10 @@ export class CategoriesComponent implements OnInit {
   }
 
   onAddNew(): void {
-    this.isEditMode = false;
-    this.selectedCategoryId = null;
-    this.categoryForm.reset();
-    this.imagePreview = null;
-    this.showModal = true;
+    this.router.navigate(['/main/categories/new']);
   }
 
   onEdit(category: CategoryDto): void {
-    this.isEditMode = true;
-    this.selectedCategoryId = category.categoryId;
-    this.categoryForm.patchValue({
-      name: category.name,
-      description: category.description,
-      cityId: category.cityId,
-      imageUrl: category.imageUrl
-    });
-    this.imagePreview = category.imageUrl || null;
-    this.showModal = true;
-  }
-
-  onImageSelect(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-        // Convert to base64 for backend
-        const base64 = e.target.result.split(',')[1];
-        this.categoryForm.patchValue({ imageUrl: `data:image/jpeg;base64,${base64}` });
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  onSubmit(): void {
-    if (this.categoryForm.invalid) {
-      this.categoryForm.markAllAsTouched();
-      return;
-    }
-
-    const formValue = this.categoryForm.value;
-
-    if (this.isEditMode && this.selectedCategoryId) {
-      const command = new UpdateCategoryCommand();
-      command.categoryId = this.selectedCategoryId;
-      command.name = formValue.name;
-      command.description = formValue.description;
-      command.cityId = formValue.cityId;
-      command.imageUrl = formValue.imageUrl;
-
-      this.categoryClient.update(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadCategories();
-        },
-        error: (error) => {
-          alert('Failed to update category. Please try again.');
-          console.error('Error updating category:', error);
-        }
-      });
-    } else {
-      const command = new CreateCategoryCommand();
-      command.name = formValue.name;
-      command.description = formValue.description;
-      command.cityId = formValue.cityId;
-      command.imageUrl = formValue.imageUrl;
-
-      this.categoryClient.create(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadCategories();
-        },
-        error: (error) => {
-          alert('Failed to create category. Please try again.');
-          console.error('Error creating category:', error);
-        }
-      });
-    }
-  }
-
-  onCloseModal(): void {
-    this.showModal = false;
-    this.categoryForm.reset();
-    this.imagePreview = null;
+    this.router.navigate(['/main/categories', category.categoryId, 'edit']);
   }
 }

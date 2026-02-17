@@ -43,8 +43,18 @@ export class UsersComponent implements OnInit, OnDestroy {
   isLoadingRoles = false;
   isSubmitting = false;
   showPassword = false;
+  
+  // Multi-step form
+  currentStep: number;
+  totalSteps: number = 3;
+  steps = [
+    { number: 1, title: 'Basic Information', fields: ['userName', 'email', 'phoneNumber'] },
+    { number: 2, title: 'Security', fields: ['password'] },
+    { number: 3, title: 'Role Assignment', fields: ['role'] }
+  ];
 
   constructor() {
+    this.currentStep = 1;
     this.userForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -271,7 +281,87 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.userForm.patchValue({
       role: null
     });
+    this.currentStep = 1;
     this.showModal = true;
+  }
+
+  // Multi-step form methods
+  getFormProgress(): number {
+    const totalFields = this.steps.reduce((sum, step) => sum + step.fields.length, 0);
+    let completedFields = 0;
+    
+    this.steps.forEach(step => {
+      step.fields.forEach(field => {
+        const control = this.userForm.get(field);
+        if (control && control.valid && control.value) {
+          completedFields++;
+        }
+      });
+    });
+    
+    return Math.round((completedFields / totalFields) * 100);
+  }
+
+  getStepProgress(stepNumber: number): number {
+    const step = this.steps.find(s => s.number === stepNumber);
+    if (!step) return 0;
+    
+    let completedFields = 0;
+    step.fields.forEach(field => {
+      const control = this.userForm.get(field);
+      if (control && control.valid && control.value) {
+        completedFields++;
+      }
+    });
+    
+    return Math.round((completedFields / step.fields.length) * 100);
+  }
+
+  isStepValid(stepNumber: number): boolean {
+    const step = this.steps.find(s => s.number === stepNumber);
+    if (!step) return false;
+    
+    return step.fields.every(field => {
+      const control = this.userForm.get(field);
+      return control && control.valid;
+    });
+  }
+
+  canGoToNextStep(): boolean {
+    return this.isStepValid(this.currentStep);
+  }
+
+  onNextStep(): void {
+    if (this.canGoToNextStep() && this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  onPreviousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(stepNumber: number): void {
+    if (stepNumber >= 1 && stepNumber <= this.totalSteps) {
+      // Allow going back to previous steps, but validate current step before going forward
+      if (stepNumber < this.currentStep || this.isStepValid(this.currentStep)) {
+        this.currentStep = stepNumber;
+      }
+    }
+  }
+
+  isStep1(): boolean {
+    return this.currentStep === 1;
+  }
+
+  isStep2(): boolean {
+    return this.currentStep === 2;
+  }
+
+  isStep3(): boolean {
+    return this.currentStep === 3;
   }
 
   onView(userId: number): void {
@@ -283,7 +373,9 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   onDelete(userId: number): void {
-    if (confirm('Are you sure you want to delete this user?')) {
+    // Note: This component already has good error handling, but we should add confirmation dialog
+    // For now, keeping the existing confirm but ensuring backend errors are shown
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       this.adminUserClient.delete(userId).subscribe({
         next: () => {
           this.showSuccessMessage('User deleted successfully');
@@ -293,6 +385,44 @@ export class UsersComponent implements OnInit, OnDestroy {
           const errorMessage = error.error?.detail || error.error?.title || 'Failed to delete user. Please try again.';
           this.showErrorMessage(errorMessage);
           console.error('Error deleting user:', error);
+        }
+      });
+    }
+  }
+
+  onActivate(userId: number): void {
+    if (confirm('Are you sure you want to activate this user?')) {
+      this.isLoading = true;
+      this.adminUserClient.activate(userId).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.showSuccessMessage('User activated successfully');
+          this.loadUsers();
+        },
+        error: (error: any) => {
+          this.isLoading = false;
+          const errorMessage = error.error?.detail || error.error?.title || 'Failed to activate user. Please try again.';
+          this.showErrorMessage(errorMessage);
+          console.error('Error activating user:', error);
+        }
+      });
+    }
+  }
+
+  onDeactivate(userId: number): void {
+    if (confirm('Are you sure you want to deactivate this user?')) {
+      this.isLoading = true;
+      this.adminUserClient.deactivate(userId).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.showSuccessMessage('User deactivated successfully');
+          this.loadUsers();
+        },
+        error: (error: any) => {
+          this.isLoading = false;
+          const errorMessage = error.error?.detail || error.error?.title || 'Failed to deactivate user. Please try again.';
+          this.showErrorMessage(errorMessage);
+          console.error('Error deactivating user:', error);
         }
       });
     }
@@ -350,6 +480,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.userForm.patchValue({
       role: null
     });
+    this.currentStep = 1;
     this.isSubmitting = false;
     this.errorMessage = ''; // Clear error message when closing modal
   }

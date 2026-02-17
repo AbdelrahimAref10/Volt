@@ -22,6 +22,82 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Models.AdminNotification", b =>
+                {
+                    b.Property<int>("AdminNotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("AdminNotificationId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdminNotificationId"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsRead");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)")
+                        .HasColumnName("Message");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int")
+                        .HasColumnName("NotificationType");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ReadAt");
+
+                    b.Property<int?>("ReadByUserId")
+                        .HasColumnType("int")
+                        .HasColumnName("ReadByUserId");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("Title");
+
+                    b.HasKey("AdminNotificationId");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("IsRead");
+
+                    b.HasIndex("NotificationType");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ReadByUserId");
+
+                    b.ToTable("VO_AdminNotification", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Models.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
@@ -389,6 +465,11 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
 
+                    b.Property<string>("AndriodDevice")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("AndriodDevice");
+
                     b.Property<bool>("CashBlock")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -437,6 +518,11 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("InvitationCodeExpiry")
                         .HasColumnType("datetime2")
                         .HasColumnName("InvitationCodeExpiry");
+
+                    b.Property<string>("IosDevice")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("IosDevice");
 
                     b.Property<bool>("IsInvitationCodeUsed")
                         .ValueGeneratedOnAdd()
@@ -500,6 +586,40 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("IX_Customer_MobileNumber");
 
                     b.ToTable("VO_Customer", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Models.CustomerLocation", b =>
+                {
+                    b.Property<int>("CustomerLocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerLocationId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerLocationId"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int")
+                        .HasColumnName("CustomerId");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float")
+                        .HasColumnName("Latitude");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float")
+                        .HasColumnName("Longitude");
+
+                    b.HasKey("CustomerLocationId");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CustomerLocation_CustomerId");
+
+                    b.ToTable("VO_CustomerLocation", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.CustomerWallet", b =>
@@ -766,6 +886,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TieredDiscount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAfterAllFees")
@@ -1226,6 +1349,57 @@ namespace Infrastructure.Migrations
                     b.ToTable("VO_SubCategory", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Models.TieredDiscount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int")
+                        .HasColumnName("CityId");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("Discount");
+
+                    b.Property<decimal>("From")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("From");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<decimal>("To")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("To");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("IX_TieredDiscounts_CityId");
+
+                    b.ToTable("VO_TieredDiscount", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Models.Vehicle", b =>
                 {
                     b.Property<int>("VehicleId")
@@ -1434,6 +1608,23 @@ namespace Infrastructure.Migrations
                     b.ToTable("VO_UserToken", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Models.AdminNotification", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Domain.Models.ApplicationUser", "ReadByUser")
+                        .WithMany()
+                        .HasForeignKey("ReadByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Order");
+
+                    b.Navigation("ReadByUser");
+                });
+
             modelBuilder.Entity("Domain.Models.Category", b =>
                 {
                     b.HasOne("Domain.Models.City", "City")
@@ -1454,6 +1645,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("City");
+                });
+
+            modelBuilder.Entity("Domain.Models.CustomerLocation", b =>
+                {
+                    b.HasOne("Domain.Models.Customer", "Customer")
+                        .WithOne("CustomerLocation")
+                        .HasForeignKey("Domain.Models.CustomerLocation", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Domain.Models.CustomerWallet", b =>
@@ -1622,6 +1824,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Domain.Models.TieredDiscount", b =>
+                {
+                    b.HasOne("Domain.Models.City", "City")
+                        .WithMany("TieredDiscounts")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("Domain.Models.Vehicle", b =>
                 {
                     b.HasOne("Domain.Models.SubCategory", "SubCategory")
@@ -1692,6 +1905,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.City", b =>
                 {
                     b.Navigation("Customers");
+
+                    b.Navigation("TieredDiscounts");
+                });
+
+            modelBuilder.Entity("Domain.Models.Customer", b =>
+                {
+                    b.Navigation("CustomerLocation");
                 });
 
             modelBuilder.Entity("Domain.Models.Order", b =>

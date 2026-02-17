@@ -9,6 +9,7 @@ namespace Domain.Models
         public decimal ServiceFees { get; private set; }
         public decimal DeliveryFees { get; private set; }
         public decimal UrgentFees { get; private set; }
+        public decimal TieredDiscount { get; private set; }
         public decimal TotalAfterAllFees { get; private set; }
 
         // Navigation property
@@ -24,6 +25,7 @@ namespace Domain.Models
             decimal serviceFees,
             decimal deliveryFees,
             decimal urgentFees,
+            decimal tieredDiscount,
             decimal totalAfterAllFees)
         {
             if (orderId <= 0)
@@ -41,6 +43,9 @@ namespace Domain.Models
             if (urgentFees < 0)
                 throw new ArgumentException("Urgent fees cannot be negative", nameof(urgentFees));
 
+            if (tieredDiscount < 0)
+                throw new ArgumentException("Tiered discount cannot be negative", nameof(tieredDiscount));
+
             if (totalAfterAllFees < 0)
                 throw new ArgumentException("Total after all fees cannot be negative", nameof(totalAfterAllFees));
 
@@ -51,6 +56,7 @@ namespace Domain.Models
                 ServiceFees = serviceFees,
                 DeliveryFees = deliveryFees,
                 UrgentFees = urgentFees,
+                TieredDiscount = tieredDiscount,
                 TotalAfterAllFees = totalAfterAllFees
             };
         }

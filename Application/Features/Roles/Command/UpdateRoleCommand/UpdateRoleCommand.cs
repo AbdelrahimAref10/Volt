@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -19,10 +20,12 @@ namespace Application.Features.Roles.Command.UpdateRoleCommand
     public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand, Result<bool>>
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public UpdateRoleCommandHandler(RoleManager<ApplicationRole> roleManager)
+        public UpdateRoleCommandHandler(RoleManager<ApplicationRole> roleManager, IDateTimeProvider dateTimeProvider)
         {
             _roleManager = roleManager;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<bool>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
@@ -47,7 +50,7 @@ namespace Application.Features.Roles.Command.UpdateRoleCommand
 
             role.Name = request.RoleName;
             role.NormalizedName = request.RoleName.ToUpperInvariant();
-            role.LastModifiedDate = DateTime.UtcNow;
+            role.LastModifiedDate = _dateTimeProvider.Now;
 
             var result = await _roleManager.UpdateAsync(role);
             if (!result.Succeeded)

@@ -1,0 +1,191 @@
+/* Vehicle Form Component - Modern Design */
+
+
+
+/* Header */
+.vehicle-form__header {
+  @apply bg-white border-b border-neutral-200 sticky top-0 z-10;
+}
+
+.vehicle-form__header-content {
+  @apply px-6 py-6 flex items-center gap-4;
+}
+
+.vehicle-form__back-btn {
+  @apply flex items-center justify-center w-10 h-10 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.vehicle-form__back-btn svg {
+  @apply w-5 h-5;
+}
+
+.vehicle-form__title {
+  @apply text-3xl font-bold text-neutral-900 mb-1;
+}
+
+.vehicle-form__subtitle {
+  @apply text-neutral-600 text-sm;
+}
+
+/* Error Message */
+.vehicle-form__error {
+  @apply px-6 py-4 mt-6 flex items-center gap-3 bg-error-50 border border-error-200 rounded-xl text-error-700;
+}
+
+.vehicle-form__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Loading State */
+.vehicle-form__loading {
+  @apply px-6 py-12 flex flex-col items-center justify-center;
+}
+
+.vehicle-form__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+/* Form */
+.vehicle-form__form {
+  @apply py-8 px-6;
+}
+
+.vehicle-form__content {
+  @apply space-y-6 mb-8;
+}
+
+/* Card */
+.vehicle-form__card {
+  @apply bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden;
+}
+
+.vehicle-form__card-header {
+  @apply px-6 py-5 border-b border-neutral-200 bg-neutral-50;
+}
+
+.vehicle-form__card-title {
+  @apply text-xl font-semibold text-neutral-900 mb-1;
+}
+
+.vehicle-form__card-subtitle {
+  @apply text-sm text-neutral-600;
+}
+
+.vehicle-form__card-body {
+  @apply px-6 py-6;
+}
+
+/* Form Groups */
+.vehicle-form__form-group {
+  @apply mb-6 last:mb-0;
+}
+
+.vehicle-form__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-3;
+}
+
+.vehicle-form__form-required {
+  @apply text-error-500;
+}
+
+.vehicle-form__input-wrapper {
+  @apply relative;
+}
+
+.vehicle-form__form-input,
+.vehicle-form__form-textarea,
+.vehicle-form__form-select {
+  @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
+}
+
+.vehicle-form__form-input,
+.vehicle-form__form-select {
+  @apply h-12;
+}
+
+.vehicle-form__form-textarea {
+  @apply min-h-[100px] resize-y;
+}
+
+.vehicle-form__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.vehicle-form__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.vehicle-form__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+/* Image Section */
+.vehicle-form__image-section {
+  @apply space-y-4;
+}
+
+.vehicle-form__image-preview {
+  @apply relative inline-block;
+}
+
+.vehicle-form__preview-img {
+  @apply w-full max-w-md h-64 object-cover rounded-xl border border-neutral-200;
+}
+
+.vehicle-form__remove-image-btn {
+  @apply absolute top-2 right-2 flex items-center justify-center w-8 h-8 bg-error-500 text-white rounded-lg hover:bg-error-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2;
+}
+
+.vehicle-form__remove-image-btn svg {
+  @apply w-4 h-4;
+}
+
+.vehicle-form__image-upload-area {
+  @apply border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center transition-colors duration-200 hover:border-primary-400 hover:bg-primary-50;
+}
+
+.vehicle-form__image-upload-area--has-image {
+  @apply border-neutral-200 bg-neutral-50;
+}
+
+.vehicle-form__file-input {
+  @apply hidden;
+}
+
+.vehicle-form__file-label {
+  @apply flex flex-col items-center justify-center cursor-pointer;
+}
+
+.vehicle-form__file-icon {
+  @apply w-12 h-12 text-neutral-400 mb-3;
+}
+
+.vehicle-form__file-text {
+  @apply text-sm font-medium text-neutral-700 mb-1;
+}
+
+.vehicle-form__file-hint {
+  @apply text-xs text-neutral-500;
+}
+
+/* Actions */
+.vehicle-form__actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200 bg-white sticky bottom-0 -mx-6 px-6 py-4;
+}
+
+.vehicle-form__btn {
+  @apply px-6 py-3 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2;
+}
+
+.vehicle-form__btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.vehicle-form__btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600;
+}
+
+.vehicle-form__btn-spinner {
+  @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+}
+

@@ -22,10 +22,15 @@ namespace Domain.Models
         public string? PasswordResetCode { get; private set; }
         public DateTime? PasswordResetCodeExpiry { get; private set; }
         public string PasswordHash { get; private set; } = string.Empty;
+        public string? AndriodDevice { get; private set; } // FCM token for Android
+        public string? IosDevice { get; private set; } // FCM token for iOS
 
         // Navigation property to City
         public int CityId { get; private set; }
         public City City { get; private set; } = null!;
+
+        // Navigation property to CustomerLocation (One-to-One relationship)
+        public CustomerLocation? CustomerLocation { get; private set; }
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -144,7 +149,7 @@ namespace Domain.Models
             LastModifiedDate = DateTime.UtcNow;
         }
 
-        public bool ValidateInvitationCode(string code)
+        public bool ValidateInvitationCode(string code, IDateTimeProvider dateTimeProvider)
         {
             if (string.IsNullOrWhiteSpace(code))
                 return false;
@@ -152,26 +157,26 @@ namespace Domain.Models
             if (IsInvitationCodeUsed)
                 return false;
 
-            if (InvitationCodeExpiry.HasValue && InvitationCodeExpiry.Value < DateTime.UtcNow)
+            if (InvitationCodeExpiry.HasValue && InvitationCodeExpiry.Value < dateTimeProvider.Now)
                 return false;
 
             return InvitationCode == code;
         }
 
-        public void RegenerateInvitationCode(string newCode)
+        public void RegenerateInvitationCode(string newCode, IDateTimeProvider dateTimeProvider)
         {
             if (string.IsNullOrWhiteSpace(newCode))
                 throw new ArgumentException("Invitation code cannot be empty", nameof(newCode));
             InvitationCode = newCode;
-            InvitationCodeExpiry = DateTime.UtcNow.AddHours(24);
+            InvitationCodeExpiry = dateTimeProvider.Now.AddHours(24);
         }
 
-        public void SetPasswordResetCode(string code, int expiryMinutes = 15)
+        public void SetPasswordResetCode(string code, IDateTimeProvider dateTimeProvider, int expiryMinutes = 15)
         {
             if (string.IsNullOrWhiteSpace(code))
                 throw new ArgumentException("Password reset code cannot be empty", nameof(code));
             PasswordResetCode = code;
-            PasswordResetCodeExpiry = DateTime.UtcNow.AddMinutes(expiryMinutes);
+            PasswordResetCodeExpiry = dateTimeProvider.Now.AddMinutes(expiryMinutes);
         }
 
         public void ClearPasswordResetCode()
@@ -180,11 +185,11 @@ namespace Domain.Models
             PasswordResetCodeExpiry = null;
         }
 
-        public bool ValidatePasswordResetCode(string code)
+        public bool ValidatePasswordResetCode(string code, IDateTimeProvider dateTimeProvider)
         {
             if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(PasswordResetCode))
                 return false;
-            if (!PasswordResetCodeExpiry.HasValue || PasswordResetCodeExpiry.Value < DateTime.UtcNow)
+            if (!PasswordResetCodeExpiry.HasValue || PasswordResetCodeExpiry.Value < dateTimeProvider.Now)
                 return false;
             return PasswordResetCode == code;
         }
@@ -195,6 +200,16 @@ namespace Domain.Models
                 throw new ArgumentException("Password hash cannot be empty", nameof(newPasswordHash));
             PasswordHash = newPasswordHash;
             ClearPasswordResetCode();
+        }
+
+        public void AddFireBaseDevices(string? androidDevice, string? iosDevice, string? modifiedBy = null)
+        {
+            if (!string.IsNullOrWhiteSpace(androidDevice))
+                AndriodDevice = androidDevice;
+            if (!string.IsNullOrWhiteSpace(iosDevice))
+                IosDevice = iosDevice;
+            LastModifiedBy = modifiedBy;
+            LastModifiedDate = DateTime.UtcNow;
         }
 
         public void UpdateProfile(string fullName, string gender, int cityId, string? email = null, string? personalImage = null, string? commercialRegisterImage = null, string? modifiedBy = null)
@@ -213,6 +228,20 @@ namespace Domain.Models
             CommercialRegisterImage = commercialRegisterImage;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
+        }
+        public void SaveLocation(double longitude, double latitude, DateTime lastModifiedDate)
+        {
+            var location = this.CustomerLocation;
+            if (location is null)
+            {
+                // Create new location if it doesn't exist
+                var newLocation = CustomerLocation.Create(CustomerId, longitude, latitude, lastModifiedDate);
+                this.CustomerLocation = newLocation;
+                return;
+            }
+
+            // Update existing location
+            location.UpdateLocation(longitude, latitude, lastModifiedDate);
         }
     }
 }

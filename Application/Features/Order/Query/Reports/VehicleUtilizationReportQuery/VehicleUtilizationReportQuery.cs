@@ -1,5 +1,6 @@
 using Application.Features.Order.DTOs;
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Infrastructure;
 using MediatR;
@@ -18,10 +19,12 @@ namespace Application.Features.Order.Query.Reports.VehicleUtilizationReportQuery
     public class VehicleUtilizationReportQueryHandler : IRequestHandler<VehicleUtilizationReportQuery, Result<List<VehicleUtilizationReportDto>>>
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public VehicleUtilizationReportQueryHandler(DatabaseContext context)
+        public VehicleUtilizationReportQueryHandler(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<List<VehicleUtilizationReportDto>>> Handle(VehicleUtilizationReportQuery request, CancellationToken cancellationToken)
@@ -53,7 +56,7 @@ namespace Application.Features.Order.Query.Reports.VehicleUtilizationReportQuery
                 // Calculate utilization percentage (assuming 365 days in a year)
                 // This is a simplified calculation - you might want to adjust based on your business logic
                 var daysSinceCreation = vehicle.CreatedDate != default 
-                    ? (DateTime.UtcNow - vehicle.CreatedDate).TotalDays 
+                    ? (_dateTimeProvider.Now - vehicle.CreatedDate).TotalDays 
                     : 365;
                 var utilizationPercentage = daysSinceCreation > 0 
                     ? (decimal)(totalDaysBooked / daysSinceCreation * 100) 

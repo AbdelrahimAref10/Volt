@@ -1,5 +1,6 @@
 using Application.Features.Customer.DTOs;
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
@@ -31,19 +32,22 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
         private readonly IImageService _imageService;
         private readonly CustomerLoginCommandValidator _validator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public CustomerLoginCommandHandler(
             DatabaseContext context,
             IJwtSettings jwtSettings,
             IPasswordHasher<ApplicationUser> passwordHasher,
             IImageService imageService,
-            CustomerLoginCommandValidator validator)
+            CustomerLoginCommandValidator validator,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _jwtSettings = jwtSettings;
             _passwordHasher = passwordHasher;
             _imageService = imageService;
             _validator = validator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<LoginResponse>> Handle(CustomerLoginCommand request, CancellationToken cancellationToken)
@@ -88,7 +92,7 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
 
             // Generate refresh token
             var refreshToken = GenerateRefreshToken();
-            
+
             // Note: RefreshToken is currently linked to ApplicationUser
             // For customers, we'll return the refresh token but not store it in RefreshTokens table
             // This can be updated later if needed
@@ -130,7 +134,7 @@ namespace Application.Features.Customer.Command.CustomerLoginCommand
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+                expires: _dateTimeProvider.Now.AddHours(_jwtSettings.ExpirationHours),
                 signingCredentials: creds
             );
 

@@ -5,8 +5,10 @@ using Domain.Enums;
 using Domain.Models;
 using Domain.Services;
 using Infrastructure;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +24,22 @@ namespace Application.Features.Order.Command.CancelOrderCommand
     {
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
+        private readonly INotificationService _notificationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAdminNotificationHubService _adminNotificationHubService;
 
-        public CancelOrderCommandHandler(DatabaseContext context, IUserSession userSession)
+        public CancelOrderCommandHandler(
+            DatabaseContext context, 
+            IUserSession userSession,
+            INotificationService notificationService,
+            IDateTimeProvider dateTimeProvider,
+            IAdminNotificationHubService adminNotificationHubService)
         {
             _context = context;
             _userSession = userSession;
+            _notificationService = notificationService;
+            _dateTimeProvider = dateTimeProvider;
+            _adminNotificationHubService = adminNotificationHubService;
         }
 
         public async Task<Result<bool>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -60,79 +73,133 @@ namespace Application.Features.Order.Command.CancelOrderCommand
                 return Result.Failure<bool>("You do not have permission to cancel this order");
             }
 
-            // Calculate cancellation fee (4 days policy)
-                var cancellationFee = OrderCalculationService.CalculateCancellationFee(order.City, order.CreatedDate);
+            // Calculate cancellation fee (2 days policy) - percentage of order total
+            var cancellationFee = OrderCalculationService.CalculateCancellationFee(order.City, order.CreatedDate, order.OrderTotal, _dateTimeProvider);
 
-                // Add cancellation fee to customer wallet as withdraw (OrderCancellationFees)
-                if (cancellationFee.HasValue && cancellationFee.Value > 0)
+            // Add cancellation fee to customer wallet as withdraw (OrderCancellationFees)
+            if (cancellationFee.HasValue && cancellationFee.Value > 0)
+            {
+                var walletEntry = CustomerWallet.Create(
+                    order.CustomerId,
+                    withdraw: cancellationFee.Value,
+                    deposit: 0,
+                    description: $"Order cancellation fee - Order #{order.OrderCode}",
+                    type: WalletType.OrderCancellationFees,
+                    orderId: order.OrderId
+                );
+
+                _context.CustomerWallets.Add(walletEntry);
+            }
+
+            // Handle refund if PayPal payment
+            var orderPayment = order.OrderPayments.FirstOrDefault();
+            if (orderPayment != null && orderPayment.PaymentMethodId == (int)PaymentMethod.PayPal)
+            {
+                var refundableAmount = order.OrderTotal - (cancellationFee ?? 0);
+
+                if (refundableAmount > 0)
                 {
-                    var walletEntry = CustomerWallet.Create(
+                    var refundablePaypal = Domain.Models.RefundablePaypalAmount.Create(
                         order.CustomerId,
-                        withdraw: cancellationFee.Value,
-                        deposit: 0,
-                        description: $"Order cancellation fee - Order #{order.OrderCode}",
-                        type: WalletType.OrderCancellationFees,
-                        orderId: order.OrderId
+                        order.OrderId,
+                        order.OrderTotal,
+                        cancellationFee ?? 0,
+                        _userSession.UserName ?? "System"
                     );
 
-                    _context.CustomerWallets.Add(walletEntry);
+                    _context.RefundablePaypalAmounts.Add(refundablePaypal);
+
+                    // TODO: Process PayPal refund
+                    // For now, mark as Pending
                 }
 
-                // Handle refund if PayPal payment
-                var orderPayment = order.OrderPayments.FirstOrDefault();
-                if (orderPayment != null && orderPayment.PaymentMethodId == (int)PaymentMethod.PayPal)
+                // Mark payment as refunded
+                orderPayment.MarkAsRefunded(_userSession.UserName ?? "System");
+            }
+
+            // Update vehicle status if vehicles were assigned
+            if (order.OrderState == OrderState.Confirmed)
+            {
+                foreach (var orderVehicle in order.OrderVehicles)
                 {
-                    var refundableAmount = order.OrderTotal - (cancellationFee ?? 0);
-
-                    if (refundableAmount > 0)
-                    {
-                        var refundablePaypal = Domain.Models.RefundablePaypalAmount.Create(
-                            order.CustomerId,
-                            order.OrderId,
-                            order.OrderTotal,
-                            cancellationFee ?? 0,
-                            _userSession.UserName ?? "System"
-                        );
-
-                        _context.RefundablePaypalAmounts.Add(refundablePaypal);
-
-                        // TODO: Process PayPal refund
-                        // For now, mark as Pending
-                    }
-
-                    // Mark payment as refunded
-                    orderPayment.MarkAsRefunded(_userSession.UserName ?? "System");
+                    orderVehicle.Vehicle.UpdateStatus("Available", _userSession.UserName ?? "System");
                 }
+            }
 
-                // Update vehicle status if vehicles were assigned
-                if (order.OrderState == OrderState.Confirmed)
-                {
-                    foreach (var orderVehicle in order.OrderVehicles)
-                    {
-                        orderVehicle.Vehicle.UpdateStatus("Available", _userSession.UserName ?? "System");
-                    }
-                }
+            // Update ReservedVehiclesPerDays state to Cancelled
+            var reservedVehicles = await _context.ReservedVehiclesPerDays
+                .AsTracking()
+                .Where(rv => rv.OrderId == order.OrderId)
+                .ToListAsync(cancellationToken);
 
-                // Update ReservedVehiclesPerDays state to Cancelled
-                var reservedVehicles = await _context.ReservedVehiclesPerDays
-                    .AsTracking()
-                    .Where(rv => rv.OrderId == order.OrderId)
-                    .ToListAsync(cancellationToken);
+            foreach (var reserved in reservedVehicles)
+            {
+                reserved.Cancel(_userSession.UserName ?? "System");
+            }
 
-                foreach (var reserved in reservedVehicles)
-                {
-                    reserved.Cancel(_userSession.UserName ?? "System");
-                }
+            // Cancel the order
+            order.Cancel(_userSession.UserName ?? "System");
 
-                // Cancel the order
-                order.Cancel(_userSession.UserName ?? "System");
-
-                // TODO: Add treasury record handling for cancellation
-                // This will be implemented soon - treasury records will be created when cancellation fees are paid
+            // TODO: Add treasury record handling for cancellation
+            // This will be implemented soon - treasury records will be created when cancellation fees are paid
 
             await _context.SaveChangesAsync(cancellationToken);
 
+            // Send push notification to customer
+            await SendOrderCancelledNotification(order, cancellationToken);
+
+            // Send admin notification via SignalR
+            await _adminNotificationHubService.SendNotificationAsync(
+                title: "Order Cancelled",
+                message: $"Order #{order.OrderCode} has been cancelled",
+                notificationType: Domain.Enums.NotificationType.OrderCancelled,
+                orderId: order.OrderId
+            );
+
             return Result.Success(true);
+        }
+
+        private async Task SendOrderCancelledNotification(Domain.Models.Order order, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Reload customer to get latest device tokens
+                var customer = await _context.Customers
+                    .FirstOrDefaultAsync(c => c.CustomerId == order.CustomerId, cancellationToken);
+
+                if (customer == null)
+                    return;
+
+                var firebaseTokens = new List<string>();
+                if (!string.IsNullOrWhiteSpace(customer.AndriodDevice))
+                    firebaseTokens.Add(customer.AndriodDevice);
+                if (!string.IsNullOrWhiteSpace(customer.IosDevice))
+                    firebaseTokens.Add(customer.IosDevice);
+
+                if (firebaseTokens.Count == 0)
+                    return;
+
+                var notificationBody = new NotificationBodyForMultipleDevices
+                {
+                    Title = "Order Cancelled",
+                    Body = $"Your order #{order.OrderCode} has been cancelled.",
+                    FireBaseTokens = firebaseTokens,
+                    PayLoad = new Dictionary<string, string>
+                    {
+                        { "orderId", order.OrderId.ToString() },
+                        { "orderCode", order.OrderCode },
+                        { "type", ((int)NotificationType.OrderCancelled).ToString() },
+                        { "action", "open_order_detail" }
+                    }
+                };
+
+                await _notificationService.SendNotificationAsyncToMultipleDevices(notificationBody);
+            }
+            catch (Exception)
+            {
+                // Log error but don't fail the cancellation
+                // Notification failures should not affect order cancellation
+            }
         }
     }
 }

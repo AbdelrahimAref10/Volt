@@ -27,7 +27,6 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
         public async Task<Result<bool>> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _context.Categories
-                .AsTracking()
                 .Include(c => c.SubCategories)
                 .FirstOrDefaultAsync(c => c.CategoryId == request.CategoryId, cancellationToken);
 
@@ -36,14 +35,24 @@ namespace Application.Features.Category.Command.DeleteCategoryCommand
                 return Result.Failure<bool>($"Category with ID {request.CategoryId} not found");
             }
 
+            // Only allow permanent deletion of inactive categories
+            if (category.IsActive)
+            {
+                return Result.Failure<bool>("Cannot permanently delete an active category. Please deactivate it first.");
+            }
+
             // Check if category has subcategories
             if (category.SubCategories.Any())
             {
-                return Result.Failure<bool>("Cannot delete category that has subcategories. Please remove or reassign subcategories first.");
+                return Result.Failure<bool>("Cannot permanently delete category that has subcategories. Please remove or reassign subcategories first.");
             }
 
-            category.Deactivate(_userSession.UserName ?? "System");
-            await _context.SaveChangesAsync(cancellationToken);
+            _context.Categories.Remove(category);
+            var saveResult = await _context.SaveChangesAsyncWithResult(cancellationToken);
+            if (!saveResult.IsSuccess)
+            {
+                return Result.Failure<bool>($"Failed to permanently delete category: {saveResult.ErrorMessage}");
+            }
 
             return Result.Success(true);
         }

@@ -28,7 +28,8 @@
         *ngFor="let notification of notifications; let i = index"
         (click)="onNotificationClick(notification)"
         [class.notification-dropdown__item--unread]="!notification.isRead"
-        class="notification-dropdown__item stagger-item group"
+        [routerLink]="notification.actionUrl"
+        class="notification-dropdown__item stagger-item group cursor-pointer"
       >
         <div class="notification-dropdown__item-icon" [ngClass]="getNotificationColor(notification.type)">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,8 +63,8 @@
   </div>
 
   <div *ngIf="notifications.length > 0" class="notification-dropdown__footer">
-    <a routerLink="/main/notifications" class="notification-dropdown__view-all">
-      View all notifications
+    <a routerLink="/main/orders" class="notification-dropdown__view-all">
+      View all orders
     </a>
   </div>
 </div>

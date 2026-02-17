@@ -7,6 +7,7 @@ using Application.Features.Order.Query.Reports.RevenueReportQuery;
 using Application.Features.Order.Query.Reports.TreasuryBalanceReportQuery;
 using Application.Features.Vehicle.Query.GetVehicleStatisticsQuery;
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Infrastructure;
 using MediatR;
@@ -29,16 +30,18 @@ namespace Application.Features.AdminDashboard.Query.GetAdminDashboardAnalyticsQu
     {
         private readonly DatabaseContext _context;
         private readonly IMediator _mediator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public GetAdminDashboardAnalyticsQueryHandler(DatabaseContext context, IMediator mediator)
+        public GetAdminDashboardAnalyticsQueryHandler(DatabaseContext context, IMediator mediator, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _mediator = mediator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<AdminDashboardAnalyticsDto>> Handle(GetAdminDashboardAnalyticsQuery request, CancellationToken cancellationToken)
         {
-            var now = DateTime.UtcNow;
+            var now = _dateTimeProvider.Now;
             var today = now.Date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(now.Year, now.Month, 1);

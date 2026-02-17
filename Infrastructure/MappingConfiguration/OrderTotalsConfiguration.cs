@@ -34,6 +34,10 @@ namespace Infrastructure.MappingConfiguration
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
+            builder.Property(ot => ot.TieredDiscount)
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
             builder.Property(ot => ot.TotalAfterAllFees)
                 .HasColumnType("decimal(18,2)")
                 .IsRequired();

@@ -68,6 +68,8 @@ export class RolesComponent implements OnInit {
   }
 
   onDelete(roleId: number, roleName: string): void {
+    // Note: This component already has good error handling showing backend errors
+    // Keeping existing confirm but ensuring backend errors are properly displayed
     if (!confirm(`Are you sure you want to delete the role "${roleName}"? This action cannot be undone.`)) {
       return;
     }

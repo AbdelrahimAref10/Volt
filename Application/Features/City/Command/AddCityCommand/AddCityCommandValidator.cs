@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,8 +37,8 @@ namespace Application.Features.City.Command.AddCityCommand
                 return Result.Failure("Urgent delivery fees cannot be negative");
             if (request.ServiceFees.HasValue && request.ServiceFees.Value < 0)
                 return Result.Failure("Service fees cannot be negative");
-            if (request.CancellationFees.HasValue && request.CancellationFees.Value < 0)
-                return Result.Failure("Cancellation fees cannot be negative");
+            if (request.CancellationFees.HasValue && (request.CancellationFees.Value < 0 || request.CancellationFees.Value > 100))
+                return Result.Failure("Cancellation fees must be between 0 and 100 (percentage)");
 
             // Check if city with same name already exists
             var existingCity = await _context.Cities
@@ -46,6 +47,22 @@ namespace Application.Features.City.Command.AddCityCommand
             if (existingCity != null)
             {
                 return Result.Failure("A city with this name already exists");
+            }
+
+            // Validate tiered discounts if provided
+            if (request.TieredDiscounts != null && request.TieredDiscounts.Any())
+            {
+                foreach (var tieredDiscount in request.TieredDiscounts)
+                {
+                    if (tieredDiscount.From < 0)
+                        return Result.Failure("Tiered discount 'From' value cannot be negative");
+
+                    if (tieredDiscount.To <= tieredDiscount.From)
+                        return Result.Failure("Tiered discount 'To' value must be greater than 'From' value");
+
+                    if (tieredDiscount.Discount < 0 || tieredDiscount.Discount > 100)
+                        return Result.Failure("Tiered discount must be between 0 and 100");
+                }
             }
 
             return Result.Success();

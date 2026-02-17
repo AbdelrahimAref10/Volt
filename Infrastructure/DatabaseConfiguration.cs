@@ -80,6 +80,12 @@ namespace Infrastructure
             // Register PayPal Service
             services.AddScoped<Infrastructure.Services.IPayPalService, Infrastructure.Services.PayPalService>();
 
+            // Register Notification Service
+            services.AddScoped<Infrastructure.Services.INotificationService, Infrastructure.Services.NotificationService>();
+
+            // Register DateTime Provider as Singleton (stateless service, can be used in middleware)
+            services.AddSingleton<Domain.Common.IDateTimeProvider, Infrastructure.Services.DateTimeProvider>();
+
             return services;
         }
     }

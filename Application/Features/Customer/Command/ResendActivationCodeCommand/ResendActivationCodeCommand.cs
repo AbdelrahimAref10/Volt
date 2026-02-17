@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
@@ -21,15 +22,18 @@ namespace Application.Features.Customer.Command.ResendActivationCodeCommand
         private readonly DatabaseContext _context;
         private readonly IInvitationCodeService _invitationCodeService;
         private readonly ResendActivationCodeCommandValidator _validator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public ResendActivationCodeCommandHandler(
             DatabaseContext context,
             IInvitationCodeService invitationCodeService,
-            ResendActivationCodeCommandValidator validator)
+            ResendActivationCodeCommandValidator validator,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _invitationCodeService = invitationCodeService;
             _validator = validator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<ResendActivationCodeResponse>> Handle(ResendActivationCodeCommand request, CancellationToken cancellationToken)
@@ -56,7 +60,7 @@ namespace Application.Features.Customer.Command.ResendActivationCodeCommand
                 return Result.Failure<ResendActivationCodeResponse>("No activation code found. Please register again.");
             }
 
-            if (customer.InvitationCodeExpiry.HasValue && customer.InvitationCodeExpiry.Value < System.DateTime.UtcNow)
+            if (customer.InvitationCodeExpiry.HasValue && customer.InvitationCodeExpiry.Value < _dateTimeProvider.Now)
             {
                 return Result.Failure<ResendActivationCodeResponse>("Activation code has expired. Please register again.");
             }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(private injector: Injector) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
@@ -32,11 +32,13 @@ export class ErrorInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.authService.getToken();
-    const refreshToken = this.authService.getRefreshToken();
+    // Use Injector to lazily get AuthService to avoid circular dependency
+    const authService = this.injector.get(AuthService);
+    const token = authService.getToken();
+    const refreshToken = authService.getRefreshToken();
 
     if (token && refreshToken) {
-      return this.authService.refreshToken().pipe(
+      return authService.refreshToken().pipe(
         switchMap((newToken: string) => {
           // Clone the request with the new token
           const clonedRequest = request.clone({
@@ -52,7 +54,7 @@ export class ErrorInterceptor implements HttpInterceptor {
         })
       );
     } else {
-      this.authService.logout();
+      authService.logout();
       return throwError(() => new Error('No refresh token available'));
     }
   }

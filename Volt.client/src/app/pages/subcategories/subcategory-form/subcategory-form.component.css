@@ -1,0 +1,216 @@
+/* SubCategory Form Component - Modern Design */
+
+.subcategory-form {
+  @apply min-h-screen;
+}
+
+/* Header */
+.subcategory-form__header {
+  @apply bg-white border-b border-neutral-200 sticky top-0 z-10;
+}
+
+.subcategory-form__header-content {
+  @apply px-6 py-6 flex items-center gap-4;
+}
+
+.subcategory-form__back-btn {
+  @apply flex items-center justify-center w-10 h-10 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategory-form__back-btn svg {
+  @apply w-5 h-5;
+}
+
+.subcategory-form__title {
+  @apply text-3xl font-bold text-neutral-900 mb-1;
+}
+
+.subcategory-form__subtitle {
+  @apply text-neutral-600 text-sm;
+}
+
+/* Error Message */
+.subcategory-form__error {
+  @apply px-6 py-4 mt-6 flex items-center gap-3 bg-error-50 border border-error-200 rounded-xl text-error-700;
+}
+
+.subcategory-form__error-icon {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+/* Loading State */
+.subcategory-form__loading {
+  @apply px-6 py-12 flex flex-col items-center justify-center;
+}
+
+.subcategory-form__spinner {
+  @apply w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4;
+}
+
+/* Form */
+.subcategory-form__form {
+  @apply py-8 px-6;
+}
+
+.subcategory-form__content {
+  @apply space-y-6 mb-8;
+}
+
+/* Card */
+.subcategory-form__card {
+  @apply bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden;
+}
+
+.subcategory-form__card-header {
+  @apply px-6 py-5 border-b border-neutral-200 bg-neutral-50;
+}
+
+.subcategory-form__card-title {
+  @apply text-xl font-semibold text-neutral-900 mb-1;
+}
+
+.subcategory-form__card-subtitle {
+  @apply text-sm text-neutral-600;
+}
+
+.subcategory-form__card-body {
+  @apply px-6 py-6;
+}
+
+/* Form Groups */
+.subcategory-form__form-group {
+  @apply mb-6 last:mb-0;
+}
+
+.subcategory-form__form-label {
+  @apply flex items-center gap-1 text-sm font-semibold text-neutral-800 mb-3;
+}
+
+.subcategory-form__form-required {
+  @apply text-error-500;
+}
+
+.subcategory-form__input-wrapper {
+  @apply relative;
+}
+
+.subcategory-form__form-input,
+.subcategory-form__form-textarea,
+.subcategory-form__form-select {
+  @apply w-full px-4 py-3 border border-input-200 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:shadow-lg;
+}
+
+.subcategory-form__form-input,
+.subcategory-form__form-select {
+  @apply h-12;
+}
+
+.subcategory-form__form-textarea {
+  @apply min-h-[100px] resize-y;
+}
+
+.subcategory-form__form-input--error {
+  @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+}
+
+.subcategory-form__form-error {
+  @apply mt-2 flex items-center gap-2 text-sm text-error-600;
+}
+
+.subcategory-form__error-icon-small {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+/* Pricing Grid */
+.subcategory-form__pricing-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+/* Checkbox */
+.subcategory-form__checkbox-wrapper {
+  @apply mt-2;
+}
+
+.subcategory-form__checkbox-label {
+  @apply flex items-center gap-3 cursor-pointer;
+}
+
+.subcategory-form__checkbox {
+  @apply w-5 h-5 text-primary-600 border-neutral-300 rounded focus:ring-2 focus:ring-primary-500;
+}
+
+.subcategory-form__checkbox-text {
+  @apply text-sm text-neutral-700;
+}
+
+/* Image Section */
+.subcategory-form__image-section {
+  @apply space-y-4;
+}
+
+.subcategory-form__image-preview {
+  @apply relative inline-block;
+}
+
+.subcategory-form__preview-img {
+  @apply w-full max-w-md h-64 object-cover rounded-xl border border-neutral-200;
+}
+
+.subcategory-form__remove-image-btn {
+  @apply absolute top-2 right-2 flex items-center justify-center w-8 h-8 bg-error-500 text-white rounded-lg hover:bg-error-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2;
+}
+
+.subcategory-form__remove-image-btn svg {
+  @apply w-4 h-4;
+}
+
+.subcategory-form__image-upload-area {
+  @apply border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center transition-colors duration-200 hover:border-primary-400 hover:bg-primary-50;
+}
+
+.subcategory-form__image-upload-area--has-image {
+  @apply border-neutral-200 bg-neutral-50;
+}
+
+.subcategory-form__file-input {
+  @apply hidden;
+}
+
+.subcategory-form__file-label {
+  @apply flex flex-col items-center justify-center cursor-pointer;
+}
+
+.subcategory-form__file-icon {
+  @apply w-12 h-12 text-neutral-400 mb-3;
+}
+
+.subcategory-form__file-text {
+  @apply text-sm font-medium text-neutral-700 mb-1;
+}
+
+.subcategory-form__file-hint {
+  @apply text-xs text-neutral-500;
+}
+
+/* Actions */
+.subcategory-form__actions {
+  @apply flex items-center justify-end gap-4 pt-6 border-t border-neutral-200 bg-white sticky bottom-0 -mx-6 px-6 py-4;
+}
+
+.subcategory-form__btn {
+  @apply px-6 py-3 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2;
+}
+
+.subcategory-form__btn--cancel {
+  @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200;
+}
+
+.subcategory-form__btn--submit {
+  @apply bg-primary-500 text-white hover:bg-primary-600;
+}
+
+.subcategory-form__btn-spinner {
+  @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin;
+}
+
+

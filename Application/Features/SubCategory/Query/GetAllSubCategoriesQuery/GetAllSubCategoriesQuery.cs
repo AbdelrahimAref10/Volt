@@ -35,7 +35,6 @@ namespace Application.Features.SubCategory.Query.GetAllSubCategoriesQuery
             var query = _context.SubCategories
                 .Include(sc => sc.Category)
                     .ThenInclude(c => c.City)
-                .Where(sc => sc.IsActive)
                 .AsQueryable();
 
             // Apply filters

@@ -18,13 +18,16 @@ namespace Application.Features.User.Command.DeactivateUserCommand
     {
         private readonly UserManager<Domain.Models.ApplicationUser> _userManager;
         private readonly IUserSession _userSession;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public DeactivateUserCommandHandler(
             UserManager<Domain.Models.ApplicationUser> userManager,
-            IUserSession userSession)
+            IUserSession userSession,
+            IDateTimeProvider dateTimeProvider)
         {
             _userManager = userManager;
             _userSession = userSession;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
@@ -42,7 +45,7 @@ namespace Application.Features.User.Command.DeactivateUserCommand
 
             user.Active = false;
             user.LastModifiedBy = _userSession.UserName;
-            user.LastModifiedDate = DateTime.UtcNow;
+            user.LastModifiedDate = _dateTimeProvider.Now;
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -55,6 +58,10 @@ namespace Application.Features.User.Command.DeactivateUserCommand
         }
     }
 }
+
+
+
+
 
 
 

@@ -243,6 +243,32 @@
                   </svg>
                   View
                 </button>
+                <button
+                  *ngIf="!user.active"
+                  type="button"
+                  (click)="onActivate(user.id)"
+                  class="users__action-btn users__action-btn--activate"
+                  title="Activate User"
+                  [disabled]="isLoading"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Activate
+                </button>
+                <button
+                  *ngIf="user.active"
+                  type="button"
+                  (click)="onDeactivate(user.id)"
+                  class="users__action-btn users__action-btn--deactivate"
+                  title="Deactivate User"
+                  [disabled]="isLoading"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Deactivate
+                </button>
               </div>
             </td>
           </tr>
@@ -311,13 +337,39 @@
     <div class="users__modal-header">
       <div>
         <h2 class="users__modal-title">Create New User</h2>
-        <p class="users__modal-subtitle">Fill in the user information below</p>
+        <p class="users__modal-subtitle">Step {{ currentStep }} of {{ totalSteps }}: {{ steps[currentStep - 1].title }}</p>
       </div>
       <button type="button" (click)="onCloseModal()" class="users__modal-close">
         <svg class="users__modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="users__progress-container">
+      <div class="users__progress-bar">
+        <div class="users__progress-fill" [style.width.%]="getFormProgress()"></div>
+      </div>
+      <div class="users__progress-text">{{ getFormProgress() }}% Complete</div>
+    </div>
+
+    <!-- Step Indicators -->
+    <div class="users__step-indicators">
+      <div *ngFor="let step of steps"
+           class="users__step-indicator"
+           [class.users__step-indicator--active]="currentStep === step.number"
+           [class.users__step-indicator--completed]="currentStep > step.number || (currentStep === step.number && isStepValid(step.number))"
+           (click)="goToStep(step.number)">
+        <div class="users__step-number">
+          <span *ngIf="currentStep > step.number || (currentStep === step.number && isStepValid(step.number))">✓</span>
+          <span *ngIf="currentStep <= step.number && !(currentStep === step.number && isStepValid(step.number))">{{ step.number }}</span>
+        </div>
+        <div class="users__step-info">
+          <div class="users__step-title">{{ step.title }}</div>
+          <div class="users__step-progress">{{ getStepProgress(step.number) }}%</div>
+        </div>
+      </div>
     </div>
 
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="users__modal-form">
@@ -329,9 +381,11 @@
         <span>{{ errorMessage }}</span>
       </div>
 
-      <div class="users__form-grid">
-        <!-- Username -->
-        <div class="users__form-group">
+      <!-- Step 1: Basic Information -->
+      <div *ngIf="isStep1()" class="users__form-step">
+        <div class="users__form-grid">
+          <!-- Username -->
+          <div class="users__form-group">
           <label class="users__form-label" for="userName">
             <span>Username</span>
             <span class="users__form-required">*</span>
@@ -346,8 +400,8 @@
               [class.users__form-input--success]="userForm.get('userName')?.valid && userForm.get('userName')?.touched"
               placeholder="Enter username (min 3 characters)"
             />
-            <svg *ngIf="userForm.get('userName')?.valid && userForm.get('userName')?.touched" 
-                 class="users__input-icon users__input-icon--success" 
+            <svg *ngIf="userForm.get('userName')?.valid && userForm.get('userName')?.touched"
+                 class="users__input-icon users__input-icon--success"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -376,8 +430,8 @@
               [class.users__form-input--success]="userForm.get('email')?.valid && userForm.get('email')?.touched && userForm.get('email')?.value"
               placeholder="user@example.com"
             />
-            <svg *ngIf="userForm.get('email')?.valid && userForm.get('email')?.touched && userForm.get('email')?.value" 
-                 class="users__input-icon users__input-icon--success" 
+            <svg *ngIf="userForm.get('email')?.valid && userForm.get('email')?.touched && userForm.get('email')?.value"
+                 class="users__input-icon users__input-icon--success"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -406,8 +460,8 @@
               [class.users__form-input--success]="userForm.get('phoneNumber')?.valid && userForm.get('phoneNumber')?.touched"
               placeholder="+1234567890"
             />
-            <svg *ngIf="userForm.get('phoneNumber')?.valid && userForm.get('phoneNumber')?.touched" 
-                 class="users__input-icon users__input-icon--success" 
+            <svg *ngIf="userForm.get('phoneNumber')?.valid && userForm.get('phoneNumber')?.touched"
+                 class="users__input-icon users__input-icon--success"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -419,7 +473,11 @@
             <span>{{ getFieldError('phoneNumber') }}</span>
           </div>
         </div>
+        </div>
+      </div>
 
+      <!-- Step 2: Security -->
+      <div *ngIf="isStep2()" class="users__form-step">
         <!-- Password -->
         <div class="users__form-group users__form-group--full">
           <label class="users__form-label" for="password">
@@ -451,18 +509,18 @@
               </svg>
             </button>
           </div>
-          
+
           <!-- Password Strength Indicator -->
           <div *ngIf="userForm.get('password')?.value" class="users__password-strength">
             <div class="users__password-strength-bar">
-              <div class="users__password-strength-fill" 
+              <div class="users__password-strength-fill"
                    [class.users__password-strength-fill--weak]="getPasswordStrength().strength === 'weak'"
                    [class.users__password-strength-fill--medium]="getPasswordStrength().strength === 'medium'"
                    [class.users__password-strength-fill--strong]="getPasswordStrength().strength === 'strong'"
                    [style.width.%]="getPasswordStrength().percentage">
               </div>
             </div>
-            <div class="users__password-strength-text" 
+            <div class="users__password-strength-text"
                  [class.users__password-strength-text--weak]="getPasswordStrength().strength === 'weak'"
                  [class.users__password-strength-text--medium]="getPasswordStrength().strength === 'medium'"
                  [class.users__password-strength-text--strong]="getPasswordStrength().strength === 'strong'">
@@ -472,7 +530,7 @@
 
           <!-- Password Requirements -->
           <div *ngIf="userForm.get('password')?.value" class="users__password-requirements">
-            <div class="users__password-requirement" 
+            <div class="users__password-requirement"
                  [class.users__password-requirement--met]="hasPasswordMinLength()"
                  [class.users__password-requirement--unmet]="!hasPasswordMinLength()">
               <svg class="users__requirement-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +539,7 @@
               </svg>
               <span>At least 8 characters</span>
             </div>
-            <div class="users__password-requirement" 
+            <div class="users__password-requirement"
                  [class.users__password-requirement--met]="hasPasswordLowercase()"
                  [class.users__password-requirement--unmet]="!hasPasswordLowercase()">
               <svg class="users__requirement-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -490,7 +548,7 @@
               </svg>
               <span>One lowercase letter</span>
             </div>
-            <div class="users__password-requirement" 
+            <div class="users__password-requirement"
                  [class.users__password-requirement--met]="hasPasswordUppercase()"
                  [class.users__password-requirement--unmet]="!hasPasswordUppercase()">
               <svg class="users__requirement-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,7 +566,10 @@
             <span>{{ getFieldError('password') }}</span>
           </div>
         </div>
+      </div>
 
+      <!-- Step 3: Role Assignment -->
+      <div *ngIf="isStep3()" class="users__form-step">
         <!-- Role -->
         <div class="users__form-group users__form-group--full">
           <label class="users__form-label" for="role">
@@ -529,8 +590,8 @@
                 {{ role }}
               </option>
             </select>
-            <svg *ngIf="userForm.get('role')?.valid && userForm.get('role')?.touched" 
-                 class="users__input-icon users__input-icon--success users__input-icon--select" 
+            <svg *ngIf="userForm.get('role')?.valid && userForm.get('role')?.touched"
+                 class="users__input-icon users__input-icon--success users__input-icon--select"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -540,6 +601,22 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{{ getFieldError('role') }}</span>
+          </div>
+        </div>
+
+        <!-- Activation Status Display -->
+        <div class="users__form-group users__form-group--full">
+          <label class="users__form-label">
+            <span>User Status</span>
+          </label>
+          <div class="users__activation-display">
+            <div class="users__activation-status" [class.users__activation-status--active]="true">
+              <div class="users__activation-dot"></div>
+              <span class="users__activation-text">User will be created as <strong>Active</strong></span>
+            </div>
+            <p class="users__activation-hint">
+              New users are created in an active state by default. You can change this status later from the users list.
+            </p>
           </div>
         </div>
       </div>
@@ -554,14 +631,47 @@
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          [disabled]="userForm.invalid || isSubmitting"
-          class="users__modal-btn users__modal-btn--submit"
-        >
-          <span *ngIf="!isSubmitting">Create User</span>
-          <span *ngIf="isSubmitting">Creating...</span>
-        </button>
+        <div class="users__modal-actions-steps">
+          <button
+            *ngIf="currentStep > 1"
+            type="button"
+            (click)="onPreviousStep()"
+            class="users__modal-btn users__modal-btn--secondary"
+            [disabled]="isSubmitting"
+          >
+            <svg class="users__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </button>
+          <button
+            *ngIf="currentStep < totalSteps"
+            type="button"
+            (click)="onNextStep()"
+            class="users__modal-btn users__modal-btn--primary"
+            [disabled]="!canGoToNextStep() || isSubmitting"
+          >
+            Next
+            <svg class="users__btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button
+            *ngIf="currentStep === totalSteps"
+            type="submit"
+            [disabled]="userForm.invalid || isSubmitting"
+            class="users__modal-btn users__modal-btn--submit"
+          >
+            <span *ngIf="!isSubmitting">Create User</span>
+            <span *ngIf="isSubmitting">
+              <svg class="users__spinner-small" fill="none" viewBox="0 0 24 24">
+                <circle class="users__spinner-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
+                <path class="users__spinner-path" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" d="M12 2a10 10 0 0 1 10 10"/>
+              </svg>
+              Creating...
+            </span>
+          </button>
+        </div>
       </div>
     </form>
   </div>

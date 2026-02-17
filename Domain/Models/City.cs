@@ -1,4 +1,5 @@
 using Domain.Common;
+using System.Linq;
 
 namespace Domain.Models
 {
@@ -9,13 +10,16 @@ namespace Domain.Models
         public string Name { get; private set; } = string.Empty;
         public string? Description { get; private set; }
         public bool IsActive { get; private set; } = true;
-        public decimal? DeliveryFees { get; private set; }
-        public decimal? UrgentDelivery { get; private set; } // Percentage value (e.g., 5.0 means 5%)
-        public decimal? ServiceFees { get; private set; } // Percentage value (e.g., 5.0 means 5%)
-        public decimal? CancellationFees { get; private set; }
+        public decimal? DeliveryFees { get; private set; } // Amount value (per vehicle)
+        public decimal? UrgentDelivery { get; private set; } // Amount value
+        public decimal? ServiceFees { get; private set; } // Amount value
+        public decimal? CancellationFees { get; private set; } // Percentage value (e.g., 5.0 means 5%)
 
         // Navigation property - one City has many Customers
         public ICollection<Customer> Customers { get; private set; } = new List<Customer>();
+
+        // Navigation property - one City has many TieredDiscounts
+        public ICollection<TieredDiscount> TieredDiscounts { get; private set; } = new List<TieredDiscount>();
 
         // Audit properties
         public string? CreatedBy { get; set; }
@@ -45,8 +49,8 @@ namespace Domain.Models
                 throw new ArgumentException("Urgent delivery fees cannot be negative", nameof(urgentDelivery));
             if (serviceFees.HasValue && serviceFees.Value < 0)
                 throw new ArgumentException("Service fees cannot be negative", nameof(serviceFees));
-            if (cancellationFees.HasValue && cancellationFees.Value < 0)
-                throw new ArgumentException("Cancellation fees cannot be negative", nameof(cancellationFees));
+            if (cancellationFees.HasValue && (cancellationFees.Value < 0 || cancellationFees.Value > 100))
+                throw new ArgumentException("Cancellation fees must be between 0 and 100 (percentage)", nameof(cancellationFees));
 
             return new City
             {
@@ -105,8 +109,8 @@ namespace Domain.Models
             if (serviceFees.HasValue && serviceFees.Value < 0)
                 throw new ArgumentException("Service fees cannot be negative", nameof(serviceFees));
 
-            if (cancellationFees.HasValue && cancellationFees.Value < 0)
-                throw new ArgumentException("Cancellation fees cannot be negative", nameof(cancellationFees));
+            if (cancellationFees.HasValue && (cancellationFees.Value < 0 || cancellationFees.Value > 100))
+                throw new ArgumentException("Cancellation fees must be between 0 and 100 (percentage)", nameof(cancellationFees));
 
             DeliveryFees = deliveryFees ?? 0;
             UrgentDelivery = urgentDelivery ?? 0;
@@ -114,6 +118,28 @@ namespace Domain.Models
             CancellationFees = cancellationFees ?? 0;
             LastModifiedBy = modifiedBy;
             LastModifiedDate = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Calculates tiered discount based on order subtotal (vehicle prices only, no fees)
+        /// Returns the discount percentage that applies to the given subtotal
+        /// </summary>
+        public decimal CalculateTieredDiscount(decimal orderSubTotal)
+        {
+            if (orderSubTotal < 0)
+                throw new ArgumentException("Order subtotal cannot be negative", nameof(orderSubTotal));
+
+            if (TieredDiscounts == null || !TieredDiscounts.Any())
+                return 0;
+
+            // Find the tiered discount that matches the order subtotal
+            // Order by From descending to get the highest applicable tier
+            var applicableDiscount = TieredDiscounts
+                .Where(td => orderSubTotal >= td.From && orderSubTotal <= td.To)
+                .OrderByDescending(td => td.From)
+                .FirstOrDefault();
+
+            return applicableDiscount?.Discount ?? 0;
         }
     }
 }

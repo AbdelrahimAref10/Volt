@@ -8,6 +8,7 @@ using Infrastructure;
 using Infrastructure.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -39,18 +40,30 @@ namespace Application.Features.Order.Command.CreateOrderCommand
         private readonly DatabaseContext _context;
         private readonly IUserSession _userSession;
         private readonly IPayPalService _payPalService;
+        private readonly INotificationService _notificationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAdminNotificationHubService _adminNotificationHubService;
 
-        public CreateOrderCommandHandler(DatabaseContext context, IUserSession userSession, IPayPalService payPalService)
+        public CreateOrderCommandHandler(
+            DatabaseContext context,
+            IUserSession userSession,
+            IPayPalService payPalService,
+            INotificationService notificationService,
+            IDateTimeProvider dateTimeProvider,
+            IAdminNotificationHubService adminNotificationHubService)
         {
             _context = context;
             _userSession = userSession;
             _payPalService = payPalService;
+            _notificationService = notificationService;
+            _dateTimeProvider = dateTimeProvider;
+            _adminNotificationHubService = adminNotificationHubService;
         }
 
         public async Task<Result<OrderDto>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             // Validate command
-            var validator = new CreateOrderCommandValidator(_context);
+            var validator = new CreateOrderCommandValidator(_context, _dateTimeProvider);
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
             if (validationResult.IsFailure)
             {
@@ -88,8 +101,9 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 return Result.Failure<OrderDto>("SubCategory not found or inactive");
             }
 
-            // Get city
+            // Get city with tiered discounts
             var city = await _context.Cities
+                .Include(c => c.TieredDiscounts)
                 .FirstOrDefaultAsync(c => c.CityId == request.CityId, cancellationToken);
 
             if (city == null)
@@ -103,7 +117,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 return Result.Failure<OrderDto>("Reservation date from must be before reservation date to");
             }
 
-            if (request.ReservationDateFrom < DateTime.UtcNow.Date)
+            if (request.ReservationDateFrom < _dateTimeProvider.Now.Date)
             {
                 return Result.Failure<OrderDto>("Reservation date from must be a future date");
             }
@@ -160,17 +174,22 @@ namespace Application.Features.Order.Command.CreateOrderCommand
 
             // Calculate totals
             var orderSubTotal = OrderCalculationService.CalculateOrderSubTotal(subCategory.Price, request.VehiclesCount);
-            
-            // Calculate individual fees
+
+            // Calculate tiered discount percentage using domain method (based on subtotal only, no fees)
+            var tieredDiscountPercentage = city.CalculateTieredDiscount(orderSubTotal);
+
+            // Calculate individual fees (all as amounts)
             var deliveryFeesAmount = (city.DeliveryFees ?? 0) * request.VehiclesCount;
-            var serviceFeesAmount = (city.ServiceFees ?? 0) * orderSubTotal / 100;
-            var urgentFeesAmount = (request.IsUrgent && city.UrgentDelivery.HasValue) ? (city.UrgentDelivery.Value * orderSubTotal / 100) : 0;
-            
+            var serviceFeesAmount = city.ServiceFees ?? 0;
+            var urgentFeesAmount = (request.IsUrgent && city.UrgentDelivery.HasValue) ? city.UrgentDelivery.Value : 0;
+            var tieredDiscountAmount = OrderCalculationService.CalculateTieredDiscountAmount(orderSubTotal, tieredDiscountPercentage);
+
             var orderTotal = OrderCalculationService.CalculateOrderTotal(
                 orderSubTotal,
                 city.DeliveryFees,
                 city.ServiceFees,
                 city.UrgentDelivery,
+                tieredDiscountPercentage,
                 request.VehiclesCount,
                 request.IsUrgent);
 
@@ -222,7 +241,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 );
 
                 await _context.Orders.AddAsync(order);
-                
+
                 await _context.SaveChangesAsync(cancellationToken);
 
                 var orderTotals = Domain.Models.OrderTotals.Create(
@@ -231,6 +250,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                     serviceFeesAmount,
                     deliveryFeesAmount,
                     urgentFeesAmount,
+                    tieredDiscountAmount,
                     finalTotal
                 );
 
@@ -250,7 +270,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 if (request.PaymentMethodId == (int)PaymentMethod.PayPal)
                 {
                     var createOrderResult = await _payPalService.CreatePayPalOrderAsync(order.OrderCode, finalTotal, "EUR");
-                    
+
                     if (createOrderResult.IsSuccess)
                     {
                         payPalApproveLink = createOrderResult.ApproveLink;
@@ -265,6 +285,17 @@ namespace Application.Features.Order.Command.CreateOrderCommand
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
+
+                // Send push notification to customer
+                await SendOrderCreatedNotification(customer, order, cancellationToken);
+
+                // Send admin notification via SignalR
+                await _adminNotificationHubService.SendNotificationAsync(
+                    title: "New Order Created",
+                    message: $"New order #{order.OrderCode} has been created by customer {customer.FullName}",
+                    notificationType: Domain.Enums.NotificationType.OrderCreated,
+                    orderId: order.OrderId
+                );
 
                 var orderDto = new OrderDto
                 {
@@ -303,7 +334,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
 
         private string GenerateOrderCode()
         {
-            var datePart = DateTime.UtcNow.ToString("yyyyMMdd");
+            var datePart = _dateTimeProvider.Now.ToString("yyyyMMdd");
             var randomPart = GenerateRandomAlphanumeric(6);
             return $"ORD-{datePart}-{randomPart}";
         }
@@ -314,6 +345,49 @@ namespace Application.Features.Order.Command.CreateOrderCommand
             var random = new Random();
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private async Task SendOrderCreatedNotification(Domain.Models.Customer customer, Domain.Models.Order order, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Reload customer to get latest device tokens
+                var customerWithTokens = await _context.Customers
+                    .FirstOrDefaultAsync(c => c.CustomerId == customer.CustomerId, cancellationToken);
+
+                if (customerWithTokens == null)
+                    return;
+
+                var firebaseTokens = new List<string>();
+                if (!string.IsNullOrWhiteSpace(customerWithTokens.AndriodDevice))
+                    firebaseTokens.Add(customerWithTokens.AndriodDevice);
+                if (!string.IsNullOrWhiteSpace(customerWithTokens.IosDevice))
+                    firebaseTokens.Add(customerWithTokens.IosDevice);
+
+                if (firebaseTokens.Count == 0)
+                    return;
+
+                var notificationBody = new NotificationBodyForMultipleDevices
+                {
+                    Title = "Order Created",
+                    Body = $"Your order #{order.OrderCode} has been created successfully and is pending confirmation.",
+                    FireBaseTokens = firebaseTokens,
+                    PayLoad = new Dictionary<string, string>
+                    {
+                        { "orderId", order.OrderId.ToString() },
+                        { "orderCode", order.OrderCode },
+                        { "type", ((int)NotificationType.OrderCreated).ToString() },
+                        { "action", "open_order_detail" }
+                    }
+                };
+
+                await _notificationService.SendNotificationAsyncToMultipleDevices(notificationBody);
+            }
+            catch (Exception)
+            {
+                // Log error but don't fail the order creation
+                // Notification failures should not affect order creation
+            }
         }
     }
 }

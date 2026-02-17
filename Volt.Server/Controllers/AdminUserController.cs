@@ -5,6 +5,7 @@ using Application.Features.User.Command.DeactivateUserCommand;
 using Application.Features.User.Command.DeleteUserCommand;
 using Application.Features.User.Command.UpdateUserCommand;
 using Application.Features.User.Query.GetAllUsersQuery;
+using Application.Features.User.Query.GetCurrentUserQuery;
 using Application.Features.User.Query.GetUserByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +31,20 @@ namespace Volt.Server.Controllers
         [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAll([FromQuery] GetAllUsersQuery query)
         {
+            var result = await _mediator.Send(query);
+            if (result.IsFailure)
+            {
+                return BadRequest(ProblemDetail.CreateProblemDetail(result.Error));
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpGet("current")]
+        [ProducesResponseType(typeof(Application.Features.User.DTOs.UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetail), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetCurrent()
+        {
+            var query = new GetCurrentUserQuery();
             var result = await _mediator.Send(query);
             if (result.IsFailure)
             {

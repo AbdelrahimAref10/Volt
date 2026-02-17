@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure;
@@ -21,15 +22,18 @@ namespace Application.Features.Customer.Command.ForgetPasswordCommand
         private readonly DatabaseContext _context;
         private readonly IInvitationCodeService _invitationCodeService;
         private readonly ForgetPasswordCommandValidator _validator;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public ForgetPasswordCommandHandler(
             DatabaseContext context,
             IInvitationCodeService invitationCodeService,
-            ForgetPasswordCommandValidator validator)
+            ForgetPasswordCommandValidator validator,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _invitationCodeService = invitationCodeService;
             _validator = validator;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<ForgetPasswordResponse>> Handle(ForgetPasswordCommand request, CancellationToken cancellationToken)
@@ -52,7 +56,7 @@ namespace Application.Features.Customer.Command.ForgetPasswordCommand
             }
 
             var code = _invitationCodeService.GenerateInvitationCode();
-            customer.SetPasswordResetCode(code, expiryMinutes: 15);
+            customer.SetPasswordResetCode(code, _dateTimeProvider, expiryMinutes: 15);
 
             var saveResult = await _context.SaveChangesAsyncWithResult(cancellationToken);
             if (!saveResult.IsSuccess)

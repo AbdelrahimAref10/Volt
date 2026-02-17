@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +19,12 @@ namespace Application.Features.Vehicle.Query.GetVehicleStatisticsQuery
     public class GetVehicleStatisticsQueryHandler : IRequestHandler<GetVehicleStatisticsQuery, Result<VehicleStatisticsDto>>
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public GetVehicleStatisticsQueryHandler(DatabaseContext context)
+        public GetVehicleStatisticsQueryHandler(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<VehicleStatisticsDto>> Handle(GetVehicleStatisticsQuery request, CancellationToken cancellationToken)
@@ -40,7 +43,7 @@ namespace Application.Features.Vehicle.Query.GetVehicleStatisticsQuery
                 query = query.Where(v => v.SubCategoryId == request.SubCategoryId.Value);
             }
 
-            var now = DateTime.UtcNow;
+            var now = _dateTimeProvider.Now;
             var startOfMonth = new DateTime(now.Year, now.Month, 1);
 
             var totalVehicles = await query.CountAsync(cancellationToken);

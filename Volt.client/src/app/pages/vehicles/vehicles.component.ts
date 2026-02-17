@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { VehicleClient, VehicleDto, PagedResultOfVehicleDto, CreateVehicleCommand, UpdateVehicleCommand, VehicleStatisticsDto } from '../../core/services/clientAPI';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { VehicleClient, VehicleDto, PagedResultOfVehicleDto, VehicleStatisticsDto } from '../../core/services/clientAPI';
 import { SubCategoryClient, SubCategoryLookupDto } from '../../core/services/clientAPI';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-vehicles',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, ConfirmDialogComponent],
   templateUrl: './vehicles.component.html',
   styleUrl: './vehicles.component.css'
 })
@@ -29,28 +30,23 @@ export class VehiclesComponent implements OnInit {
   isLoading = false;
   isLoadingStats = false;
   errorMessage = '';
+  successMessage = '';
   
-  showModal = false;
-  isEditMode = false;
-  vehicleForm: FormGroup;
-  selectedVehicleId: number | null = null;
-  imagePreview: string | null = null;
+  // Confirmation dialog
+  showConfirmDialog = false;
+  confirmDialogTitle = '';
+  confirmDialogMessage = '';
+  confirmDialogType: 'danger' | 'warning' | 'info' = 'danger';
+  confirmDialogLoading = false;
+  pendingDeleteId: number | null = null;
+  
 
   constructor(
     private vehicleClient: VehicleClient,
     private subCategoryClient: SubCategoryClient,
-    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router
-  ) {
-    this.vehicleForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      vehicleCode: ['', [Validators.required, Validators.minLength(1)]],
-      subCategoryId: [null, [Validators.required]],
-      status: ['Available', [Validators.required]],
-      imageUrl: [null]
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     // Check for subcategory filter from query params
@@ -175,114 +171,81 @@ export class VehiclesComponent implements OnInit {
   }
 
   onAddNew(): void {
-    this.isEditMode = false;
-    this.selectedVehicleId = null;
-    this.vehicleForm.reset({
-      status: 'Available'
-    });
-    this.imagePreview = null;
-    this.showModal = true;
+    this.router.navigate(['/main/vehicles/new']);
   }
 
   onEdit(vehicle: VehicleDto): void {
-    this.isEditMode = true;
-    this.selectedVehicleId = vehicle.vehicleId;
-    this.vehicleForm.patchValue({
-      name: vehicle.name,
-      vehicleCode: vehicle.vehicleCode,
-      subCategoryId: vehicle.subCategoryId,
-      status: vehicle.status,
-      imageUrl: vehicle.imageUrl
-    });
-    this.imagePreview = vehicle.imageUrl || null;
-    this.showModal = true;
+    this.router.navigate(['/main/vehicles', vehicle.vehicleId, 'edit']);
   }
 
   onDelete(vehicleId: number): void {
-    if (confirm('Are you sure you want to delete this vehicle?')) {
-      this.vehicleClient.delete(vehicleId).subscribe({
-        next: () => {
-          this.loadVehicles();
-          this.loadStatistics();
-        },
-        error: (error) => {
-          alert('Failed to delete vehicle. Please try again.');
-          console.error('Error deleting vehicle:', error);
+    this.pendingDeleteId = vehicleId;
+    this.confirmDialogTitle = 'Delete Vehicle';
+    this.confirmDialogMessage = 'Are you sure you want to delete this vehicle? This action cannot be undone.';
+    this.confirmDialogType = 'danger';
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmDelete(): void {
+    if (this.pendingDeleteId === null) return;
+
+    this.confirmDialogLoading = true;
+    this.vehicleClient.delete(this.pendingDeleteId).subscribe({
+      next: () => {
+        this.showConfirmDialog = false;
+        this.confirmDialogLoading = false;
+        this.pendingDeleteId = null;
+        this.showSuccessMessage('Vehicle deleted successfully');
+        this.loadVehicles();
+        this.loadStatistics();
+      },
+      error: (error: any) => {
+        this.confirmDialogLoading = false;
+        // Extract error message from backend - check errorMessage first (ProblemDetail structure)
+        let errorMessage = 'Failed to delete vehicle. Please try again.';
+        if (error.error) {
+          if (error.error.errorMessage) {
+            errorMessage = error.error.errorMessage;
+          } else if (error.error.detail) {
+            errorMessage = error.error.detail;
+          } else if (error.error.title) {
+            errorMessage = error.error.title;
+          } else if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
         }
-      });
-    }
+        this.showErrorMessage(errorMessage);
+        this.showConfirmDialog = false;
+        this.pendingDeleteId = null;
+        console.error('Error deleting vehicle:', error);
+      }
+    });
   }
 
-  onImageSelect(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-        // Convert to base64 for backend
-        const base64 = e.target.result.split(',')[1];
-        this.vehicleForm.patchValue({ imageUrl: `data:image/jpeg;base64,${base64}` });
-      };
-      reader.readAsDataURL(file);
-    }
+  onCancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.confirmDialogLoading = false;
+    this.pendingDeleteId = null;
   }
 
-  onSubmit(): void {
-    if (this.vehicleForm.invalid) {
-      this.vehicleForm.markAllAsTouched();
-      return;
-    }
-
-    const formValue = this.vehicleForm.value;
-
-    if (this.isEditMode && this.selectedVehicleId) {
-      const command = new UpdateVehicleCommand();
-      command.vehicleId = this.selectedVehicleId;
-      command.name = formValue.name;
-      command.vehicleCode = formValue.vehicleCode;
-      command.subCategoryId = formValue.subCategoryId;
-      command.status = formValue.status;
-      command.imageUrl = formValue.imageUrl;
-
-      this.vehicleClient.update(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadVehicles();
-          this.loadStatistics();
-        },
-        error: (error) => {
-          alert('Failed to update vehicle. Please try again.');
-          console.error('Error updating vehicle:', error);
-        }
-      });
-    } else {
-      const command = new CreateVehicleCommand();
-      command.name = formValue.name;
-      command.vehicleCode = formValue.vehicleCode;
-      command.subCategoryId = formValue.subCategoryId;
-      command.status = formValue.status;
-      command.imageUrl = formValue.imageUrl;
-
-      this.vehicleClient.create(command).subscribe({
-        next: () => {
-          this.showModal = false;
-          this.loadVehicles();
-          this.loadStatistics();
-        },
-        error: (error) => {
-          alert('Failed to create vehicle. Please try again.');
-          console.error('Error creating vehicle:', error);
-        }
-      });
-    }
+  showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 5000);
   }
 
-  onCloseModal(): void {
-    this.showModal = false;
-    this.vehicleForm.reset();
-    this.imagePreview = null;
+  showErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
   }
+
 
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.totalPages) {

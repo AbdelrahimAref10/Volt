@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Domain.Common;
 using Domain.Enums;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace Application.Features.Order.Command.CreateOrderCommand
     public class CreateOrderCommandValidator
     {
         private readonly DatabaseContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public CreateOrderCommandValidator(DatabaseContext context)
+        public CreateOrderCommandValidator(DatabaseContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result> ValidateAsync(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -45,7 +48,7 @@ namespace Application.Features.Order.Command.CreateOrderCommand
             }
 
             // Validate ReservationDateFrom
-            if (request.ReservationDateFrom < DateTime.UtcNow.Date)
+            if (request.ReservationDateFrom < _dateTimeProvider.Now.Date)
             {
                 return Result.Failure("Reservation date from must be a future date");
             }

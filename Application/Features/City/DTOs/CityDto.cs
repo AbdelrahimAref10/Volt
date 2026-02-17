@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Application.Features.City.DTOs
 {
@@ -14,6 +15,7 @@ namespace Application.Features.City.DTOs
         public decimal? UrgentDelivery { get; set; }
         public decimal? ServiceFees { get; set; }
         public decimal? CancellationFees { get; set; }
+        public List<TieredDiscountDto> TieredDiscounts { get; set; } = new List<TieredDiscountDto>();
     }
 }
 

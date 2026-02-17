@@ -8,6 +8,7 @@ namespace Application.Features.Order.DTOs
         public decimal ServiceFees { get; set; }
         public decimal DeliveryFees { get; set; }
         public decimal UrgentFees { get; set; }
+        public decimal TieredDiscount { get; set; }
         public decimal TotalAfterAllFees { get; set; }
     }
 }

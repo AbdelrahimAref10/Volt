@@ -29,6 +29,16 @@ export class UserDetailComponent implements OnInit {
   userForm: FormGroup;
   availableRoles: RoleDto[] = [];
   isLoadingRoles = false;
+  showPassword: boolean = false;
+
+  // Multi-step form
+  currentStep: number = 1;
+  totalSteps: number = 3;
+  steps = [
+    { number: 1, title: 'Basic Information', fields: ['userName', 'email', 'phoneNumber'] },
+    { number: 2, title: 'Security', fields: ['password'] },
+    { number: 3, title: 'Role Assignment', fields: ['role'] }
+  ];
 
   constructor() {
     this.userForm = this.fb.group({
@@ -94,10 +104,128 @@ export class UserDetailComponent implements OnInit {
 
   onEdit(): void {
     this.isEditing = true;
+    this.currentStep = 1;
+  }
+
+  // Multi-step form methods
+  getFormProgress(): number {
+    const totalFields = this.steps.reduce((sum, step) => sum + step.fields.length, 0);
+    let completedFields = 0;
+
+    this.steps.forEach(step => {
+      step.fields.forEach(field => {
+        const control = this.userForm.get(field);
+        if (control && control.valid && (control.value || field === 'password')) {
+          completedFields++;
+        }
+      });
+    });
+
+    return Math.round((completedFields / totalFields) * 100);
+  }
+
+  getStepProgress(stepNumber: number): number {
+    const step = this.steps.find(s => s.number === stepNumber);
+    if (!step) return 0;
+
+    let completedFields = 0;
+    step.fields.forEach(field => {
+      const control = this.userForm.get(field);
+      if (control && control.valid && (control.value || field === 'password')) {
+        completedFields++;
+      }
+    });
+
+    return Math.round((completedFields / step.fields.length) * 100);
+  }
+
+  isStepValid(stepNumber: number): boolean {
+    const step = this.steps.find(s => s.number === stepNumber);
+    if (!step) return false;
+
+    return step.fields.every(field => {
+      const control = this.userForm.get(field);
+      // Password is optional for update
+      if (field === 'password') return true;
+      return control && control.valid;
+    });
+  }
+
+  canGoToNextStep(): boolean {
+    return this.isStepValid(this.currentStep);
+  }
+
+  onNextStep(): void {
+    if (this.canGoToNextStep() && this.currentStep < this.totalSteps) {
+      this.currentStep++;
+    }
+  }
+
+  onPreviousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(stepNumber: number): void {
+    if (stepNumber >= 1 && stepNumber <= this.totalSteps) {
+      if (stepNumber < this.currentStep || this.isStepValid(this.currentStep)) {
+        this.currentStep = stepNumber;
+      }
+    }
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  getPasswordStrength(): { strength: 'weak' | 'medium' | 'strong', percentage: number } {
+    const password = this.userForm.get('password')?.value || '';
+    if (!password) return { strength: 'weak', percentage: 0 };
+
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (password.length >= 12) strength += 10;
+    if (/[a-z]/.test(password)) strength += 20;
+    if (/[A-Z]/.test(password)) strength += 20;
+    if (/[0-9]/.test(password)) strength += 15;
+    if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+
+    if (strength < 50) return { strength: 'weak', percentage: strength };
+    if (strength < 80) return { strength: 'medium', percentage: strength };
+    return { strength: 'strong', percentage: strength };
+  }
+
+  hasPasswordMinLength(): boolean {
+    const password = this.userForm.get('password')?.value || '';
+    return password.length >= 8;
+  }
+
+  hasPasswordLowercase(): boolean {
+    const password = this.userForm.get('password')?.value || '';
+    return /[a-z]/.test(password);
+  }
+
+  hasPasswordUppercase(): boolean {
+    const password = this.userForm.get('password')?.value || '';
+    return /[A-Z]/.test(password);
+  }
+
+  isStep1(): boolean {
+    return this.currentStep === 1;
+  }
+
+  isStep2(): boolean {
+    return this.currentStep === 2;
+  }
+
+  isStep3(): boolean {
+    return this.currentStep === 3;
   }
 
   onCancel(): void {
     this.isEditing = false;
+    this.currentStep = 1;
     if (this.user) {
       this.userForm.patchValue({
         userName: this.user.userName,
@@ -195,7 +323,7 @@ export class UserDetailComponent implements OnInit {
 
   getLockoutStatus(): string {
     if (!this.user) return 'Unknown';
-    return this.user.active ? 'Active' : 'Not Active';
+    return this.user.isActive ? 'Active' : 'Not Active';
   }
 
   onActivate(): void {
